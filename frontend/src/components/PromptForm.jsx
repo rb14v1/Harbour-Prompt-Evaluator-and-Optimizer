@@ -19,11 +19,29 @@ export default function PromptForm({ onSuccess }) {
     setError('')
 
     try {
+      console.log('[PromptForm] Submitting prompt...')
       const result = await evaluationAPI.evaluatePrompt(prompt)
+      console.log('[PromptForm] Success! Result:', result)
       onSuccess(result)
       setPrompt('')
     } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Error evaluating prompt')
+      console.error('[PromptForm] Error caught:', err)
+      let errorMessage = 'Error evaluating prompt'
+
+      if (!err.response) {
+        errorMessage = `Network error: ${err.message || 'Unable to connect to backend'}`
+      } else if (err.response.status === 401) {
+        errorMessage = 'Unauthorized - please authenticate'
+      } else if (err.response.status === 500) {
+        errorMessage = 'Server error - backend may have crashed'
+      } else if (err.response.data?.error) {
+        errorMessage = err.response.data.error
+      } else {
+        errorMessage = err.message || 'Unknown error occurred'
+      }
+
+      console.error('[PromptForm] Final error message:', errorMessage)
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

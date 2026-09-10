@@ -16,9 +16,22 @@ const apiClient = axios.create({
 apiClient.interceptors.response.use(
   response => response,
   error => {
+    console.error('[API Error]', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      message: error.message,
+      code: error.code,
+      url: error.config?.url,
+      method: error.config?.method,
+      data: error.response?.data,
+      isNetworkError: !error.response,
+      isTimeout: error.code === 'ECONNABORTED',
+    })
+
     if (error.response?.status === 401) {
-      console.error('Unauthorized')
+      console.error('Unauthorized - user not authenticated')
     }
+
     return Promise.reject(error)
   }
 )
