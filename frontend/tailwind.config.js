@@ -25,6 +25,7 @@ export default {
         danger: {
           500: '#ef4444',
           600: '#dc2626',
+          700: '#b91c1c',
         },
       },
     },
