@@ -96,3 +96,4 @@ class PromptEvaluationResponseSerializer(serializers.Serializer):
     improvements_made = serializers.IntegerField()
     iterations_required = serializers.IntegerField()
     timestamp = serializers.DateTimeField()
+    execution_history = serializers.JSONField(required=False)

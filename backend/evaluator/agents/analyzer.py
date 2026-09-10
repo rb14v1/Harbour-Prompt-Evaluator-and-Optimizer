@@ -10,7 +10,8 @@ class AnalyzerAgent:
 
     def __init__(self):
         self.name = "Analyzer Agent"
-        self.client = AzureOpenAI(
+        if os.getenv("DISABLE_AZURE", "false").lower() == "true": self.client = None
+        else: self.client = AzureOpenAI(
             api_key=os.getenv("AZURE_OPENAI_API_KEY"),
             api_version=os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
             azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
@@ -42,7 +43,7 @@ class AnalyzerAgent:
                     }
                 ],
                 temperature=0.3,
-                max_tokens=1500
+                max_completion_tokens=1500
             )
 
             response_text = response.choices[0].message.content

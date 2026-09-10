@@ -29,7 +29,8 @@ class ValidatorAgent:
 
     def __init__(self):
         self.name = "Validator Agent"
-        self.client = AzureOpenAI(
+        if os.getenv("DISABLE_AZURE", "false").lower() == "true": self.client = None
+        else: self.client = AzureOpenAI(
             api_key=os.getenv("AZURE_OPENAI_API_KEY"),
             api_version=os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
             azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
@@ -61,7 +62,7 @@ class ValidatorAgent:
                     }
                 ],
                 temperature=0.3,
-                max_tokens=3000
+                max_completion_tokens=3000
             )
 
             response_text = response.choices[0].message.content
