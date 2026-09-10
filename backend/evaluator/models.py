@@ -5,7 +5,7 @@ import uuid
 
 class Prompt(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prompts')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prompts', null=True, blank=True)
     original_prompt = models.TextField()
     processed_prompt = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
