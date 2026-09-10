@@ -1,0 +1,259 @@
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/media
+/staticfiles
+/static
+instance/
+
+# Testing & Coverage
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+htmlcov/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+.atom/
+.sublime-gulp.cache
+*.iml
+
+# PyCharm
+.idea/
+*.iml
+out/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# vim
+.vim/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary Files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+*.swo
+*~
+.#*
+
+# Local History
+.history/
+.local/
+
+# Misc
+*.pid
+*.seed
+*.pid.lock
+*.log.*
+
+# Azure
+.azure/
+.azurerc
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Secrets & Credentials
+secrets/
+.secrets/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Database Backups
+*.sql
+*.sql.bak
+*.sql.gz
+
+# Logs
+logs/
+*.log
+log.txt
+
+# Temporary
+downloads/
+temp/
+tmp/
+
+# Build artifacts
+build/
+dist/
+*.whl
+
+# Generated files
+generated/
+*.generated.py
+
+# IDE Settings
+.editorconfig
+.prettierrc
+
+# CI/CD
+.github/workflows/*.log
+.gitlab-ci.log
+
+# Sensitive data
+credentials.json
+secrets.json
+.aws/
+.gcp/
+
+# Backup files
+*.bak
+*.backup
+~*
+
+# Package manager
+package-lock.json
+yarn.lock
+
+# Pytest
+.pytest_cache/
+.coverage
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# Black formatter
+.black
+
+# isort
+.isort.cfg
+
+# Flake8
+.flake8
+
+# Pylint
+.pylintrc
+
+# Type checking
+.pytype/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Static files in development
+staticfiles/
+media/
+
+# Certificates
+*.crt
+*.key
+*.pem
+
+# Configuration backups
+*.yml.bak
+*.yaml.bak
+*.json.bak
+
+# Local development overrides
+.local/
+local/
+private/
+
+# Debug files
+*.stackdump
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# OS generated files
+desktop.ini
+$RECYCLE.BIN/
+
+# Keep important examples
+!.env.example
+!.gitkeep
+!requirements.txt
