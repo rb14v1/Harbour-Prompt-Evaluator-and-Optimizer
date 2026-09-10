@@ -43,18 +43,52 @@ class PromptEvaluationOrchestrator:
         prompt_id = preprocessed["prompt_id"]
         processed_prompt = preprocessed["processed_prompt"]
 
+        # Build execution history structure
+        execution_history = {
+            "iterations": [
+                {
+                    "iteration": 0,
+                    "stages": {}
+                }
+            ]
+        }
+
+        # Add Preprocessor stage
+        execution_history["iterations"][0]["stages"]["preprocessor"] = {
+            "input": raw_prompt,
+            "output": preprocessed
+        }
+
         # Stage 2: Classify
         classification = self.classifier.classify(processed_prompt)
+        execution_history["iterations"][0]["stages"]["classifier"] = {
+            "input": preprocessed,
+            "output": classification
+        }
 
         # Stage 3: Analyze
         analysis = self.analyzer.analyze(
             processed_prompt,
             task_type=classification.get("task_type")
         )
+        execution_history["iterations"][0]["stages"]["analyzer"] = {
+            "input": classification,
+            "output": analysis
+        }
 
         # Stage 4-5: Validate and Score
         validation = self.validator.validate(processed_prompt, analysis)
         initial_scoring = self.scoring_engine.calculate_scores(validation)
+
+        execution_history["iterations"][0]["stages"]["validator"] = {
+            "input": analysis,
+            "output": validation
+        }
+
+        execution_history["iterations"][0]["stages"]["scoring"] = {
+            "input": validation,
+            "output": initial_scoring
+        }
 
         # Store initial evaluation
         initial_evaluation = {
@@ -77,6 +111,12 @@ class PromptEvaluationOrchestrator:
         ):
             iteration += 1
 
+            # Create new iteration in execution history
+            execution_history["iterations"].append({
+                "iteration": iteration,
+                "stages": {}
+            })
+
             # Improve prompt
             improvement = self.improver.improve(
                 original_prompt=current_prompt,
@@ -85,6 +125,11 @@ class PromptEvaluationOrchestrator:
                 scoring=current_evaluation,
                 iteration=iteration
             )
+
+            execution_history["iterations"][iteration]["stages"]["improver"] = {
+                "input": current_evaluation,
+                "output": improvement
+            }
 
             # Check if intent was preserved
             if not improvement.get("intent_preserved", False):
@@ -99,8 +144,31 @@ class PromptEvaluationOrchestrator:
             validation = self.validator.validate(current_prompt, analysis)
             current_evaluation = self.scoring_engine.calculate_scores(validation)
 
+            # Add updated Validator and Scoring to this iteration
+            execution_history["iterations"][iteration]["stages"]["validator"] = {
+                "input": analysis,
+                "output": validation
+            }
+
+            execution_history["iterations"][iteration]["stages"]["scoring"] = {
+                "input": validation,
+                "output": current_evaluation
+            }
+
+        # If score >= threshold, add improver as "skipped"
+        if iteration == 0 and execution_history["iterations"][0]["stages"]["scoring"]["output"]["overall_score"] >= self.threshold:
+            execution_history["iterations"][0]["stages"]["improver"] = {
+                "status": "skipped",
+                "reason": "prompt already meets threshold"
+            }
+
         # Final evaluation
         final_evaluation = current_evaluation
+
+        # Add Report stage
+        execution_history["iterations"][0]["stages"]["report"] = {
+            "status": "generating"
+        }
 
         # Stage 6b: Generate Report
         report = self.report_agent.generate_report(
@@ -113,6 +181,9 @@ class PromptEvaluationOrchestrator:
             final_evaluation=final_evaluation,
             iterations_required=iteration
         )
+
+        # Add execution_history to report
+        report["execution_history"] = execution_history
 
         return report
 

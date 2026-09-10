@@ -166,6 +166,16 @@ class PromptHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=['get'])
     def stats(self, request):
         """Get statistics for user's prompts."""
+        if not request.user.is_authenticated:
+            return Response({
+                "total_prompts": 0,
+                "total_evaluations": 0,
+                "average_score": 0.0,
+                "prompts_ready": 0,
+                "prompts_needing_review": 0,
+                "message": "Authentication required for user stats"
+            })
+
         user_prompts = self.get_queryset()
         user_results = EvaluationResult.objects.filter(prompt__user=request.user)
 
