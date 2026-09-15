@@ -5,6 +5,9 @@ import DimensionChart from './DimensionChart'
 import AgentPipeline from './AgentPipeline'
 import AgentDetailPanel from './AgentDetailPanel'
 import IterationTabs from './IterationTabs'
+import TabInterface from './TabInterface'
+import TableDisplay from './TableDisplay'
+import JsonDisplay from './JsonDisplay'
 import apiClient from '../services/api'
 
 const THRESHOLD = 7.0
@@ -13,6 +16,7 @@ export default function EvaluationResult({ result, isLoading = false }) {
   const [activeAgent, setActiveAgent] = useState('preprocessor')
   const [activeIteration, setActiveIteration] = useState(0)
   const [isExporting, setIsExporting] = useState(false)
+  const [viewMode, setViewMode] = useState('text')
 
   const handleExportExcel = async () => {
     if (!result?.id) {
@@ -118,8 +122,12 @@ export default function EvaluationResult({ result, isLoading = false }) {
         />
       )}
 
-      {/* Agent Pipeline Inspector Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Main View Tabs - JSON vs Text */}
+      <TabInterface activeTab={viewMode} onTabChange={setViewMode}>
+        {viewMode === 'text' ? (
+          // TEXT VIEW - Agent Pipeline Inspector Layout
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Agent Pipeline */}
         <div className="lg:col-span-1">
           <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
@@ -203,6 +211,14 @@ export default function EvaluationResult({ result, isLoading = false }) {
       <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <DimensionChart scores={result.final_evaluation.dimension_scores} />
       </div>
+            </div>
+        ) : (
+          // JSON VIEW - Complete Result as JSON
+          <div className="space-y-4">
+            <JsonDisplay data={result} />
+          </div>
+        )}
+      </TabInterface>
     </div>
   )
 }

@@ -3,6 +3,8 @@ import { useState } from 'react'
 import JsonDisplay from './JsonDisplay'
 import DimensionValidator from './DimensionValidator'
 import ScoringDisplay from './ScoringDisplay'
+import TabInterface from './TabInterface'
+import TableDisplay from './TableDisplay'
 
 const AGENT_ORDER = ['preprocessor', 'classifier', 'analyzer', 'validator', 'scoring', 'improver', 'report']
 
@@ -26,6 +28,7 @@ const getPreviousAgent = (agentKey) => {
 
 export default function AgentDetailPanel({ stages, activeAgent, threshold = 7.0 }) {
   const [showPrevious, setShowPrevious] = useState(false)
+  const [viewMode, setViewMode] = useState('json')
 
   if (!stages || !activeAgent) {
     return (
@@ -120,13 +123,21 @@ export default function AgentDetailPanel({ stages, activeAgent, threshold = 7.0 
         </div>
       )}
 
-      {/* Current Stage */}
+      {/* Current Stage with Tabs */}
       <div className="px-6 py-6 space-y-4">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
           Current Stage: {getAgentDisplayName(activeAgent)}
         </h3>
 
-        <CurrentStageContent stage={currentStage} agentKey={activeAgent} threshold={threshold} />
+        <TabInterface activeTab={viewMode} onTabChange={setViewMode}>
+          {viewMode === 'json' ? (
+            <CurrentStageContent stage={currentStage} agentKey={activeAgent} threshold={threshold} />
+          ) : (
+            <div className="py-4">
+              <TableDisplay data={currentStage.output || {}} />
+            </div>
+          )}
+        </TabInterface>
       </div>
     </div>
   )
