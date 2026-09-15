@@ -29,6 +29,9 @@ class AnalyzerAgent:
         Returns:
             Analysis with intent, requirements, context, constraints, expected output, etc.
         """
+        if not self.client:
+            return self._default_analysis("Azure client not available - using fallback")
+
         try:
             response = self.client.chat.completions.create(
                 model=self.deployment_name,
