@@ -303,6 +303,80 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
 
             row += 1
 
+            # ===== AGENT PIPELINE OUTPUTS =====
+            ws[f'A{row}'] = "AGENT PIPELINE OUTPUTS"
+            ws[f'A{row}'].font = section_font
+            ws[f'A{row}'].fill = section_fill
+            ws.merge_cells(f'A{row}:D{row}')
+            row += 1
+
+            # Get execution history with all agent outputs
+            execution_history = report.get('execution_history', {})
+            iterations = execution_history.get('iterations', [])
+
+            if iterations:
+                # Get first iteration stages (all agents run in iteration 0)
+                stages = iterations[0].get('stages', {})
+
+                agent_names_order = ['preprocessor', 'classifier', 'analyzer', 'validator', 'scoring', 'improver', 'report']
+
+                for agent_name in agent_names_order:
+                    if agent_name not in stages:
+                        continue
+
+                    ws[f'A{row}'] = f"{agent_name.upper()} - Input & Output"
+                    ws[f'A{row}'].font = Font(bold=True, size=10, color="FFFFFF")
+                    ws[f'A{row}'].fill = PatternFill(start_color="203864", end_color="203864", fill_type="solid")
+                    ws.merge_cells(f'A{row}:D{row}')
+                    row += 1
+
+                    agent_stage = stages[agent_name]
+
+                    # Show input
+                    if 'input' in agent_stage:
+                        ws[f'A{row}'] = "INPUT"
+                        ws[f'A{row}'].font = Font(bold=True, size=9, italic=True)
+                        input_val = agent_stage.get('input')
+                        input_str = str(input_val)[:500]  # Limit to 500 chars for readability
+                        ws[f'B{row}'] = input_str
+                        ws[f'B{row}'].alignment = Alignment(wrap_text=True)
+                        ws.merge_cells(f'B{row}:D{row}')
+                        ws.row_dimensions[row].height = 25
+                        row += 1
+
+                    # Show output
+                    if 'output' in agent_stage:
+                        ws[f'A{row}'] = "OUTPUT"
+                        ws[f'A{row}'].font = Font(bold=True, size=9, italic=True)
+                        output_val = agent_stage.get('output')
+
+                        # For dict outputs, show key-value pairs
+                        if isinstance(output_val, dict):
+                            output_str = str(output_val)[:500]
+                        else:
+                            output_str = str(output_val)[:500]
+
+                        ws[f'B{row}'] = output_str
+                        ws[f'B{row}'].alignment = Alignment(wrap_text=True)
+                        ws.merge_cells(f'B{row}:D{row}')
+                        ws.row_dimensions[row].height = 30
+                        row += 1
+
+                    # Handle skipped/status field
+                    if 'status' in agent_stage:
+                        ws[f'A{row}'] = "Status"
+                        ws[f'A{row}'].font = Font(bold=True, size=9)
+                        ws[f'B{row}'] = agent_stage.get('status')
+                        row += 1
+
+                    if 'reason' in agent_stage:
+                        ws[f'A{row}'] = "Reason"
+                        ws[f'A{row}'].font = Font(bold=True, size=9)
+                        ws[f'B{row}'] = agent_stage.get('reason')
+                        row += 1
+
+                    row += 1
+
             # ===== IMPROVEMENTS HISTORY =====
             improvements = report.get('improvement_history', [])
             if improvements:
