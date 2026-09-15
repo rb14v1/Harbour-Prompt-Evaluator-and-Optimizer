@@ -23,21 +23,31 @@ export default function EvaluationResult({ result, isLoading = false }) {
     setIsExporting(true)
     try {
       console.log('Exporting evaluation with ID:', result.id)
-      const response = await apiClient.get(`/evaluations/${result.id}/export_excel/`, {
-        responseType: 'blob'
+      const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+      const url = `${apiBaseUrl}/evaluations/${result.id}/export_excel/`
+
+      const response = await fetch(url, {
+        method: 'GET',
+        credentials: 'include'
       })
 
-      const url = window.URL.createObjectURL(new Blob([response.data]))
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(`HTTP ${response.status}: ${errorData.error || response.statusText}`)
+      }
+
+      const blob = await response.blob()
+      const downloadUrl = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', `evaluation_${id}.xlsx`)
+      link.href = downloadUrl
+      link.setAttribute('download', `evaluation_${result.id}.xlsx`)
       document.body.appendChild(link)
       link.click()
       link.parentNode.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      window.URL.revokeObjectURL(downloadUrl)
     } catch (error) {
       console.error('Export failed:', error)
-      alert('Failed to export to Excel')
+      alert(`Failed to export to Excel: ${error.message}`)
     } finally {
       setIsExporting(false)
     }
