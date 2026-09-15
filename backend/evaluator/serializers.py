@@ -83,6 +83,7 @@ class PromptEvaluationRequestSerializer(serializers.Serializer):
 
 class PromptEvaluationResponseSerializer(serializers.Serializer):
     """Serializer for evaluation response."""
+    id = serializers.CharField(required=False)
     prompt_id = serializers.CharField()
     original_prompt = serializers.CharField()
     classification = serializers.JSONField()

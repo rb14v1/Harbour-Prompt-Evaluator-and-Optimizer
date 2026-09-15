@@ -1,16 +1,47 @@
-import { Check, AlertCircle, RefreshCw } from 'lucide-react'
+import { Check, AlertCircle, RefreshCw, Download } from 'lucide-react'
 import { useState } from 'react'
 import ScoreCard from './ScoreCard'
 import DimensionChart from './DimensionChart'
 import AgentPipeline from './AgentPipeline'
 import AgentDetailPanel from './AgentDetailPanel'
 import IterationTabs from './IterationTabs'
+import apiClient from '../services/api'
 
 const THRESHOLD = 7.0
 
 export default function EvaluationResult({ result, isLoading = false }) {
   const [activeAgent, setActiveAgent] = useState('preprocessor')
   const [activeIteration, setActiveIteration] = useState(0)
+  const [isExporting, setIsExporting] = useState(false)
+
+  const handleExportExcel = async () => {
+    if (!result?.id) {
+      alert('Evaluation ID not found')
+      return
+    }
+
+    setIsExporting(true)
+    try {
+      console.log('Exporting evaluation with ID:', result.id)
+      const response = await apiClient.get(`/evaluations/${result.id}/export_excel/`, {
+        responseType: 'blob'
+      })
+
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `evaluation_${id}.xlsx`)
+      document.body.appendChild(link)
+      link.click()
+      link.parentNode.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Export failed:', error)
+      alert('Failed to export to Excel')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   if (!result) return null
 
@@ -31,7 +62,7 @@ export default function EvaluationResult({ result, isLoading = false }) {
     <div className="space-y-6">
       {/* Header with Status & Score */}
       <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg p-6 shadow-md">
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <h2 className="text-2xl font-bold mb-2">Evaluation Pipeline Inspector</h2>
             <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${statusColor}`}>
@@ -39,10 +70,20 @@ export default function EvaluationResult({ result, isLoading = false }) {
               {result.status}
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm opacity-90 mb-1">Final Score</p>
-            <p className="text-4xl font-bold">{result.final_score ? result.final_score.toFixed(2) : 'N/A'}/10</p>
-            <p className="text-xs opacity-75 mt-1">Threshold: {THRESHOLD}</p>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleExportExcel}
+              disabled={isExporting}
+              className="flex items-center gap-2 px-4 py-2 bg-white text-primary-600 rounded-lg font-medium hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <Download size={18} />
+              {isExporting ? 'Exporting...' : 'Export Excel'}
+            </button>
+            <div className="text-right">
+              <p className="text-sm opacity-90 mb-1">Final Score</p>
+              <p className="text-4xl font-bold">{result.final_score ? result.final_score.toFixed(2) : 'N/A'}/10</p>
+              <p className="text-xs opacity-75 mt-1">Threshold: {THRESHOLD}</p>
+            </div>
           </div>
         </div>
 
