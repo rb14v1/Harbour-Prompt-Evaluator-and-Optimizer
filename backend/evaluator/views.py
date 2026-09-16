@@ -32,6 +32,28 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
     serializer_class = EvaluationResultSerializer
     permission_classes = []  # Allow unauthenticated access for testing
 
+    def add_cors_headers(self, response):
+        """Add CORS headers to response"""
+        origin = self.request.headers.get('Origin', '*')
+        allowed_origins = [
+            'http://localhost:5173',
+            'http://localhost:5174',
+            'http://localhost:5176',
+            'http://localhost:3000',
+            'http://127.0.0.1:5173',
+            'http://127.0.0.1:5174',
+            'http://127.0.0.1:5176',
+            'http://127.0.0.1:3000',
+        ]
+
+        if origin in allowed_origins or origin == '*':
+            response['Access-Control-Allow-Origin'] = origin if origin in allowed_origins else allowed_origins[2]
+            response['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS, PATCH'
+            response['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+            response['Access-Control-Allow-Credentials'] = 'true'
+
+        return response
+
     def get_queryset(self):
         """Filter results by current user if authenticated."""
         if self.request.user and self.request.user.is_authenticated:
@@ -86,16 +108,18 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                 report['id'] = result.id
 
                 response_serializer = PromptEvaluationResponseSerializer(report)
-                return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+                response = Response(response_serializer.data, status=status.HTTP_201_CREATED)
+                return self.add_cors_headers(response)
 
         except Exception as e:
             error_msg = f"Evaluation failed: {str(e)}\n{traceback.format_exc()}"
             logger.error(error_msg)
             print(f"\n❌ ERROR: {error_msg}\n")
-            return Response(
+            response = Response(
                 {"error": str(e), "detail": "See backend logs for details"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+            return self.add_cors_headers(response)
 
     @action(detail=False, methods=['post'])
     def batch_evaluate(self, request):
@@ -447,20 +471,22 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             filename = f"evaluation_{result.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
             response = FileResponse(excel_file, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
-            return response
+            return self.add_cors_headers(response)
 
         except EvaluationResult.DoesNotExist:
-            return Response(
+            response = Response(
                 {"error": "Evaluation not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
+            return self.add_cors_headers(response)
         except Exception as e:
             error_msg = f"Excel export failed: {str(e)}\n{traceback.format_exc()}"
             logger.error(error_msg)
-            return Response(
+            response = Response(
                 {"error": "Export failed", "detail": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+            return self.add_cors_headers(response)
 
 
 class PromptHistoryViewSet(viewsets.ReadOnlyModelViewSet):
