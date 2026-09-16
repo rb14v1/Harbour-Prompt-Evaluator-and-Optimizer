@@ -45,13 +45,18 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
 
         return response
 
+    def options(self, request, *args, **kwargs):
+        """Handle CORS preflight requests"""
+        response = super().options(request, *args, **kwargs)
+        return self.add_cors_headers(response)
+
     def get_queryset(self):
         """Filter results by current user if authenticated."""
         if self.request.user and self.request.user.is_authenticated:
             return EvaluationResult.objects.filter(prompt__user=self.request.user)
         return EvaluationResult.objects.all()  # Return all for testing
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post', 'options'])
     def evaluate(self, request):
         """
         Evaluate a new prompt.
@@ -61,6 +66,11 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             "prompt": "Your prompt text here"
         }
         """
+        # Handle preflight OPTIONS request
+        if request.method == 'OPTIONS':
+            response = Response(status=status.HTTP_200_OK)
+            return self.add_cors_headers(response)
+
         serializer = PromptEvaluationRequestSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -165,7 +175,7 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=['get', 'options'])
     def export_excel(self, request, pk=None):
         """Export evaluation results to single comprehensive Excel sheet."""
         try:
