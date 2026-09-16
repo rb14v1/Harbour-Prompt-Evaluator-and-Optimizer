@@ -33,21 +33,12 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
     permission_classes = []  # Allow unauthenticated access for testing
 
     def add_cors_headers(self, response):
-        """Add CORS headers to response"""
-        origin = self.request.headers.get('Origin', '*')
-        allowed_origins = [
-            'http://localhost:5173',
-            'http://localhost:5174',
-            'http://localhost:5176',
-            'http://localhost:3000',
-            'http://127.0.0.1:5173',
-            'http://127.0.0.1:5174',
-            'http://127.0.0.1:5176',
-            'http://127.0.0.1:3000',
-        ]
+        """Add CORS headers to response - allow any localhost dev port"""
+        origin = self.request.headers.get('Origin', '')
 
-        if origin in allowed_origins or origin == '*':
-            response['Access-Control-Allow-Origin'] = origin if origin in allowed_origins else allowed_origins[2]
+        # Allow any localhost origin (dev ports can vary: 5173, 5174, 5176, 5179, etc.)
+        if origin.startswith('http://localhost:') or origin.startswith('http://127.0.0.1:'):
+            response['Access-Control-Allow-Origin'] = origin
             response['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS, PATCH'
             response['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
             response['Access-Control-Allow-Credentials'] = 'true'
