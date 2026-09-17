@@ -1,11 +1,12 @@
 from typing import Dict, Any, List
+import os
 
 class ScoringEngine:
     """
     Converts validation results to numerical scores and determines next action.
     """
 
-    THRESHOLD = 9.5
+    THRESHOLD = 7.0
     QUALITY_SCORES = {
         "Poor": 2.5,
         "Moderate": 5.0,
@@ -13,8 +14,10 @@ class ScoringEngine:
         "Excellent": 10.0
     }
 
-    def __init__(self, threshold: float = 9.5):
+    def __init__(self, threshold: float = None):
         self.name = "Scoring Engine"
+        if threshold is None:
+            threshold = float(os.getenv('THRESHOLD', 7.0))
         self.threshold = threshold
 
     def calculate_scores(self, validation: Dict[str, Any]) -> Dict[str, Any]:

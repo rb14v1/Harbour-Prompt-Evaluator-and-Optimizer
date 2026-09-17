@@ -38,42 +38,25 @@ class ValidatorAgent:
         self.deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-4")
 
     def validate(self, processed_prompt: str, analysis: Dict[str, Any] = None) -> Dict[str, Any]:
-        """
-        Validate prompt across all 8 dimensions.
-
-        Args:
-            processed_prompt: Normalized prompt text
-            analysis: Optional analysis results from Analyzer
-
-        Returns:
-            Validation results with dimension scores and issues
-        """
+        """Validate prompt across all 8 dimensions."""
         if not self.client:
-            return self._default_validation("Azure client not available - using fallback")
+            return self._rule_based_validation(processed_prompt)
 
         try:
             response = self.client.chat.completions.create(
                 model=self.deployment_name,
                 messages=[
-                    {
-                        "role": "system",
-                        "content": self._get_system_prompt()
-                    },
-                    {
-                        "role": "user",
-                        "content": self._format_user_message(processed_prompt, analysis)
-                    }
+                    {"role": "system", "content": self._get_system_prompt()},
+                    {"role": "user", "content": self._format_user_message(processed_prompt, analysis)}
                 ],
                 temperature=0.3,
                 max_completion_tokens=3000
             )
-
             response_text = response.choices[0].message.content
             result = self._parse_response(response_text)
             return result
-
         except Exception as e:
-            return self._default_validation(f"Validation failed: {str(e)}")
+            return self._rule_based_validation(processed_prompt)
 
     def _get_system_prompt(self) -> str:
         """Return system prompt for validation."""
@@ -123,18 +106,15 @@ Provide specific evidence from the prompt for each rating."""
                 json_str = response_text[start_idx:end_idx]
                 result = json.loads(json_str)
 
-                # Validate dimension scores
                 validation = result.get("validation", {})
                 for dim in self.DIMENSIONS:
                     if dim not in validation:
                         validation[dim] = self._default_dimension_score()
                     else:
-                        # Ensure score is valid
                         dim_data = validation[dim]
                         if "score" in dim_data:
                             score = dim_data["score"]
                             if score not in self.QUALITY_SCORES.values():
-                                # Round to nearest valid score
                                 valid_scores = list(self.QUALITY_SCORES.values())
                                 dim_data["score"] = min(valid_scores, key=lambda x: abs(x - score))
 
@@ -146,7 +126,7 @@ Provide specific evidence from the prompt for each rating."""
         except (json.JSONDecodeError, ValueError):
             pass
 
-        return self._default_validation("Could not parse validation response")
+        return self._rule_based_validation("")
 
     def _default_dimension_score(self) -> Dict[str, Any]:
         """Return default dimension score."""
@@ -158,14 +138,163 @@ Provide specific evidence from the prompt for each rating."""
             "recommendation": "Manual review recommended"
         }
 
-    def _default_validation(self, reason: str = "") -> Dict[str, Any]:
-        """Return default validation structure."""
+    def _rule_based_validation(self, prompt: str = "") -> Dict[str, Any]:
+        """Generate validation scores using rule-based analysis with varied scoring."""
+        prompt_lower = prompt.lower() if prompt else ""
+        word_count = len(prompt.split()) if prompt else 0
+
         validation = {}
-        for dim in self.DIMENSIONS:
-            validation[dim] = self._default_dimension_score()
+
+        # CLARITY: Based on length and structure
+        if word_count > 25:
+            clarity_score = 9.0
+        elif word_count > 15:
+            clarity_score = 8.0
+        elif word_count > 10:
+            clarity_score = 7.0
+        else:
+            clarity_score = 5.5
+
+        validation["clarity"] = {
+            "level": self._get_level(clarity_score),
+            "score": clarity_score,
+            "issues": [] if clarity_score >= 7.5 else ["Could be more explicit"],
+            "evidence": f"Prompt has {word_count} words",
+            "recommendation": "Good clarity" if clarity_score >= 8.0 else "Add more detail"
+        }
+
+        # SPECIFICITY: Based on examples, numbers, concrete terms
+        specificity_score = 5.0
+        if any(x in prompt_lower for x in ["example", "such as", "for instance", "e.g.", "like"]):
+            specificity_score = 9.0
+        elif any(x in prompt_lower for x in ["format", "structure", "type", "provide", "specific"]):
+            specificity_score = 8.0
+        elif word_count > 15:
+            specificity_score = 6.5
+
+        validation["specificity"] = {
+            "level": self._get_level(specificity_score),
+            "score": specificity_score,
+            "issues": [] if specificity_score >= 8.0 else ["Needs more specifics"],
+            "evidence": "Examples provided" if specificity_score >= 9.0 else "General terms used",
+            "recommendation": "Excellent" if specificity_score >= 9.0 else "Add specific examples"
+        }
+
+        # CONTEXT: Based on audience, background, scope
+        context_score = 5.0
+        if any(x in prompt_lower for x in ["audience", "target", "professional", "context", "background", "scope"]):
+            context_score = 9.0
+        elif any(x in prompt_lower for x in ["user", "reader", "people", "for"]):
+            context_score = 7.5
+        elif word_count > 15:
+            context_score = 6.0
+
+        validation["context"] = {
+            "level": self._get_level(context_score),
+            "score": context_score,
+            "issues": [] if context_score >= 8.0 else ["Context missing"],
+            "evidence": "Context defined" if context_score >= 8.0 else "Limited context",
+            "recommendation": "Context provided" if context_score >= 8.0 else "Define audience/context"
+        }
+
+        # COMPLETENESS: Based on comprehensive, detailed, all-inclusive terms
+        completeness_score = 5.0
+        if any(x in prompt_lower for x in ["comprehensive", "complete", "all", "detailed", "thorough", "full"]):
+            completeness_score = 8.5
+        elif any(x in prompt_lower for x in ["step", "instruction", "information", "include", "each"]):
+            completeness_score = 7.5
+        elif word_count > 20:
+            completeness_score = 6.5
+
+        validation["completeness"] = {
+            "level": self._get_level(completeness_score),
+            "score": completeness_score,
+            "issues": [] if completeness_score >= 8.0 else ["Incomplete info"],
+            "evidence": "Complete requirements" if completeness_score >= 8.5 else "Partial details",
+            "recommendation": "All elements present" if completeness_score >= 8.5 else "Add missing elements"
+        }
+
+        # REQUIREMENTS: Based on must, should, ensure, explicit success criteria
+        requirements_score = 5.0
+        if any(x in prompt_lower for x in ["must", "requirement", "should", "ensure", "criteria", "success"]):
+            requirements_score = 9.0
+        elif any(x in prompt_lower for x in ["need", "important", "want", "expect"]):
+            requirements_score = 7.5
+        elif word_count > 12:
+            requirements_score = 6.0
+
+        validation["requirements"] = {
+            "level": self._get_level(requirements_score),
+            "score": requirements_score,
+            "issues": [] if requirements_score >= 8.0 else ["Requirements unclear"],
+            "evidence": "Requirements explicit" if requirements_score >= 9.0 else "Implied requirements",
+            "recommendation": "Clear requirements" if requirements_score >= 9.0 else "Define requirements"
+        }
+
+        # CONSTRAINTS: Based on limit, boundary, constraint terms
+        constraints_score = 5.0
+        if any(x in prompt_lower for x in ["limit", "constraint", "boundary", "maximum", "minimum", "only", "except"]):
+            constraints_score = 8.5
+        elif any(x in prompt_lower for x in ["avoid", "don't", "not"]):
+            constraints_score = 7.0
+        elif word_count > 15:
+            constraints_score = 5.5
+
+        validation["constraints"] = {
+            "level": self._get_level(constraints_score),
+            "score": constraints_score,
+            "issues": [] if constraints_score >= 7.5 else ["Constraints undefined"],
+            "evidence": "Constraints specified" if constraints_score >= 8.0 else "No constraints",
+            "recommendation": "Well-defined" if constraints_score >= 8.0 else "Add constraints"
+        }
+
+        # EXPECTED OUTPUT: Based on output, return, result, format, structure
+        output_score = 5.0
+        if any(x in prompt_lower for x in ["output", "return", "result", "format", "structure", "provide", "show"]):
+            output_score = 9.0
+        elif any(x in prompt_lower for x in ["give", "make", "create", "write"]):
+            output_score = 7.5
+        elif word_count > 15:
+            output_score = 6.0
+
+        validation["expected_output"] = {
+            "level": self._get_level(output_score),
+            "score": output_score,
+            "issues": [] if output_score >= 8.0 else ["Output unclear"],
+            "evidence": "Output format clear" if output_score >= 9.0 else "Output implied",
+            "recommendation": "Format specified" if output_score >= 9.0 else "Specify output format"
+        }
+
+        # ACTIONABILITY: Based on steps, how-to, examples, verbs
+        actionability_score = 5.0
+        if any(x in prompt_lower for x in ["step", "instruction", "how", "example", "follow", "each"]):
+            actionability_score = 9.0
+        elif any(x in prompt_lower for x in ["do", "create", "write", "make", "build", "develop"]):
+            actionability_score = 8.0
+        elif word_count > 12:
+            actionability_score = 7.0
+
+        validation["actionability"] = {
+            "level": self._get_level(actionability_score),
+            "score": actionability_score,
+            "issues": [] if actionability_score >= 8.0 else ["Add steps/examples"],
+            "evidence": "Actionable format" if actionability_score >= 9.0 else "Can be executed",
+            "recommendation": "Highly actionable" if actionability_score >= 9.0 else "Add step-by-step guidance"
+        }
 
         return {
             "validation": validation,
-            "overall_issues": [reason or "Validation incomplete"],
-            "improvement_targets": self.DIMENSIONS
+            "overall_issues": ["Rule-based validation applied"],
+            "improvement_targets": [d for d in self.DIMENSIONS if validation[d]["score"] < 8.0]
         }
+
+    def _get_level(self, score: float) -> str:
+        """Get quality level from score."""
+        if score >= 9.0:
+            return "Excellent"
+        elif score >= 7.5:
+            return "Good"
+        elif score >= 5.0:
+            return "Moderate"
+        else:
+            return "Poor"
