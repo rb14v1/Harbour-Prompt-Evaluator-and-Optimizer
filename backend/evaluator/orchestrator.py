@@ -6,18 +6,19 @@ from evaluator.agents.validator import ValidatorAgent
 from evaluator.agents.scoring_engine import ScoringEngine
 from evaluator.agents.improver import ImproverAgent
 from evaluator.agents.report import ReportAgent
+from evaluator.config import QUALITY_THRESHOLD, MAX_ITERATIONS
 
 class PromptEvaluationOrchestrator:
     """
     Orchestrates the complete prompt evaluation pipeline.
     """
 
-    MAX_ITERATIONS = 3
-    THRESHOLD = 9.5
+    MAX_ITERATIONS = MAX_ITERATIONS
+    THRESHOLD = QUALITY_THRESHOLD
 
-    def __init__(self, max_iterations: int = 3, threshold: float = 9.5):
-        self.max_iterations = max_iterations
-        self.threshold = threshold
+    def __init__(self, max_iterations: int = None, threshold: float = None):
+        self.max_iterations = max_iterations if max_iterations is not None else MAX_ITERATIONS
+        self.threshold = threshold if threshold is not None else QUALITY_THRESHOLD
 
         # Initialize agents
         self.preprocessor = PreprocessorAgent()

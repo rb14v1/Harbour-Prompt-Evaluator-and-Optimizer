@@ -1,7 +1,29 @@
 import axios from 'axios'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
-const TIMEOUT = import.meta.env.VITE_API_TIMEOUT || 180000
+const TIMEOUT = import.meta.env.VITE_API_TIMEOUT || 300000
+
+// Store configuration fetched from backend
+let CONFIG = {
+  threshold: 9.5,  // Default fallback
+  dimensions: []
+}
+
+// Fetch configuration from backend on startup
+async function fetchConfig() {
+  try {
+    const response = await axios.get(`${API_URL}/config/`, { timeout: 5000 })
+    CONFIG = response.data
+  } catch (error) {
+    console.warn('Failed to fetch config from backend, using defaults:', error.message)
+  }
+}
+
+// Fetch config immediately
+fetchConfig()
+
+// Export a function to get the current config
+export const getConfig = () => CONFIG
 
 const apiClient = axios.create({
   baseURL: API_URL,

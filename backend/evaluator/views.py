@@ -21,6 +21,7 @@ from evaluator.serializers import (
     PromptEvaluationResponseSerializer
 )
 from evaluator.orchestrator import PromptEvaluationOrchestrator
+from evaluator.config import QUALITY_THRESHOLD, QUALITY_DIMENSIONS
 
 logger = logging.getLogger(__name__)
 
