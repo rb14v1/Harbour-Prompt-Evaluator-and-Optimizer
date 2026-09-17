@@ -48,6 +48,9 @@ class ValidatorAgent:
         Returns:
             Validation results with dimension scores and issues
         """
+        if not self.client:
+            return self._default_validation("Azure client not available - using fallback")
+
         try:
             response = self.client.chat.completions.create(
                 model=self.deployment_name,

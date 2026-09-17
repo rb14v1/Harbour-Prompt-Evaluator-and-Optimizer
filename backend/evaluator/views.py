@@ -3,6 +3,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db import transaction, models
+from django.http import FileResponse
+import logging
+import traceback
+import json
+from io import BytesIO
+from datetime import datetime
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
 from evaluator.models import EvaluationResult, Prompt
 from evaluator.serializers import (
@@ -13,6 +21,8 @@ from evaluator.serializers import (
 )
 from evaluator.orchestrator import PromptEvaluationOrchestrator
 
+logger = logging.getLogger(__name__)
+
 
 class PromptEvaluationViewSet(viewsets.ModelViewSet):
     """
@@ -22,13 +32,31 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
     serializer_class = EvaluationResultSerializer
     permission_classes = []  # Allow unauthenticated access for testing
 
+    def add_cors_headers(self, response):
+        """Add CORS headers to response - allow any localhost dev port"""
+        origin = self.request.headers.get('Origin', '')
+
+        # Allow any localhost origin (dev ports can vary: 5173, 5174, 5176, 5179, etc.)
+        if origin.startswith('http://localhost:') or origin.startswith('http://127.0.0.1:'):
+            response['Access-Control-Allow-Origin'] = origin
+            response['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS, PATCH'
+            response['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+            response['Access-Control-Allow-Credentials'] = 'true'
+
+        return response
+
+    def options(self, request, *args, **kwargs):
+        """Handle CORS preflight requests"""
+        response = super().options(request, *args, **kwargs)
+        return self.add_cors_headers(response)
+
     def get_queryset(self):
         """Filter results by current user if authenticated."""
         if self.request.user and self.request.user.is_authenticated:
             return EvaluationResult.objects.filter(prompt__user=self.request.user)
         return EvaluationResult.objects.all()  # Return all for testing
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post', 'options'])
     def evaluate(self, request):
         """
         Evaluate a new prompt.
@@ -38,6 +66,11 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             "prompt": "Your prompt text here"
         }
         """
+        # Handle preflight OPTIONS request
+        if request.method == 'OPTIONS':
+            response = Response(status=status.HTTP_200_OK)
+            return self.add_cors_headers(response)
+
         serializer = PromptEvaluationRequestSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -72,14 +105,22 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                     full_report=report
                 )
 
+                # Add result ID to report for response
+                report['id'] = result.id
+
                 response_serializer = PromptEvaluationResponseSerializer(report)
-                return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+                response = Response(response_serializer.data, status=status.HTTP_201_CREATED)
+                return self.add_cors_headers(response)
 
         except Exception as e:
-            return Response(
-                {"error": str(e)},
+            error_msg = f"Evaluation failed: {str(e)}\n{traceback.format_exc()}"
+            logger.error(error_msg)
+            print(f"\n❌ ERROR: {error_msg}\n")
+            response = Response(
+                {"error": str(e), "detail": "See backend logs for details"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+            return self.add_cors_headers(response)
 
     @action(detail=False, methods=['post'])
     def batch_evaluate(self, request):
@@ -133,6 +174,320 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                 {"error": "Evaluation not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+    @action(detail=True, methods=['get', 'options'])
+    def export_excel(self, request, pk=None):
+        """Export evaluation results to single comprehensive Excel sheet."""
+        try:
+            result = self.get_object()
+            report = result.full_report
+
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Evaluation Report"
+
+            # Set column widths
+            ws.column_dimensions['A'].width = 30
+            ws.column_dimensions['B'].width = 50
+            ws.column_dimensions['C'].width = 15
+            ws.column_dimensions['D'].width = 40
+
+            # Define styles
+            header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+            header_font = Font(bold=True, size=12, color="FFFFFF")
+            section_fill = PatternFill(start_color="D9E1F2", end_color="D9E1F2", fill_type="solid")
+            section_font = Font(bold=True, size=11)
+            border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
+
+            row = 1
+
+            # ===== TITLE =====
+            ws[f'A{row}'] = "PROMPT EVALUATION REPORT"
+            ws[f'A{row}'].font = Font(bold=True, size=14)
+            ws.merge_cells(f'A{row}:D{row}')
+            row += 2
+
+            # ===== SCORE SUMMARY =====
+            ws[f'A{row}'] = "EVALUATION SUMMARY"
+            ws[f'A{row}'].font = section_font
+            ws[f'A{row}'].fill = section_fill
+            ws.merge_cells(f'A{row}:D{row}')
+            row += 1
+
+            initial_score = report.get('initial_evaluation', {}).get('overall_score', 'N/A')
+            final_score = report.get('final_evaluation', {}).get('overall_score', 'N/A')
+
+            ws[f'A{row}'] = "Initial Score"
+            ws[f'B{row}'] = initial_score
+            ws[f'C{row}'] = "Final Score"
+            ws[f'D{row}'] = final_score
+            row += 1
+
+            ws[f'A{row}'] = "Status"
+            ws[f'B{row}'] = report.get('status', 'N/A')
+            ws[f'C{row}'] = "Threshold"
+            ws[f'D{row}'] = 7.0
+            row += 1
+
+            ws[f'A{row}'] = "Iterations Required"
+            ws[f'B{row}'] = report.get('iterations_required', 0)
+            ws[f'C{row}'] = "Improvements Made"
+            ws[f'D{row}'] = report.get('improvements_made', 0)
+            row += 2
+
+            # ===== PROMPTS =====
+            ws[f'A{row}'] = "ORIGINAL PROMPT"
+            ws[f'A{row}'].font = section_font
+            ws[f'A{row}'].fill = section_fill
+            ws.merge_cells(f'A{row}:D{row}')
+            row += 1
+
+            original_prompt = report.get('original_prompt', '')
+            ws[f'A{row}'] = original_prompt
+            ws[f'A{row}'].alignment = Alignment(wrap_text=True, vertical='top')
+            ws.merge_cells(f'A{row}:D{row}')
+            ws.row_dimensions[row].height = 60
+            row += 2
+
+            if report.get('final_prompt') != report.get('original_prompt'):
+                ws[f'A{row}'] = "IMPROVED PROMPT"
+                ws[f'A{row}'].font = section_font
+                ws[f'A{row}'].fill = section_fill
+                ws.merge_cells(f'A{row}:D{row}')
+                row += 1
+
+                final_prompt = report.get('final_prompt', '')
+                ws[f'A{row}'] = final_prompt
+                ws[f'A{row}'].alignment = Alignment(wrap_text=True, vertical='top')
+                ws.merge_cells(f'A{row}:D{row}')
+                ws.row_dimensions[row].height = 60
+                row += 2
+
+            # ===== CLASSIFICATION & ANALYSIS =====
+            ws[f'A{row}'] = "CLASSIFICATION & ANALYSIS"
+            ws[f'A{row}'].font = section_font
+            ws[f'A{row}'].fill = section_fill
+            ws.merge_cells(f'A{row}:D{row}')
+            row += 1
+
+            classification = report.get('classification', {})
+            analysis = report.get('analysis', {})
+
+            ws[f'A{row}'] = "Task Type"
+            ws[f'B{row}'] = classification.get('task_type', 'N/A')
+            ws[f'C{row}'] = "Complexity"
+            ws[f'D{row}'] = classification.get('complexity', 'N/A')
+            row += 1
+
+            ws[f'A{row}'] = "Intent"
+            ws[f'B{row}'] = analysis.get('intent', 'N/A')
+            ws.merge_cells(f'B{row}:D{row}')
+            row += 1
+
+            ws[f'A{row}'] = "Missing Information"
+            missing_info = ', '.join(analysis.get('missing_information', []))
+            ws[f'B{row}'] = missing_info
+            ws.merge_cells(f'B{row}:D{row}')
+            ws[f'B{row}'].alignment = Alignment(wrap_text=True)
+            ws.row_dimensions[row].height = 40
+            row += 2
+
+            # ===== VALIDATION DIMENSIONS =====
+            ws[f'A{row}'] = "VALIDATION DIMENSIONS"
+            ws[f'A{row}'].font = section_font
+            ws[f'A{row}'].fill = section_fill
+            ws.merge_cells(f'A{row}:D{row}')
+            row += 1
+
+            # Header row for dimensions
+            ws[f'A{row}'] = "Dimension"
+            ws[f'B{row}'] = "Score"
+            ws[f'C{row}'] = "Level"
+            ws[f'D{row}'] = "Issues & Recommendations"
+            for col in ['A', 'B', 'C', 'D']:
+                ws[f'{col}{row}'].font = Font(bold=True)
+                ws[f'{col}{row}'].fill = PatternFill(start_color="E7E6E6", end_color="E7E6E6", fill_type="solid")
+            row += 1
+
+            validation = report.get('initial_evaluation', {}).get('validation', {})
+            for dim_name, dim_data in validation.items():
+                ws[f'A{row}'] = dim_name.replace('_', ' ').title()
+                ws[f'B{row}'] = dim_data.get('score', 'N/A')
+                ws[f'C{row}'] = dim_data.get('level', 'N/A')
+                issues = dim_data.get('issues', [])
+                rec = dim_data.get('recommendation', '')
+                ws[f'D{row}'] = f"Issues: {', '.join(issues) if issues else 'None'}. Recommendation: {rec}"
+                ws[f'D{row}'].alignment = Alignment(wrap_text=True)
+                ws.row_dimensions[row].height = 30
+                row += 1
+
+            row += 1
+
+            # ===== AGENT PIPELINE OUTPUTS =====
+            ws[f'A{row}'] = "AGENT PIPELINE OUTPUTS"
+            ws[f'A{row}'].font = section_font
+            ws[f'A{row}'].fill = section_fill
+            ws.merge_cells(f'A{row}:D{row}')
+            row += 1
+
+            # Get execution history with all agent outputs
+            execution_history = report.get('execution_history', {})
+            iterations = execution_history.get('iterations', [])
+
+            if iterations:
+                # Get first iteration stages (all agents run in iteration 0)
+                stages = iterations[0].get('stages', {})
+
+                agent_names_order = ['preprocessor', 'classifier', 'analyzer', 'validator', 'scoring', 'improver', 'report']
+
+                for agent_name in agent_names_order:
+                    if agent_name not in stages:
+                        continue
+
+                    ws[f'A{row}'] = f"{agent_name.upper()} - Input & Output"
+                    ws[f'A{row}'].font = Font(bold=True, size=10, color="FFFFFF")
+                    ws[f'A{row}'].fill = PatternFill(start_color="203864", end_color="203864", fill_type="solid")
+                    ws.merge_cells(f'A{row}:D{row}')
+                    row += 1
+
+                    agent_stage = stages[agent_name]
+
+                    # Show input
+                    if 'input' in agent_stage:
+                        ws[f'A{row}'] = "INPUT"
+                        ws[f'A{row}'].font = Font(bold=True, size=9, italic=True)
+                        input_val = agent_stage.get('input')
+                        input_str = str(input_val)[:500]  # Limit to 500 chars for readability
+                        ws[f'B{row}'] = input_str
+                        ws[f'B{row}'].alignment = Alignment(wrap_text=True)
+                        ws.merge_cells(f'B{row}:D{row}')
+                        ws.row_dimensions[row].height = 25
+                        row += 1
+
+                    # Show output
+                    if 'output' in agent_stage:
+                        ws[f'A{row}'] = "OUTPUT"
+                        ws[f'A{row}'].font = Font(bold=True, size=9, italic=True)
+                        output_val = agent_stage.get('output')
+
+                        # For dict outputs, show key-value pairs
+                        if isinstance(output_val, dict):
+                            output_str = str(output_val)[:500]
+                        else:
+                            output_str = str(output_val)[:500]
+
+                        ws[f'B{row}'] = output_str
+                        ws[f'B{row}'].alignment = Alignment(wrap_text=True)
+                        ws.merge_cells(f'B{row}:D{row}')
+                        ws.row_dimensions[row].height = 30
+                        row += 1
+
+                    # Handle skipped/status field
+                    if 'status' in agent_stage:
+                        ws[f'A{row}'] = "Status"
+                        ws[f'A{row}'].font = Font(bold=True, size=9)
+                        ws[f'B{row}'] = agent_stage.get('status')
+                        row += 1
+
+                    if 'reason' in agent_stage:
+                        ws[f'A{row}'] = "Reason"
+                        ws[f'A{row}'].font = Font(bold=True, size=9)
+                        ws[f'B{row}'] = agent_stage.get('reason')
+                        row += 1
+
+                    row += 1
+
+            # ===== IMPROVEMENTS HISTORY =====
+            improvements = report.get('improvement_history', [])
+            if improvements:
+                ws[f'A{row}'] = "IMPROVEMENT HISTORY"
+                ws[f'A{row}'].font = section_font
+                ws[f'A{row}'].fill = section_fill
+                ws.merge_cells(f'A{row}:D{row}')
+                row += 1
+
+                for i, imp in enumerate(improvements, 1):
+                    ws[f'A{row}'] = f"Iteration {i}"
+                    ws[f'A{row}'].font = Font(bold=True, italic=True)
+                    ws.merge_cells(f'A{row}:D{row}')
+                    row += 1
+
+                    ws[f'A{row}'] = "Improved Prompt"
+                    ws[f'B{row}'] = imp.get('improved_prompt', '')
+                    ws[f'B{row}'].alignment = Alignment(wrap_text=True)
+                    ws.merge_cells(f'B{row}:D{row}')
+                    ws.row_dimensions[row].height = 50
+                    row += 1
+
+                    ws[f'A{row}'] = "Changes Made"
+                    changes = ', '.join(imp.get('changes_made', []))
+                    ws[f'B{row}'] = changes
+                    ws[f'B{row}'].alignment = Alignment(wrap_text=True)
+                    ws.merge_cells(f'B{row}:D{row}')
+                    ws.row_dimensions[row].height = 40
+                    row += 1
+
+                    ws[f'A{row}'] = "Dimensions Addressed"
+                    dims = ', '.join(imp.get('dimensions_addressed', []))
+                    ws[f'B{row}'] = dims
+                    ws.merge_cells(f'B{row}:D{row}')
+                    row += 1
+
+                    ws[f'A{row}'] = "Intent Preserved"
+                    ws[f'B{row}'] = "Yes" if imp.get('intent_preserved') else "No"
+                    row += 2
+
+            # ===== KEY GAPS & RECOMMENDATIONS =====
+            ws[f'A{row}'] = "KEY GAPS & RECOMMENDATIONS"
+            ws[f'A{row}'].font = section_font
+            ws[f'A{row}'].fill = section_fill
+            ws.merge_cells(f'A{row}:D{row}')
+            row += 1
+
+            low_dims = report.get('final_evaluation', {}).get('low_scoring_dimensions', [])
+            if low_dims:
+                ws[f'A{row}'] = "Low Scoring Dimensions"
+                ws[f'B{row}'] = ', '.join(low_dims)
+                ws.merge_cells(f'B{row}:D{row}')
+                row += 1
+
+            ws[f'A{row}'] = "Summary"
+            ws[f'B{row}'] = report.get('summary', '')
+            ws[f'B{row}'].alignment = Alignment(wrap_text=True)
+            ws.merge_cells(f'B{row}:D{row}')
+            ws.row_dimensions[row].height = 50
+            row += 1
+
+            # Save to bytes
+            excel_file = BytesIO()
+            wb.save(excel_file)
+            excel_file.seek(0)
+
+            # Return file
+            filename = f"evaluation_{result.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+            response = FileResponse(excel_file, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return self.add_cors_headers(response)
+
+        except EvaluationResult.DoesNotExist:
+            response = Response(
+                {"error": "Evaluation not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+            return self.add_cors_headers(response)
+        except Exception as e:
+            error_msg = f"Excel export failed: {str(e)}\n{traceback.format_exc()}"
+            logger.error(error_msg)
+            response = Response(
+                {"error": "Export failed", "detail": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+            return self.add_cors_headers(response)
 
 
 class PromptHistoryViewSet(viewsets.ReadOnlyModelViewSet):

@@ -39,6 +39,11 @@ class ImproverAgent:
         Returns:
             Improved prompt with changes documented
         """
+        if not self.client:
+            return self._default_improvement(
+                original_prompt, iteration, "Azure client not available - using fallback"
+            )
+
         try:
             response = self.client.chat.completions.create(
                 model=self.deployment_name,

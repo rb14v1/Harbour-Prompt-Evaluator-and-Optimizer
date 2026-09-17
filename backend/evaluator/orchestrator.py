@@ -117,6 +117,12 @@ class PromptEvaluationOrchestrator:
                 "stages": {}
             })
 
+            # Add stages from iteration 0 (preprocessor, classifier, analyzer don't change)
+            # but copy analyzer and other previous stages for display
+            execution_history["iterations"][iteration]["stages"]["preprocessor"] = execution_history["iterations"][0]["stages"]["preprocessor"]
+            execution_history["iterations"][iteration]["stages"]["classifier"] = execution_history["iterations"][0]["stages"]["classifier"]
+            execution_history["iterations"][iteration]["stages"]["analyzer"] = execution_history["iterations"][0]["stages"]["analyzer"]
+
             # Improve prompt
             improvement = self.improver.improve(
                 original_prompt=current_prompt,
@@ -144,7 +150,7 @@ class PromptEvaluationOrchestrator:
             validation = self.validator.validate(current_prompt, analysis)
             current_evaluation = self.scoring_engine.calculate_scores(validation)
 
-            # Add updated Validator and Scoring to this iteration
+            # Add updated Validator and Scoring to this iteration (using the re-validated results)
             execution_history["iterations"][iteration]["stages"]["validator"] = {
                 "input": analysis,
                 "output": validation
@@ -165,11 +171,6 @@ class PromptEvaluationOrchestrator:
         # Final evaluation
         final_evaluation = current_evaluation
 
-        # Add Report stage
-        execution_history["iterations"][0]["stages"]["report"] = {
-            "status": "generating"
-        }
-
         # Stage 6b: Generate Report
         report = self.report_agent.generate_report(
             prompt_id=prompt_id,
@@ -181,6 +182,19 @@ class PromptEvaluationOrchestrator:
             final_evaluation=final_evaluation,
             iterations_required=iteration
         )
+
+        # Add Report stage output (exclude execution_history to avoid circular reference)
+        report_output = {k: v for k, v in report.items() if k != "execution_history"}
+        execution_history["iterations"][0]["stages"]["report"] = {
+            "input": {
+                "classification": classification,
+                "analysis": analysis,
+                "initial_evaluation": initial_evaluation,
+                "improvement_history": improvement_history,
+                "final_evaluation": final_evaluation
+            },
+            "output": report_output
+        }
 
         # Add execution_history to report
         report["execution_history"] = execution_history

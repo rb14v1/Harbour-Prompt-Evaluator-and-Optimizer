@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
-const TIMEOUT = import.meta.env.VITE_API_TIMEOUT || 30000
+const TIMEOUT = import.meta.env.VITE_API_TIMEOUT || 120000
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -16,9 +16,22 @@ const apiClient = axios.create({
 apiClient.interceptors.response.use(
   response => response,
   error => {
+    console.error('[API Error]', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      message: error.message,
+      code: error.code,
+      url: error.config?.url,
+      method: error.config?.method,
+      data: error.response?.data,
+      isNetworkError: !error.response,
+      isTimeout: error.code === 'ECONNABORTED',
+    })
+
     if (error.response?.status === 401) {
-      console.error('Unauthorized')
+      console.error('Unauthorized - user not authenticated')
     }
+
     return Promise.reject(error)
   }
 )
