@@ -180,17 +180,22 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
 
             text = str(text)
 
-            # Important keywords to highlight
+            # Important keywords to highlight - EXTRACT IMPORTANT WORDS
             keywords = [
-                'missing', 'lacks', 'unclear', 'undefined', 'ambiguous', 'vague',
-                'issue', 'problem', 'error', 'critical', 'failed',
-                'improve', 'clarify', 'specify', 'add', 'expand', 'detail',
+                'missing', 'lacks', 'unclear', 'undefined', 'ambiguous', 'vague', 'unspecified',
+                'issue', 'problem', 'error', 'critical', 'failed', 'failure',
+                'improve', 'clarify', 'specify', 'add', 'expand', 'detail', 'remove',
+                'security breach', 'security breaches', 'detain', 'detaining', 'scene',
+                'important', 'essential', 'required', 'urgent',
             ]
 
-            # Create regex pattern - match whole words or phrases
-            keyword_pattern = '|'.join(re.escape(kw) for kw in sorted(keywords, key=len, reverse=True))
+            # Sort by length (longest first) - match phrases before single words
+            keywords_sorted = sorted(keywords, key=len, reverse=True)
 
-            # Split text by keywords
+            # Create regex pattern - match whole words or phrases
+            keyword_pattern = '|'.join(re.escape(kw) for kw in keywords_sorted)
+
+            # Split text by keywords, keeping them
             parts = re.split(f'({keyword_pattern})', text, flags=re.IGNORECASE)
 
             rich_parts = []
@@ -199,14 +204,19 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                     continue
 
                 # Check if this is a keyword (case-insensitive match)
-                is_keyword = any(part.lower() == kw.lower() for kw in keywords)
+                is_keyword = any(part.lower() == kw.lower() for kw in keywords_sorted)
 
                 if is_keyword:
-                    # HIGHLIGHT: Bold + yellow text color
-                    font = Font(bold=True, color="DAA520", size=11)  # Goldenrod yellow
+                    # HIGHLIGHT: Orange/Gold bold text + underline (like highlighter marker)
+                    font = Font(
+                        bold=True,
+                        color="FF6B00",  # Dark orange - stands out on white
+                        size=11,
+                        underline="single"
+                    )
                     rich_parts.append(TextBlock(font, part))
                 else:
-                    # Normal: Regular font
+                    # Normal: Black text
                     rich_parts.append(TextBlock(Font(color="000000", size=11), part))
 
             if len(rich_parts) > 1:
@@ -563,12 +573,12 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
 
             ws[f'A{row}'] = "Missing Information"
             ws[f'A{row}'].font = Font(bold=True, size=11)
+
             missing_info_list = analysis.get('missing_information', [])
             if missing_info_list:
                 missing_text = ", ".join(missing_info_list)
-                # Build RichText with important keywords highlighted in yellow
-                parts = self.build_highlighted_text(missing_text)
-                ws[f'B{row}'] = parts
+                # Highlight only keywords in text (bold orange), not entire cell
+                ws[f'B{row}'] = self.build_highlighted_text(missing_text)
             else:
                 ws[f'B{row}'] = "None"
             ws.merge_cells(f'B{row}:D{row}')
@@ -578,12 +588,12 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
 
             ws[f'A{row}'] = "Ambiguities"
             ws[f'A{row}'].font = Font(bold=True, size=11)
+
             ambiguities_list = analysis.get('ambiguities', [])
             if ambiguities_list:
                 ambig_text = ", ".join(ambiguities_list)
-                # Build RichText with important keywords highlighted
-                parts = self.build_highlighted_text(ambig_text)
-                ws[f'B{row}'] = parts
+                # Highlight only keywords in text (bold orange), not entire cell
+                ws[f'B{row}'] = self.build_highlighted_text(ambig_text)
             else:
                 ws[f'B{row}'] = "None"
             ws.merge_cells(f'B{row}:D{row}')
@@ -629,7 +639,7 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                 issues = dim_data.get('issues', [])
                 rec = dim_data.get('recommendation', '')
                 issues_rec_text = f"Issues: {', '.join(issues) if issues else 'None'}. Recommendation: {rec}"
-                # Highlight keywords in issues/recommendations
+                # Highlight only keywords in text, not entire cell
                 ws[f'D{row}'] = self.build_highlighted_text(issues_rec_text)
                 ws[f'D{row}'].alignment = Alignment(wrap_text=True)
                 ws.row_dimensions[row].height = 40
@@ -767,7 +777,7 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
 
             ws[f'A{row}'] = "Summary"
             summary_text = report.get('summary', '')
-            # Highlight keywords in summary
+            # Highlight only keywords in summary
             ws[f'B{row}'] = self.build_highlighted_text(summary_text)
             ws[f'B{row}'].alignment = Alignment(wrap_text=True)
             ws.merge_cells(f'B{row}:D{row}')
