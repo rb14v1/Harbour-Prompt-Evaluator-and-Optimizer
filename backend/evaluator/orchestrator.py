@@ -6,18 +6,19 @@ from evaluator.agents.validator import ValidatorAgent
 from evaluator.agents.scoring_engine import ScoringEngine
 from evaluator.agents.improver import ImproverAgent
 from evaluator.agents.report import ReportAgent
+from evaluator.config import QUALITY_THRESHOLD, MAX_ITERATIONS
 
 class PromptEvaluationOrchestrator:
     """
     Orchestrates the complete prompt evaluation pipeline.
     """
 
-    MAX_ITERATIONS = 3
-    THRESHOLD = 9.5
+    MAX_ITERATIONS = MAX_ITERATIONS
+    THRESHOLD = QUALITY_THRESHOLD
 
-    def __init__(self, max_iterations: int = 3, threshold: float = 9.5):
-        self.max_iterations = max_iterations
-        self.threshold = threshold
+    def __init__(self, max_iterations: int = None, threshold: float = None):
+        self.max_iterations = max_iterations if max_iterations is not None else MAX_ITERATIONS
+        self.threshold = threshold if threshold is not None else QUALITY_THRESHOLD
 
         # Initialize agents
         self.preprocessor = PreprocessorAgent()
@@ -156,6 +157,8 @@ class PromptEvaluationOrchestrator:
 
             # Only accept improvement if score actually increased
             new_score = current_evaluation["overall_score"]
+            score_improvement = new_score - best_score
+
             if new_score > best_score:
                 best_score = new_score
                 best_prompt = current_prompt
@@ -166,6 +169,12 @@ class PromptEvaluationOrchestrator:
                 current_prompt = best_prompt
                 current_evaluation = best_evaluation
                 validation = best_validation
+                score_improvement = 0
+
+            # Early stopping: if improvement is less than 0.3 and we already passed 6.0, stop iterating
+            # This prevents wasting time on tiny improvements
+            if best_score >= 6.0 and score_improvement < 0.3 and iteration >= 1:
+                break
 
             # Add updated Validator and Scoring to this iteration (using the re-validated results)
             execution_history["iterations"][iteration]["stages"]["validator"] = {

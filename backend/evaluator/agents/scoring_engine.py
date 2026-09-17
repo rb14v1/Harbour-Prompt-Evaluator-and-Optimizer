@@ -1,24 +1,17 @@
 from typing import Dict, Any, List
-import os
+from evaluator.config import QUALITY_THRESHOLD, QUALITY_SCORES
 
 class ScoringEngine:
     """
     Converts validation results to numerical scores and determines next action.
     """
 
-    THRESHOLD = 7.0
-    QUALITY_SCORES = {
-        "Poor": 2.5,
-        "Moderate": 5.0,
-        "Good": 7.5,
-        "Excellent": 10.0
-    }
+    THRESHOLD = QUALITY_THRESHOLD
+    QUALITY_SCORES = QUALITY_SCORES
 
     def __init__(self, threshold: float = None):
         self.name = "Scoring Engine"
-        if threshold is None:
-            threshold = float(os.getenv('THRESHOLD', 7.0))
-        self.threshold = threshold
+        self.threshold = threshold if threshold is not None else QUALITY_THRESHOLD
 
     def calculate_scores(self, validation: Dict[str, Any]) -> Dict[str, Any]:
         """

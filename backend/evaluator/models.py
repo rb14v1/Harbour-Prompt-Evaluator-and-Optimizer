@@ -156,3 +156,40 @@ class EvaluationResult(models.Model):
 
     def __str__(self):
         return f"Result {self.id}: {self.final_score}"
+
+
+class AgentOutput(models.Model):
+    AGENT_CHOICES = [
+        ('preprocessor', 'Preprocessor'),
+        ('classifier', 'Classifier'),
+        ('analyzer', 'Analyzer'),
+        ('validator', 'Validator'),
+        ('scoring', 'Scoring'),
+        ('improver', 'Improver'),
+        ('report', 'Report'),
+    ]
+
+    STATUS_CHOICES = [
+        ('success', 'Success'),
+        ('skipped', 'Skipped'),
+        ('failed', 'Failed'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    evaluation_result = models.ForeignKey(EvaluationResult, on_delete=models.CASCADE, related_name='agent_outputs')
+    agent_name = models.CharField(max_length=50, choices=AGENT_CHOICES)
+    iteration_number = models.IntegerField(default=0)
+    input_data = models.JSONField(default=dict)
+    output_data = models.JSONField(default=dict)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='success')
+    error_message = models.TextField(blank=True, null=True)
+    executed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['iteration_number', 'executed_at']
+        indexes = [
+            models.Index(fields=['evaluation_result', 'agent_name']),
+        ]
+
+    def __str__(self):
+        return f"{self.agent_name} - Iteration {self.iteration_number}"
