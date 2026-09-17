@@ -11,8 +11,9 @@ from io import BytesIO
 from datetime import datetime
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.cell.rich_text import CellRichText, TextBlock
 
-from evaluator.models import EvaluationResult, Prompt
+from evaluator.models import EvaluationResult, Prompt, AgentOutput
 from evaluator.serializers import (
     EvaluationResultSerializer,
     PromptSerializer,
@@ -44,6 +45,266 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             response['Access-Control-Allow-Credentials'] = 'true'
 
         return response
+
+    def highlight_keywords_in_text(self, text, keywords, highlight_color="FFFF00"):
+        """Highlight specific keywords in text using RichText with background color"""
+        if not text or not keywords:
+            return text
+
+        text = str(text)
+
+        try:
+            # Import here to avoid issues
+            from openpyxl.cell.rich_text import CellRichText, TextBlock
+            from openpyxl.styles import Font, PatternFill
+
+            # Split text into words while preserving structure
+            words = text.split()
+            rich_parts = []
+
+            for word in words:
+                # Check if this word or any keyword is in the word (case-insensitive)
+                word_lower = word.lower()
+                is_keyword = False
+
+                for keyword in keywords:
+                    if keyword.lower() in word_lower:
+                        is_keyword = True
+                        break
+
+                if is_keyword:
+                    # Highlight this word with yellow background
+                    font = Font(bold=True, color="000000")
+                    fill = PatternFill(start_color=highlight_color, end_color=highlight_color, fill_type="solid")
+                    rich_parts.append(TextBlock(font, word + " "))
+                else:
+                    # Normal text
+                    rich_parts.append(TextBlock(Font(color="000000"), word + " "))
+
+            if len(rich_parts) > 1:
+                return CellRichText(*rich_parts)
+            else:
+                return text
+        except Exception as e:
+            logger.warning(f"Keyword highlighting failed: {e}")
+            return text
+
+    def highlight_important_keywords(self, text):
+        """Intelligently highlight only IMPORTANT keywords in text using bold + color"""
+        if not text:
+            return text
+
+        try:
+            from openpyxl.cell.rich_text import CellRichText, TextBlock
+            from openpyxl.styles import Font
+
+            text = str(text)
+
+            # IMPORTANT keywords by context (only critical ones)
+            important_keywords = {
+                # Issues/Problems
+                'issue': 'FF0000',           # Red
+                'problem': 'FF0000',
+                'error': 'FF0000',
+                'failed': 'FF0000',
+                'fail': 'FF0000',
+                'critical': 'FF0000',
+
+                # Missing/Incomplete
+                'missing': 'FF9900',         # Orange
+                'lacks': 'FF9900',
+                'unclear': 'FF9900',
+                'undefined': 'FF9900',
+                'ambiguous': 'FF9900',
+                'vague': 'FF9900',
+
+                # Action/Improvement
+                'improve': '0066CC',         # Blue
+                'clarify': '0066CC',
+                'specify': '0066CC',
+                'add': '0066CC',
+                'expand': '0066CC',
+                'define': '0066CC',
+                'detail': '0066CC',
+
+                # Quality/Success
+                'excellent': '00CC00',       # Green
+                'good': '00CC00',
+                'perfect': '00CC00',
+                'complete': '00CC00',
+            }
+
+            # Split and rebuild with highlighting
+            import re
+            parts = re.split(r'(\s+)', text)
+            rich_parts = []
+
+            for part in parts:
+                if not part:
+                    continue
+
+                # Check if this part contains an important keyword
+                part_lower = part.lower().strip('.,;:!?')
+                found_keyword = False
+
+                for keyword, color in important_keywords.items():
+                    if keyword == part_lower or keyword in part_lower:
+                        # HIGHLIGHT: Bold + colored text
+                        font = Font(bold=True, color=color, size=11)
+                        rich_parts.append(TextBlock(font, part))
+                        found_keyword = True
+                        break
+
+                if not found_keyword:
+                    # Normal text
+                    rich_parts.append(TextBlock(Font(color="000000", size=11), part))
+
+            if len(rich_parts) > 1:
+                return CellRichText(*rich_parts)
+            return text
+
+        except Exception as e:
+            logger.warning(f"Keyword highlighting error: {e}")
+            return text
+
+    def build_highlighted_text(self, text):
+        """Build RichText with ONLY important keywords highlighted in yellow"""
+        if not text:
+            return text
+
+        try:
+            from openpyxl.cell.rich_text import CellRichText, TextBlock
+            from openpyxl.styles import Font
+            import re
+
+            text = str(text)
+
+            # Important keywords to highlight
+            keywords = [
+                'missing', 'lacks', 'unclear', 'undefined', 'ambiguous', 'vague',
+                'issue', 'problem', 'error', 'critical', 'failed',
+                'improve', 'clarify', 'specify', 'add', 'expand', 'detail',
+            ]
+
+            # Create regex pattern - match whole words or phrases
+            keyword_pattern = '|'.join(re.escape(kw) for kw in sorted(keywords, key=len, reverse=True))
+
+            # Split text by keywords
+            parts = re.split(f'({keyword_pattern})', text, flags=re.IGNORECASE)
+
+            rich_parts = []
+            for part in parts:
+                if not part:
+                    continue
+
+                # Check if this is a keyword (case-insensitive match)
+                is_keyword = any(part.lower() == kw.lower() for kw in keywords)
+
+                if is_keyword:
+                    # HIGHLIGHT: Bold + yellow text color
+                    font = Font(bold=True, color="DAA520", size=11)  # Goldenrod yellow
+                    rich_parts.append(TextBlock(font, part))
+                else:
+                    # Normal: Regular font
+                    rich_parts.append(TextBlock(Font(color="000000", size=11), part))
+
+            if len(rich_parts) > 1:
+                return CellRichText(*rich_parts)
+            return text
+
+        except Exception as e:
+            logger.warning(f"Highlighting failed: {e}")
+            return text
+
+    def create_highlighted_rich_text(self, text, keywords, color="FFC000"):
+        """Create RichText with specific keywords highlighted in bold/colored"""
+        if not text or not keywords:
+            return text
+
+        text_lower = text.lower()
+        parts = []
+        last_end = 0
+
+        # Find all keyword occurrences
+        occurrences = []
+        for keyword in keywords:
+            keyword_lower = keyword.lower()
+            start = 0
+            while True:
+                pos = text_lower.find(keyword_lower, start)
+                if pos == -1:
+                    break
+                occurrences.append((pos, pos + len(keyword)))
+                start = pos + 1
+
+        if not occurrences:
+            return text
+
+        # Sort and merge overlapping occurrences
+        occurrences.sort()
+        merged = []
+        for start, end in occurrences:
+            if merged and start <= merged[-1][1]:
+                merged[-1] = (merged[-1][0], max(merged[-1][1], end))
+            else:
+                merged.append((start, end))
+
+        # Build rich text with highlighted portions
+        try:
+            for start, end in merged:
+                if start > last_end:
+                    parts.append(TextBlock(Font(), text[last_end:start]))
+
+                highlighted_font = Font(bold=True, color=color)
+                parts.append(TextBlock(highlighted_font, text[start:end]))
+                last_end = end
+
+            if last_end < len(text):
+                parts.append(TextBlock(Font(), text[last_end:]))
+
+            return CellRichText(*parts) if len(parts) > 1 else text
+        except Exception as e:
+            logger.warning(f"Failed to create highlighted rich text: {str(e)}")
+            return text
+
+    def save_agent_outputs(self, evaluation_result, report):
+        """Save individual agent outputs to AgentOutput table"""
+        execution_history = report.get('execution_history', {})
+        iterations = execution_history.get('iterations', [])
+
+        for iteration_data in iterations:
+            iteration_num = iteration_data.get('iteration', 0)
+            stages = iteration_data.get('stages', {})
+
+            for agent_name, stage_data in stages.items():
+                if agent_name not in ['preprocessor', 'classifier', 'analyzer', 'validator', 'scoring', 'improver', 'report']:
+                    continue
+
+                try:
+                    input_data = stage_data.get('input', {})
+                    output_data = stage_data.get('output', {})
+
+                    # Determine status
+                    agent_status = 'success'
+                    error_msg = None
+                    if isinstance(output_data, dict):
+                        if output_data.get('status') == 'skipped':
+                            agent_status = 'skipped'
+                        elif 'error' in output_data or output_data.get('status') == 'failed':
+                            agent_status = 'failed'
+                            error_msg = output_data.get('error') or output_data.get('message')
+
+                    AgentOutput.objects.create(
+                        evaluation_result=evaluation_result,
+                        agent_name=agent_name,
+                        iteration_number=iteration_num,
+                        input_data=input_data if input_data else {},
+                        output_data=output_data if output_data else {},
+                        status=agent_status,
+                        error_message=error_msg
+                    )
+                except Exception as e:
+                    logger.warning(f"Failed to save agent output for {agent_name}: {str(e)}")
 
     def options(self, request, *args, **kwargs):
         """Handle CORS preflight requests"""
@@ -87,8 +348,10 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                     processed_prompt=prompt_text
                 )
 
-                # Run evaluation
-                orchestrator = PromptEvaluationOrchestrator()
+                # Run evaluation with 7.0 threshold (from .env or default)
+                import os
+                threshold = float(os.getenv('THRESHOLD', 7.0))
+                orchestrator = PromptEvaluationOrchestrator(threshold=threshold)
                 report = orchestrator.evaluate(prompt_text)
 
                 # Store result
@@ -104,6 +367,9 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                     status=report['status'],
                     full_report=report
                 )
+
+                # Save individual agent outputs to database
+                self.save_agent_outputs(result, report)
 
                 # Add result ID to report for response
                 report['id'] = result.id
@@ -141,7 +407,9 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             )
 
         try:
-            orchestrator = PromptEvaluationOrchestrator()
+            import os
+            threshold = float(os.getenv('THRESHOLD', 7.0))
+            orchestrator = PromptEvaluationOrchestrator(threshold=threshold)
             results = []
 
             for prompt_text in prompts:
@@ -285,33 +553,40 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             row += 1
 
             ws[f'A{row}'] = "Intent"
-            ws[f'B{row}'] = analysis.get('intent', 'N/A')
+            intent_text = analysis.get('intent', 'N/A')
+            ws[f'B{row}'] = intent_text
+            ws[f'B{row}'].font = Font(bold=True, size=10)
             ws.merge_cells(f'B{row}:D{row}')
+            ws[f'B{row}'].alignment = Alignment(wrap_text=True)
             row += 1
 
             ws[f'A{row}'] = "Missing Information"
-            ws[f'A{row}'].font = Font(bold=True)
-            missing_info = ', '.join(analysis.get('missing_information', []))
-            ws[f'B{row}'] = missing_info if missing_info else "None"
+            ws[f'A{row}'].font = Font(bold=True, size=11)
+            missing_info_list = analysis.get('missing_information', [])
+            if missing_info_list:
+                missing_text = ", ".join(missing_info_list)
+                # Build RichText with important keywords highlighted in yellow
+                parts = self.build_highlighted_text(missing_text)
+                ws[f'B{row}'] = parts
+            else:
+                ws[f'B{row}'] = "None"
             ws.merge_cells(f'B{row}:D{row}')
-            ws[f'B{row}'].alignment = Alignment(wrap_text=True)
-            # Highlight missing information in yellow if present
-            if missing_info:
-                ws[f'B{row}'].fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
-                ws[f'B{row}'].font = Font(bold=True, color="000000")
+            ws[f'B{row}'].alignment = Alignment(wrap_text=True, vertical='top')
             ws.row_dimensions[row].height = 40
             row += 1
 
             ws[f'A{row}'] = "Ambiguities"
-            ws[f'A{row}'].font = Font(bold=True)
-            ambiguities = ', '.join(analysis.get('ambiguities', []))
-            ws[f'B{row}'] = ambiguities if ambiguities else "None"
+            ws[f'A{row}'].font = Font(bold=True, size=11)
+            ambiguities_list = analysis.get('ambiguities', [])
+            if ambiguities_list:
+                ambig_text = ", ".join(ambiguities_list)
+                # Build RichText with important keywords highlighted
+                parts = self.build_highlighted_text(ambig_text)
+                ws[f'B{row}'] = parts
+            else:
+                ws[f'B{row}'] = "None"
             ws.merge_cells(f'B{row}:D{row}')
-            ws[f'B{row}'].alignment = Alignment(wrap_text=True)
-            # Highlight ambiguities in orange if present
-            if ambiguities:
-                ws[f'B{row}'].fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
-                ws[f'B{row}'].font = Font(bold=True, color="000000")
+            ws[f'B{row}'].alignment = Alignment(wrap_text=True, vertical='top')
             ws.row_dimensions[row].height = 40
             row += 2
 
@@ -336,12 +611,27 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             for dim_name, dim_data in validation.items():
                 ws[f'A{row}'] = dim_name.replace('_', ' ').title()
                 ws[f'B{row}'] = dim_data.get('score', 'N/A')
-                ws[f'C{row}'] = dim_data.get('level', 'N/A')
+
+                # Highlight score level with background
+                level = dim_data.get('level', 'N/A')
+                if level.lower() == 'poor':
+                    ws[f'C{row}'].fill = PatternFill(start_color="FFB3BA", end_color="FFB3BA", fill_type="solid")
+                elif level.lower() == 'moderate':
+                    ws[f'C{row}'].fill = PatternFill(start_color="FFFFBA", end_color="FFFFBA", fill_type="solid")
+                elif level.lower() == 'good':
+                    ws[f'C{row}'].fill = PatternFill(start_color="BAFFC9", end_color="BAFFC9", fill_type="solid")
+                elif level.lower() == 'excellent':
+                    ws[f'C{row}'].fill = PatternFill(start_color="BAE1FF", end_color="BAE1FF", fill_type="solid")
+
+                ws[f'C{row}'] = level
+
                 issues = dim_data.get('issues', [])
                 rec = dim_data.get('recommendation', '')
-                ws[f'D{row}'] = f"Issues: {', '.join(issues) if issues else 'None'}. Recommendation: {rec}"
+                issues_rec_text = f"Issues: {', '.join(issues) if issues else 'None'}. Recommendation: {rec}"
+                # Highlight keywords in issues/recommendations
+                ws[f'D{row}'] = self.build_highlighted_text(issues_rec_text)
                 ws[f'D{row}'].alignment = Alignment(wrap_text=True)
-                ws.row_dimensions[row].height = 30
+                ws.row_dimensions[row].height = 40
                 row += 1
 
             row += 1
@@ -475,7 +765,9 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                 row += 1
 
             ws[f'A{row}'] = "Summary"
-            ws[f'B{row}'] = report.get('summary', '')
+            summary_text = report.get('summary', '')
+            # Highlight keywords in summary
+            ws[f'B{row}'] = self.build_highlighted_text(summary_text)
             ws[f'B{row}'].alignment = Alignment(wrap_text=True)
             ws.merge_cells(f'B{row}:D{row}')
             ws.row_dimensions[row].height = 50

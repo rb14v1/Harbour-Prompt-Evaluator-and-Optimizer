@@ -156,6 +156,8 @@ class PromptEvaluationOrchestrator:
 
             # Only accept improvement if score actually increased
             new_score = current_evaluation["overall_score"]
+            score_improvement = new_score - best_score
+
             if new_score > best_score:
                 best_score = new_score
                 best_prompt = current_prompt
@@ -166,6 +168,12 @@ class PromptEvaluationOrchestrator:
                 current_prompt = best_prompt
                 current_evaluation = best_evaluation
                 validation = best_validation
+                score_improvement = 0
+
+            # Early stopping: if improvement is less than 0.3 and we already passed 6.0, stop iterating
+            # This prevents wasting time on tiny improvements
+            if best_score >= 6.0 and score_improvement < 0.3 and iteration >= 1:
+                break
 
             # Add updated Validator and Scoring to this iteration (using the re-validated results)
             execution_history["iterations"][iteration]["stages"]["validator"] = {
