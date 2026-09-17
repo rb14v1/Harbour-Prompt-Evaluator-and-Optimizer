@@ -26,7 +26,7 @@ const getPreviousAgent = (agentKey) => {
   return idx > 0 ? AGENT_ORDER[idx - 1] : null
 }
 
-export default function AgentDetailPanel({ stages, activeAgent, threshold = 7.0 }) {
+export default function AgentDetailPanel({ stages, activeAgent, threshold = 9.5 }) {
   const [showPrevious, setShowPrevious] = useState(false)
   const [viewMode, setViewMode] = useState('json')
 
@@ -60,7 +60,7 @@ export default function AgentDetailPanel({ stages, activeAgent, threshold = 7.0 
         <div className="bg-warning-50 dark:bg-warning-900/20 border border-warning-200 dark:border-warning-700 rounded-lg p-4">
           <p className="font-medium text-warning-900 dark:text-warning-100">Status: Skipped</p>
           <p className="text-sm text-warning-800 dark:text-warning-200 mt-2">
-            {currentStage.reason || 'Prompt already meets the 7.0 quality threshold.'}
+            {currentStage.reason || 'Prompt already meets the 9.5 quality threshold.'}
           </p>
         </div>
       </div>

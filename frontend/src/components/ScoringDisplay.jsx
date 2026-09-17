@@ -11,7 +11,7 @@ const DIMENSIONS = [
   'actionability'
 ]
 
-const getScoreColor = (score, threshold = 7.0) => {
+const getScoreColor = (score, threshold = 9.5) => {
   if (score >= threshold) return 'from-success-500 to-success-600'
   if (score >= 5.0) return 'from-warning-500 to-warning-600'
   return 'from-danger-500 to-danger-600'
@@ -28,7 +28,7 @@ const getStatusColor = (status) => {
   }
 }
 
-export default function ScoringDisplay({ scoring, threshold = 7.0 }) {
+export default function ScoringDisplay({ scoring, threshold = 9.5 }) {
   if (!scoring) return <div className="text-gray-500 p-4">No scoring data available</div>
 
   const overallScore = scoring.overall_score || 0
