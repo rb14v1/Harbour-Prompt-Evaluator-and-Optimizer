@@ -1,5 +1,5 @@
 import { Check, AlertCircle, RefreshCw, Download } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ScoreCard from './ScoreCard'
 import DimensionChart from './DimensionChart'
 import AgentPipeline from './AgentPipeline'
@@ -8,15 +8,19 @@ import IterationTabs from './IterationTabs'
 import TabInterface from './TabInterface'
 import TableDisplay from './TableDisplay'
 import JsonDisplay from './JsonDisplay'
-import apiClient from '../services/api'
-
-const THRESHOLD = 9.5
+import apiClient, { getConfig } from '../services/api'
 
 export default function EvaluationResult({ result, isLoading = false }) {
   const [activeAgent, setActiveAgent] = useState('preprocessor')
   const [activeIteration, setActiveIteration] = useState(0)
   const [isExporting, setIsExporting] = useState(false)
   const [viewMode, setViewMode] = useState('text')
+  const [THRESHOLD, setThreshold] = useState(9.5)
+
+  useEffect(() => {
+    const config = getConfig()
+    setThreshold(config.threshold)
+  }, [])
 
   const handleExportExcel = async () => {
     if (!result?.id) {
