@@ -1,78 +1,30 @@
-import { Download, ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useState } from 'react'
 import ScoreCard from './ScoreCard'
 import DimensionChart from './DimensionChart'
-import AgentPipeline from './AgentPipeline'
-import AgentDetailPanel from './AgentDetailPanel'
+
+const THRESHOLD = 7.0
 
 export default function SimpleResults({ result }) {
   const [expandedAgent, setExpandedAgent] = useState(null)
-  const [isExporting, setIsExporting] = useState(false)
 
   if (!result) return null
 
-  const handleExportExcel = async () => {
-    if (!result?.id) {
-      alert('Evaluation ID not found')
-      return
-    }
-
-    setIsExporting(true)
-    try {
-      const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
-      const url = `${apiBaseUrl}/evaluations/${result.id}/export_excel/`
-
-      const response = await fetch(url, {
-        method: 'GET',
-        credentials: 'include'
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
-
-      const blob = await response.blob()
-      const downloadUrl = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = downloadUrl
-      link.setAttribute('download', `evaluation_${result.id}.xlsx`)
-      document.body.appendChild(link)
-      link.click()
-      link.parentNode.removeChild(link)
-      window.URL.revokeObjectURL(downloadUrl)
-    } catch (error) {
-      console.error('Export failed:', error)
-      alert(`Failed to export: ${error.message}`)
-    } finally {
-      setIsExporting(false)
-    }
-  }
-
-  const executionHistory = result.execution_history
-  const currentIteration = executionHistory?.iterations?.[0] || {}
+  const executionHistory = result.execution_history || { iterations: [] }
+  const currentIteration = executionHistory.iterations?.[0] || {}
   const stages = currentIteration.stages || {}
 
   return (
     <div className="space-y-8">
       {/* Summary Header */}
       <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg p-8 shadow-md">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-3xl font-bold">Evaluation Results</h2>
-          <button
-            onClick={handleExportExcel}
-            disabled={isExporting}
-            className="flex items-center gap-2 px-4 py-2 bg-white text-primary-600 rounded-lg font-medium hover:bg-gray-100 disabled:opacity-50 transition-colors"
-          >
-            <Download size={18} />
-            {isExporting ? 'Exporting...' : 'Download Excel'}
-          </button>
-        </div>
+        <h2 className="text-3xl font-bold mb-6">Evaluation Results</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <p className="text-sm opacity-90 mb-2">Final Score</p>
             <p className="text-5xl font-bold">{result.final_score ? result.final_score.toFixed(1) : 'N/A'}/10</p>
-            <p className="text-xs opacity-75 mt-1">Threshold: 9.8</p>
+            <p className="text-xs opacity-75 mt-1">Threshold: {THRESHOLD}</p>
           </div>
           <div>
             <p className="text-sm opacity-90 mb-2">Status</p>

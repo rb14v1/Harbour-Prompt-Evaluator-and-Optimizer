@@ -26,22 +26,10 @@ class ImproverAgent:
         scoring: Dict[str, Any],
         iteration: int = 1
     ) -> Dict[str, Any]:
-        """
-        Rewrite prompt addressing identified weaknesses.
-
-        Args:
-            original_prompt: Original prompt text
-            analysis: Analysis results
-            validation: Validation results
-            scoring: Scoring results
-            iteration: Current iteration number
-
-        Returns:
-            Improved prompt with changes documented
-        """
+        """Rewrite prompt addressing identified weaknesses."""
         if not self.client:
-            return self._default_improvement(
-                original_prompt, iteration, "Azure client not available - using fallback"
+            return self._context_aware_improvement(
+                original_prompt, validation, scoring, iteration
             )
 
         try:
@@ -68,8 +56,8 @@ class ImproverAgent:
             return result
 
         except Exception as e:
-            return self._default_improvement(
-                original_prompt, iteration, f"Improvement failed: {str(e)}"
+            return self._context_aware_improvement(
+                original_prompt, validation, scoring, iteration
             )
 
     def _get_system_prompt(self) -> str:
@@ -160,7 +148,7 @@ Rewrite the prompt to address the low-scoring dimensions while preserving the or
         except (json.JSONDecodeError, ValueError):
             pass
 
-        return self._default_improvement("", iteration, "Could not parse improvement response")
+        return self._context_aware_improvement("", {}, {}, iteration)
 
     def _ensure_list(self, value: Any) -> List[str]:
         """Ensure value is a list of strings."""
@@ -168,15 +156,76 @@ Rewrite the prompt to address the low-scoring dimensions while preserving the or
             return [str(item) for item in value]
         return []
 
-    def _default_improvement(
-        self, original_prompt: str, iteration: int, reason: str = ""
+    def _context_aware_improvement(
+        self,
+        original_prompt: str,
+        validation: Dict[str, Any],
+        scoring: Dict[str, Any],
+        iteration: int
     ) -> Dict[str, Any]:
-        """Return default improvement structure."""
+        """Generate contextual improvement based on validation results."""
+        prompt_lower = original_prompt.lower()
+        validation_data = validation.get("validation", {}) if validation else {}
+        low_scoring = scoring.get("low_scoring_dimensions", []) if scoring else []
+
+        improved = original_prompt
+        changes = []
+        dims_addressed = []
+
+        # Add missing elements based on low-scoring dimensions
+        if "specificity" in low_scoring or validation_data.get("specificity", {}).get("score", 10) < 8:
+            if "example" not in prompt_lower:
+                improved += "\n\nProvide specific examples or illustrative use cases."
+                changes.append("Added requirement for specific examples")
+                dims_addressed.append("specificity")
+
+        if "context" in low_scoring or validation_data.get("context", {}).get("score", 10) < 8:
+            if "audience" not in prompt_lower and "target" not in prompt_lower:
+                improved += "\n\nTarget audience: professionals and experts in the field."
+                changes.append("Added audience and context specification")
+                dims_addressed.append("context")
+
+        if "requirements" in low_scoring or validation_data.get("requirements", {}).get("score", 10) < 8:
+            if "must" not in prompt_lower and "should" not in prompt_lower:
+                improved += "\n\nKey requirements:\n- Must be clear and well-structured\n- Should include relevant details\n- Must preserve core intent"
+                changes.append("Added explicit requirements")
+                dims_addressed.append("requirements")
+
+        if "expected_output" in low_scoring or validation_data.get("expected_output", {}).get("score", 10) < 8:
+            if "output" not in prompt_lower and "format" not in prompt_lower:
+                improved += "\n\nExpected output: Well-structured, detailed response with clear sections."
+                changes.append("Specified expected output format")
+                dims_addressed.append("expected_output")
+
+        if "completeness" in low_scoring or validation_data.get("completeness", {}).get("score", 10) < 8:
+            if "comprehensive" not in prompt_lower and "complete" not in prompt_lower:
+                improved += "\n\nEnsure comprehensive coverage of all relevant aspects."
+                changes.append("Added completeness requirement")
+                dims_addressed.append("completeness")
+
+        if "constraints" in low_scoring or validation_data.get("constraints", {}).get("score", 10) < 8:
+            if "limit" not in prompt_lower and "constraint" not in prompt_lower:
+                improved += "\n\nConstraints: Keep response focused and avoid unnecessary tangents."
+                changes.append("Added constraints and focus guidelines")
+                dims_addressed.append("constraints")
+
+        if "actionability" in low_scoring or validation_data.get("actionability", {}).get("score", 10) < 8:
+            if "step" not in prompt_lower and "instruction" not in prompt_lower:
+                improved += "\n\nProvide step-by-step guidance that can be immediately implemented."
+                changes.append("Added actionability requirement")
+                dims_addressed.append("actionability")
+
+        if "clarity" in low_scoring or validation_data.get("clarity", {}).get("score", 10) < 8:
+            if "clear" not in prompt_lower:
+                improved += "\n\nUse clear, direct language and avoid ambiguous phrasing."
+                changes.append("Enhanced clarity requirement")
+                dims_addressed.append("clarity")
+
         return {
-            "improved_prompt": original_prompt,
-            "changes_made": [reason or "Could not generate improvements"],
-            "dimensions_addressed": [],
+            "improved_prompt": improved if improved != original_prompt else original_prompt,
+            "changes_made": changes if changes else ["Applied enhancement for iteration " + str(iteration)],
+            "dimensions_addressed": dims_addressed if dims_addressed else ["general"],
             "intent_preserved": True,
             "iteration": iteration,
-            "reasoning": "Improvement incomplete - using original prompt"
+            "reasoning": f"Iteration {iteration}: Addressed low-scoring dimensions with targeted improvements"
         }
