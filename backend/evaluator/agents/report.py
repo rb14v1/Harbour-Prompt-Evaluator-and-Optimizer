@@ -60,14 +60,18 @@ class ReportAgent:
             status
         )
 
+        initial_score = initial_evaluation.get("overall_score", 0.0)
+
         report = {
             "prompt_id": prompt_id,
             "original_prompt": original_prompt,
+            "initial_score": initial_score,
+            "final_score": final_score,
             "classification": classification,
             "analysis": analysis,
             "initial_evaluation": {
                 "dimension_scores": initial_evaluation.get("dimension_scores", {}),
-                "overall_score": initial_evaluation.get("overall_score", 0.0),
+                "overall_score": initial_score,
                 "status": initial_evaluation.get("status", "Unknown"),
                 "low_scoring_dimensions": initial_evaluation.get("low_scoring_dimensions", [])
             },

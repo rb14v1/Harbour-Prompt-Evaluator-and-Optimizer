@@ -86,6 +86,8 @@ class PromptEvaluationResponseSerializer(serializers.Serializer):
     id = serializers.CharField(required=False)
     prompt_id = serializers.CharField()
     original_prompt = serializers.CharField()
+    initial_score = serializers.FloatField(required=False)
+    final_score = serializers.FloatField(required=False)
     classification = serializers.JSONField()
     analysis = serializers.JSONField()
     initial_evaluation = serializers.JSONField()

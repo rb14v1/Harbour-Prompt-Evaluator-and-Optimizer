@@ -10,7 +10,7 @@ import TableDisplay from './TableDisplay'
 import JsonDisplay from './JsonDisplay'
 import apiClient from '../services/api'
 
-const THRESHOLD = 7.0
+const THRESHOLD = 9.5
 
 export default function EvaluationResult({ result, isLoading = false }) {
   const [activeAgent, setActiveAgent] = useState('preprocessor')

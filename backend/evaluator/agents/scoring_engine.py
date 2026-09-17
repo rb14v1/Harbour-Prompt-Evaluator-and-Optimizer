@@ -5,7 +5,7 @@ class ScoringEngine:
     Converts validation results to numerical scores and determines next action.
     """
 
-    THRESHOLD = 7.0
+    THRESHOLD = 9.5
     QUALITY_SCORES = {
         "Poor": 2.5,
         "Moderate": 5.0,
@@ -13,7 +13,7 @@ class ScoringEngine:
         "Excellent": 10.0
     }
 
-    def __init__(self, threshold: float = 7.0):
+    def __init__(self, threshold: float = 9.5):
         self.name = "Scoring Engine"
         self.threshold = threshold
 

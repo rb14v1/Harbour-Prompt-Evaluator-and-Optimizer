@@ -231,7 +231,7 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             ws[f'A{row}'] = "Status"
             ws[f'B{row}'] = report.get('status', 'N/A')
             ws[f'C{row}'] = "Threshold"
-            ws[f'D{row}'] = 7.0
+            ws[f'D{row}'] = 9.5
             row += 1
 
             ws[f'A{row}'] = "Iterations Required"
@@ -290,10 +290,28 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             row += 1
 
             ws[f'A{row}'] = "Missing Information"
+            ws[f'A{row}'].font = Font(bold=True)
             missing_info = ', '.join(analysis.get('missing_information', []))
-            ws[f'B{row}'] = missing_info
+            ws[f'B{row}'] = missing_info if missing_info else "None"
             ws.merge_cells(f'B{row}:D{row}')
             ws[f'B{row}'].alignment = Alignment(wrap_text=True)
+            # Highlight missing information in yellow if present
+            if missing_info:
+                ws[f'B{row}'].fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+                ws[f'B{row}'].font = Font(bold=True, color="000000")
+            ws.row_dimensions[row].height = 40
+            row += 1
+
+            ws[f'A{row}'] = "Ambiguities"
+            ws[f'A{row}'].font = Font(bold=True)
+            ambiguities = ', '.join(analysis.get('ambiguities', []))
+            ws[f'B{row}'] = ambiguities if ambiguities else "None"
+            ws.merge_cells(f'B{row}:D{row}')
+            ws[f'B{row}'].alignment = Alignment(wrap_text=True)
+            # Highlight ambiguities in orange if present
+            if ambiguities:
+                ws[f'B{row}'].fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
+                ws[f'B{row}'].font = Font(bold=True, color="000000")
             ws.row_dimensions[row].height = 40
             row += 2
 

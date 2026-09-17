@@ -13,9 +13,9 @@ class PromptEvaluationOrchestrator:
     """
 
     MAX_ITERATIONS = 3
-    THRESHOLD = 7.0
+    THRESHOLD = 9.5
 
-    def __init__(self, max_iterations: int = 3, threshold: float = 7.0):
+    def __init__(self, max_iterations: int = 3, threshold: float = 9.5):
         self.max_iterations = max_iterations
         self.threshold = threshold
 
@@ -103,6 +103,10 @@ class PromptEvaluationOrchestrator:
         improvement_history = []
         current_prompt = processed_prompt
         current_evaluation = initial_scoring
+        best_score = initial_scoring["overall_score"]
+        best_prompt = processed_prompt
+        best_validation = validation
+        best_evaluation = initial_scoring
         iteration = 0
 
         while (
@@ -150,6 +154,19 @@ class PromptEvaluationOrchestrator:
             validation = self.validator.validate(current_prompt, analysis)
             current_evaluation = self.scoring_engine.calculate_scores(validation)
 
+            # Only accept improvement if score actually increased
+            new_score = current_evaluation["overall_score"]
+            if new_score > best_score:
+                best_score = new_score
+                best_prompt = current_prompt
+                best_validation = validation
+                best_evaluation = current_evaluation
+            else:
+                # Score decreased or stayed same - revert to best known version
+                current_prompt = best_prompt
+                current_evaluation = best_evaluation
+                validation = best_validation
+
             # Add updated Validator and Scoring to this iteration (using the re-validated results)
             execution_history["iterations"][iteration]["stages"]["validator"] = {
                 "input": analysis,
@@ -168,8 +185,12 @@ class PromptEvaluationOrchestrator:
                 "reason": "prompt already meets threshold"
             }
 
-        # Final evaluation
-        final_evaluation = current_evaluation
+        # Final evaluation - always use best score found
+        final_evaluation = best_evaluation if best_evaluation else current_evaluation
+
+        # Debug: Ensure final_evaluation has overall_score
+        if "overall_score" not in final_evaluation:
+            final_evaluation["overall_score"] = best_score
 
         # Stage 6b: Generate Report
         report = self.report_agent.generate_report(
