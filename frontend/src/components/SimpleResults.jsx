@@ -1,5 +1,5 @@
 import { Download, ChevronDown, ChevronUp } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ScoreCard from './ScoreCard'
 import DimensionChart from './DimensionChart'
 import AgentPipeline from './AgentPipeline'
@@ -8,6 +8,24 @@ import AgentDetailPanel from './AgentDetailPanel'
 export default function SimpleResults({ result }) {
   const [expandedAgent, setExpandedAgent] = useState(null)
   const [isExporting, setIsExporting] = useState(false)
+  const [threshold, setThreshold] = useState(7.0)
+
+  useEffect(() => {
+    // Fetch threshold from config endpoint
+    const fetchConfig = async () => {
+      try {
+        const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+        const response = await fetch(`${apiBaseUrl}/evaluation-results/config/`)
+        if (response.ok) {
+          const data = await response.json()
+          setThreshold(data.quality_threshold)
+        }
+      } catch (error) {
+        console.error('Failed to fetch config:', error)
+      }
+    }
+    fetchConfig()
+  }, [])
 
   if (!result) return null
 
@@ -48,6 +66,8 @@ export default function SimpleResults({ result }) {
     }
   }
 
+  // Get agent outputs from API response or fallback to execution_history
+  const agentOutputs = result.agent_outputs || []
   const executionHistory = result.execution_history
   const currentIteration = executionHistory?.iterations?.[0] || {}
   const stages = currentIteration.stages || {}
@@ -72,7 +92,7 @@ export default function SimpleResults({ result }) {
           <div>
             <p className="text-sm opacity-90 mb-2">Final Score</p>
             <p className="text-5xl font-bold">{result.final_score ? result.final_score.toFixed(1) : 'N/A'}/10</p>
-            <p className="text-xs opacity-75 mt-1">Threshold: 9.8</p>
+            <p className="text-xs opacity-75 mt-1">Threshold: {threshold.toFixed(1)}</p>
           </div>
           <div>
             <p className="text-sm opacity-90 mb-2">Status</p>
@@ -135,53 +155,123 @@ export default function SimpleResults({ result }) {
           Click to expand and view detailed output from each agent in the pipeline
         </p>
 
-        {['preprocessor', 'classifier', 'analyzer', 'validator', 'scoring', 'improver', 'report'].map((agent) => {
-          const stageData = stages[agent]
-          const isExpanded = expandedAgent === agent
-
-          if (!stageData) return null
-
-          return (
-            <div
-              key={agent}
-              className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
-            >
-              <button
-                onClick={() => setExpandedAgent(isExpanded ? null : agent)}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        {agentOutputs.length > 0 ? (
+          // Display only FINAL iteration agent outputs (less clutter)
+          (() => {
+            const maxIteration = Math.max(...agentOutputs.map(o => o.iteration_number), 0)
+            return agentOutputs
+              .filter(o => o.iteration_number === maxIteration)
+              .sort((a, b) => {
+                const order = ['preprocessor', 'classifier', 'analyzer', 'validator', 'scoring', 'improver', 'report']
+                return order.indexOf(a.agent_name) - order.indexOf(b.agent_name)
+              })
+              .map((output) => {
+            const isExpanded = expandedAgent === output.id
+            return (
+              <div
+                key={output.id}
+                className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
               >
-                <div className="flex items-center gap-3">
-                  {isExpanded ? (
-                    <ChevronUp size={20} className="text-primary-600" />
-                  ) : (
-                    <ChevronDown size={20} className="text-gray-400" />
-                  )}
-                  <span className="font-semibold text-gray-900 dark:text-gray-100 capitalize">
-                    {agent === 'scoring' ? 'Scoring Engine' : agent}
-                  </span>
-                </div>
-                <span className="text-xs px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 rounded">
-                  View
-                </span>
-              </button>
-
-              {isExpanded && (
-                <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {stageData.output && (
-                      <div>
-                        <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Output:</p>
-                        <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-3 rounded overflow-x-auto text-gray-800 dark:text-gray-200">
-                          {JSON.stringify(stageData.output, null, 2)}
-                        </pre>
-                      </div>
+                <button
+                  onClick={() => setExpandedAgent(isExpanded ? null : output.id)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    {isExpanded ? (
+                      <ChevronUp size={20} className="text-primary-600" />
+                    ) : (
+                      <ChevronDown size={20} className="text-gray-400" />
                     )}
+                    <span className="font-semibold text-gray-900 dark:text-gray-100 capitalize">
+                      {output.agent_name === 'scoring' ? 'Scoring Engine' : output.agent_name}
+                    </span>
+                    <span className="text-xs text-gray-500">Iteration {output.iteration_number}</span>
                   </div>
-                </div>
-              )}
-            </div>
-          )
-        })}
+                  <span className={`text-xs px-2 py-1 rounded ${
+                    output.status === 'success'
+                      ? 'bg-success-100 dark:bg-success-900 text-success-800 dark:text-success-200'
+                      : output.status === 'failed'
+                      ? 'bg-error-100 dark:bg-error-900 text-error-800 dark:text-error-200'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                  }`}>
+                    {output.status}
+                  </span>
+                </button>
+
+                {isExpanded && (
+                  <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                      {output.output_data && (
+                        <div>
+                          <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Output:</p>
+                          <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-3 rounded overflow-x-auto text-gray-800 dark:text-gray-200">
+                            {JSON.stringify(output.output_data, null, 2)}
+                          </pre>
+                        </div>
+                      )}
+                      {output.error_message && (
+                        <div className="bg-error-50 dark:bg-error-900/20 p-3 rounded border border-error-200 dark:border-error-700">
+                          <p className="text-xs font-semibold text-error-800 dark:text-error-200 mb-1">Error:</p>
+                          <p className="text-xs text-error-700 dark:text-error-300">{output.error_message}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })
+          })()
+        ) : (
+          // Fallback to stages from execution_history
+          ['preprocessor', 'classifier', 'analyzer', 'validator', 'scoring', 'improver', 'report'].map((agent) => {
+            const stageData = stages[agent]
+            const isExpanded = expandedAgent === agent
+
+            if (!stageData) return null
+
+            return (
+              <div
+                key={agent}
+                className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+              >
+                <button
+                  onClick={() => setExpandedAgent(isExpanded ? null : agent)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    {isExpanded ? (
+                      <ChevronUp size={20} className="text-primary-600" />
+                    ) : (
+                      <ChevronDown size={20} className="text-gray-400" />
+                    )}
+                    <span className="font-semibold text-gray-900 dark:text-gray-100 capitalize">
+                      {agent === 'scoring' ? 'Scoring Engine' : agent}
+                    </span>
+                  </div>
+                  <span className="text-xs px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 rounded">
+                    View
+                  </span>
+                </button>
+
+                {isExpanded && (
+                  <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {stageData.output && (
+                        <div>
+                          <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Output:</p>
+                          <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-3 rounded overflow-x-auto text-gray-800 dark:text-gray-200">
+                            {JSON.stringify(stageData.output, null, 2)}
+                          </pre>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })
+        )}
       </div>
 
       {/* Summary Section */}

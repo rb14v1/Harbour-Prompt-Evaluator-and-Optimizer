@@ -67,6 +67,14 @@ export const evaluationAPI = {
     return response.data
   },
 
+  // Quick evaluation (no iterations, ~10-15 seconds)
+  quickEvaluatePrompt: async (prompt) => {
+    const response = await apiClient.post('/evaluations/quick_evaluate/', {
+      prompt,
+    })
+    return response.data
+  },
+
   // Batch evaluate multiple prompts
   batchEvaluate: async (prompts) => {
     const response = await apiClient.post('/evaluations/batch_evaluate/', {
