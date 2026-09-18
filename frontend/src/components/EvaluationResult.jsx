@@ -8,18 +8,67 @@ import IterationTabs from './IterationTabs'
 import TabInterface from './TabInterface'
 import TableDisplay from './TableDisplay'
 import JsonDisplay from './JsonDisplay'
-import apiClient, { getConfig } from '../services/api'
+import apiClient from '../services/api'
 
 export default function EvaluationResult({ result, isLoading = false }) {
   const [activeAgent, setActiveAgent] = useState('preprocessor')
   const [activeIteration, setActiveIteration] = useState(0)
   const [viewMode, setViewMode] = useState('text')
-  const [THRESHOLD, setThreshold] = useState(9.5)
+  const [isExporting, setIsExporting] = useState(false)
+  const [THRESHOLD, setThreshold] = useState(7.0)
 
   useEffect(() => {
-    const config = getConfig()
-    setThreshold(config.threshold)
+    // Fetch threshold from backend config
+    const fetchConfig = async () => {
+      try {
+        const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+        const response = await fetch(`${apiBaseUrl}/config/`)
+        const config = await response.json()
+        setThreshold(config.threshold)
+      } catch (error) {
+        console.log('Using default threshold:', 7.0)
+        setThreshold(7.0)
+      }
+    }
+    fetchConfig()
   }, [])
+
+  const handleExportExcel = async () => {
+    if (!result?.id) {
+      alert('Evaluation ID not found')
+      return
+    }
+
+    setIsExporting(true)
+    try {
+      const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+      const url = `${apiBaseUrl}/evaluations/${result.id}/export_excel/`
+
+      const response = await fetch(url, {
+        method: 'GET',
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const blob = await response.blob()
+      const downloadUrl = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = downloadUrl
+      link.setAttribute('download', `evaluation_${result.id}.xlsx`)
+      document.body.appendChild(link)
+      link.click()
+      link.parentNode.removeChild(link)
+      window.URL.revokeObjectURL(downloadUrl)
+    } catch (error) {
+      console.error('Export failed:', error)
+      alert(`Failed to export to Excel: ${error.message}`)
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   if (!result) return null
 
@@ -42,10 +91,20 @@ export default function EvaluationResult({ result, isLoading = false }) {
               {result.status}
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm opacity-90 mb-1">Final Score</p>
-            <p className="text-4xl font-bold">{result.final_score ? result.final_score.toFixed(2) : 'N/A'}/10</p>
-            <p className="text-xs opacity-75 mt-1">Threshold: {THRESHOLD}</p>
+          <div className="flex flex-col items-end gap-3">
+            <button
+              onClick={handleExportExcel}
+              disabled={isExporting}
+              className="flex items-center gap-2 px-4 py-2 bg-white text-primary-600 rounded-lg font-medium hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <Download size={18} />
+              {isExporting ? 'Exporting...' : 'Download Excel'}
+            </button>
+            <div className="text-right">
+              <p className="text-sm opacity-90 mb-1">Final Score</p>
+              <p className="text-4xl font-bold">{result.final_score ? result.final_score.toFixed(2) : 'N/A'}/10</p>
+              <p className="text-xs opacity-75 mt-1">Threshold: {THRESHOLD}</p>
+            </div>
           </div>
         </div>
 

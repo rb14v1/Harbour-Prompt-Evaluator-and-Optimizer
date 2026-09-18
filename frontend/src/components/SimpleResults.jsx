@@ -1,12 +1,65 @@
-import { ChevronDown, ChevronUp } from 'lucide-react'
-import { useState } from 'react'
+import { ChevronDown, ChevronUp, Download } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import ScoreCard from './ScoreCard'
 import DimensionChart from './DimensionChart'
 
-const THRESHOLD = 7.0
-
 export default function SimpleResults({ result }) {
   const [expandedAgent, setExpandedAgent] = useState(null)
+  const [THRESHOLD, setThreshold] = useState(7.0)
+  const [isExporting, setIsExporting] = useState(false)
+
+  useEffect(() => {
+    // Fetch threshold from backend config
+    const fetchConfig = async () => {
+      try {
+        const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+        const response = await fetch(`${apiBaseUrl}/config/`)
+        const config = await response.json()
+        setThreshold(config.threshold)
+      } catch (error) {
+        console.log('Using default threshold:', 7.0)
+        setThreshold(7.0)
+      }
+    }
+    fetchConfig()
+  }, [])
+
+  const handleExportExcel = async () => {
+    if (!result?.id) {
+      alert('Evaluation ID not found')
+      return
+    }
+
+    setIsExporting(true)
+    try {
+      const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+      const url = `${apiBaseUrl}/evaluations/${result.id}/export_excel/`
+
+      const response = await fetch(url, {
+        method: 'GET',
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const blob = await response.blob()
+      const downloadUrl = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = downloadUrl
+      link.setAttribute('download', `evaluation_${result.id}.xlsx`)
+      document.body.appendChild(link)
+      link.click()
+      link.parentNode.removeChild(link)
+      window.URL.revokeObjectURL(downloadUrl)
+    } catch (error) {
+      console.error('Export failed:', error)
+      alert(`Failed to export to Excel: ${error.message}`)
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   if (!result) return null
 
@@ -18,7 +71,17 @@ export default function SimpleResults({ result }) {
     <div className="space-y-8">
       {/* Summary Header */}
       <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg p-8 shadow-md">
-        <h2 className="text-3xl font-bold mb-6">Evaluation Results</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-3xl font-bold">Evaluation Results</h2>
+          <button
+            onClick={handleExportExcel}
+            disabled={isExporting}
+            className="flex items-center gap-2 px-4 py-2 bg-white text-primary-600 rounded-lg font-medium hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <Download size={18} />
+            {isExporting ? 'Exporting...' : 'Download Excel'}
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
