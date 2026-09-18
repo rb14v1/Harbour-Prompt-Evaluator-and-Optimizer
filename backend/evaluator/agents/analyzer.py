@@ -45,7 +45,7 @@ class AnalyzerAgent:
                         "content": f"Analyze this prompt:\n\n{processed_prompt}"
                     }
                 ],
-                temperature=0.3,
+                temperature=0.0,
                 max_completion_tokens=1500
             )
 

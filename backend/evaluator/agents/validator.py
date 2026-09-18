@@ -64,7 +64,7 @@ class ValidatorAgent:
                         "content": self._format_user_message(processed_prompt, analysis)
                     }
                 ],
-                temperature=0.3,
+                temperature=0.0,
                 max_completion_tokens=3000
             )
 

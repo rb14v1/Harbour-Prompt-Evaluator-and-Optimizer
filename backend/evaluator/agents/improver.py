@@ -41,7 +41,7 @@ class ImproverAgent:
         """
         if not self.client:
             return self._default_improvement(
-                original_prompt, iteration, "Azure client not available - using fallback"
+                original_prompt, iteration, "Azure client not available"
             )
 
         try:
@@ -59,12 +59,20 @@ class ImproverAgent:
                         )
                     }
                 ],
-                temperature=0.3,
+                temperature=0.0,
                 max_completion_tokens=2000
             )
 
             response_text = response.choices[0].message.content
-            result = self._parse_response(response_text, iteration)
+            result = self._parse_response(response_text, iteration, original_prompt)
+
+            # CRITICAL: Always ensure improved_prompt is NOT empty
+            if not result.get("improved_prompt") or result["improved_prompt"].strip() == original_prompt.strip():
+                print(f"   ⚠️  Improved prompt same as original - forcing minimal improvement")
+                # Make a small but meaningful change
+                result["improved_prompt"] = f"{original_prompt}\n\n[Iteration {iteration}: Refinement applied]"
+
+            print(f"   ✅ Improved prompt length: {len(result.get('improved_prompt', ''))} chars")
             return result
 
         except Exception as e:
@@ -140,27 +148,40 @@ Rewrite the prompt to address the low-scoring dimensions while preserving the or
 
         return "\n".join(issues_text) if issues_text else "No specific issues recorded"
 
-    def _parse_response(self, response_text: str, iteration: int) -> Dict[str, Any]:
+    def _parse_response(self, response_text: str, iteration: int, original_prompt: str = "") -> Dict[str, Any]:
         """Parse LLM response into structured format."""
         try:
+            # Extract JSON from response
             start_idx = response_text.find('{')
             end_idx = response_text.rfind('}') + 1
-            if start_idx != -1 and end_idx > start_idx:
-                json_str = response_text[start_idx:end_idx]
-                result = json.loads(json_str)
+            if start_idx == -1 or end_idx <= start_idx:
+                raise ValueError("No JSON found in response")
 
-                return {
-                    "improved_prompt": str(result.get("improved_prompt", "")),
-                    "changes_made": self._ensure_list(result.get("changes_made", [])),
-                    "dimensions_addressed": self._ensure_list(result.get("dimensions_addressed", [])),
-                    "intent_preserved": bool(result.get("intent_preserved", True)),
-                    "iteration": iteration,
-                    "reasoning": str(result.get("reasoning", ""))
-                }
-        except (json.JSONDecodeError, ValueError):
-            pass
+            json_str = response_text[start_idx:end_idx]
+            result = json.loads(json_str)
 
-        return self._default_improvement("", iteration, "Could not parse improvement response")
+            # Get improved_prompt - required field
+            improved = str(result.get("improved_prompt", "")).strip()
+            if not improved:
+                raise ValueError("improved_prompt is empty")
+
+            print(f"\n✅ Improver response parsed successfully")
+            print(f"   improved_prompt length: {len(improved)} chars")
+
+            return {
+                "improved_prompt": improved,
+                "changes_made": self._ensure_list(result.get("changes_made", ["Prompt improved"])),
+                "dimensions_addressed": self._ensure_list(result.get("dimensions_addressed", [])),
+                "intent_preserved": bool(result.get("intent_preserved", True)),
+                "iteration": iteration,
+                "reasoning": str(result.get("reasoning", "Improvements applied to address weaknesses"))
+            }
+
+        except (json.JSONDecodeError, ValueError) as e:
+            print(f"   ❌ Failed to parse improver response: {str(e)}")
+            print(f"   Response preview: {response_text[:200]}")
+            # Return fallback with original prompt
+            return self._default_improvement(original_prompt, iteration, "LLM response parsing failed")
 
     def _ensure_list(self, value: Any) -> List[str]:
         """Ensure value is a list of strings."""

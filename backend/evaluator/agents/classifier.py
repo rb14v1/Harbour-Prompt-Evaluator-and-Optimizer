@@ -389,7 +389,7 @@ class ClassifierAgent:
                         "content": f"Classify this prompt:\n\n{prompt}"
                     }
                 ],
-                temperature=0.3,
+                temperature=0.0,
                 max_tokens=500
             )
 

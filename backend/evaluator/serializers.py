@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from evaluator.models import Prompt, Classification, Analysis, Evaluation, PromptImprovement, EvaluationResult
+from evaluator.models import Prompt, Classification, Analysis, Evaluation, PromptImprovement, EvaluationResult, AgentOutput
 
 class PromptSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,6 +35,16 @@ class EvaluationSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 
+class AgentOutputSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentOutput
+        fields = [
+            'id', 'agent_name', 'iteration_number', 'input_data', 'output_data',
+            'status', 'error_message', 'executed_at'
+        ]
+        read_only_fields = ['id', 'executed_at']
+
+
 class PromptImprovementSerializer(serializers.ModelSerializer):
     class Meta:
         model = PromptImprovement
@@ -48,13 +58,14 @@ class PromptImprovementSerializer(serializers.ModelSerializer):
 class EvaluationResultSerializer(serializers.ModelSerializer):
     initial_evaluation = serializers.SerializerMethodField()
     final_evaluation = serializers.SerializerMethodField()
+    agent_outputs = serializers.SerializerMethodField()
 
     class Meta:
         model = EvaluationResult
         fields = [
             'id', 'prompt', 'original_prompt', 'final_prompt', 'initial_score',
             'final_score', 'improvements_made', 'iterations_required', 'summary',
-            'status', 'full_report', 'initial_evaluation', 'final_evaluation', 'created_at'
+            'status', 'full_report', 'initial_evaluation', 'final_evaluation', 'agent_outputs', 'created_at'
         ]
         read_only_fields = ['id', 'created_at']
 
@@ -69,6 +80,11 @@ class EvaluationResultSerializer(serializers.ModelSerializer):
         if obj.full_report:
             return obj.full_report.get('final_evaluation', {})
         return {}
+
+    def get_agent_outputs(self, obj):
+        """Get all agent outputs from database."""
+        outputs = AgentOutput.objects.filter(evaluation_result=obj).order_by('iteration_number', 'executed_at')
+        return AgentOutputSerializer(outputs, many=True).data
 
 
 class PromptEvaluationRequestSerializer(serializers.Serializer):
@@ -88,8 +104,6 @@ class PromptEvaluationResponseSerializer(serializers.Serializer):
     original_prompt = serializers.CharField()
     initial_score = serializers.FloatField(required=False)
     final_score = serializers.FloatField(required=False)
-    classification = serializers.JSONField()
-    analysis = serializers.JSONField()
     initial_evaluation = serializers.JSONField()
     improvement_history = serializers.ListField()
     final_evaluation = serializers.JSONField()
@@ -98,5 +112,7 @@ class PromptEvaluationResponseSerializer(serializers.Serializer):
     status = serializers.CharField()
     improvements_made = serializers.IntegerField()
     iterations_required = serializers.IntegerField()
-    timestamp = serializers.DateTimeField()
+    created_at = serializers.DateTimeField()
     execution_history = serializers.JSONField(required=False)
+    full_report = serializers.JSONField(required=False)
+    agent_outputs = serializers.ListField(required=False)

@@ -171,9 +171,13 @@ class PromptEvaluationOrchestrator:
                 validation = best_validation
                 score_improvement = 0
 
-            # Early stopping: if improvement is less than 0.3 and we already passed 6.0, stop iterating
-            # This prevents wasting time on tiny improvements
-            if best_score >= 6.0 and score_improvement < 0.3 and iteration >= 1:
+            # Early stopping: only stop if we've tried at least 2 iterations with minimal improvement
+            # OR if score already meets threshold
+            if best_score >= self.threshold:
+                print(f"✅ Score {best_score} meets threshold {self.threshold} - stopping")
+                break
+            if best_score >= 6.0 and score_improvement < 0.3 and iteration >= 2:
+                print(f"⚠️  Minimal improvement ({score_improvement}) after 2+ iterations - stopping")
                 break
 
             # Add updated Validator and Scoring to this iteration (using the re-validated results)
@@ -197,9 +201,11 @@ class PromptEvaluationOrchestrator:
         # Final evaluation - always use best score found
         final_evaluation = best_evaluation if best_evaluation else current_evaluation
 
-        # Debug: Ensure final_evaluation has overall_score
+        # Debug: Ensure final_evaluation has overall_score and threshold
         if "overall_score" not in final_evaluation:
             final_evaluation["overall_score"] = best_score
+        if "threshold" not in final_evaluation:
+            final_evaluation["threshold"] = self.threshold
 
         # Stage 6b: Generate Report
         report = self.report_agent.generate_report(

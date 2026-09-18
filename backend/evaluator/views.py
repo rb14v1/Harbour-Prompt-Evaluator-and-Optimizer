@@ -283,9 +283,14 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
         execution_history = report.get('execution_history', {})
         iterations = execution_history.get('iterations', [])
 
+        print(f"\n✅ Saving agent outputs for evaluation {evaluation_result.id}")
+        print(f"   Found {len(iterations)} iterations")
+
         for iteration_data in iterations:
             iteration_num = iteration_data.get('iteration', 0)
             stages = iteration_data.get('stages', {})
+
+            print(f"   Iteration {iteration_num}: {len(stages)} agents")
 
             for agent_name, stage_data in stages.items():
                 if agent_name not in ['preprocessor', 'classifier', 'analyzer', 'validator', 'scoring', 'improver', 'report']:
@@ -305,7 +310,7 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                             agent_status = 'failed'
                             error_msg = output_data.get('error') or output_data.get('message')
 
-                    AgentOutput.objects.create(
+                    agent_output = AgentOutput.objects.create(
                         evaluation_result=evaluation_result,
                         agent_name=agent_name,
                         iteration_number=iteration_num,
@@ -314,7 +319,9 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                         status=agent_status,
                         error_message=error_msg
                     )
+                    print(f"     ✅ Saved {agent_name} - {agent_output.id}")
                 except Exception as e:
+                    print(f"     ❌ Error saving {agent_name}: {str(e)}")
                     logger.warning(f"Failed to save agent output for {agent_name}: {str(e)}")
 
     def options(self, request, *args, **kwargs):
@@ -382,10 +389,8 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                 # Save individual agent outputs to database
                 self.save_agent_outputs(result, report)
 
-                # Add result ID to report for response
-                report['id'] = result.id
-
-                response_serializer = PromptEvaluationResponseSerializer(report)
+                # Serialize the result model properly
+                response_serializer = EvaluationResultSerializer(result)
                 response = Response(response_serializer.data, status=status.HTTP_201_CREATED)
                 return self.add_cors_headers(response)
 
@@ -441,19 +446,6 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    @action(detail=True, methods=['get'])
-    def detail(self, request, pk=None):
-        """Get detailed report for a specific evaluation."""
-        try:
-            result = self.get_object()
-            serializer = self.get_serializer(result)
-            return Response(serializer.data)
-        except EvaluationResult.DoesNotExist:
-            return Response(
-                {"error": "Evaluation not found"},
-                status=status.HTTP_404_NOT_FOUND
-            )
-
     @action(detail=True, methods=['get', 'options'])
     def export_excel(self, request, pk=None):
         """Export evaluation results to single comprehensive Excel sheet."""
@@ -487,36 +479,86 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
 
             # ===== TITLE =====
             ws[f'A{row}'] = "PROMPT EVALUATION REPORT"
-            ws[f'A{row}'].font = Font(bold=True, size=14)
+            ws[f'A{row}'].font = Font(bold=True, size=14, color="FFFFFF")
+            ws[f'A{row}'].fill = PatternFill(start_color="003366", end_color="003366", fill_type="solid")
             ws.merge_cells(f'A{row}:D{row}')
+            row += 1
+
+            # ===== EXECUTIVE SUMMARY BOX =====
+            ws[f'A{row}'] = "✓ QUICK SUMMARY (Read This First!)"
+            ws[f'A{row}'].font = Font(bold=True, size=12, color="FFFFFF")
+            ws[f'A{row}'].fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
+            ws.merge_cells(f'A{row}:D{row}')
+            row += 1
+
+            initial_score = report.get('initial_evaluation', {}).get('overall_score', 0)
+            final_score = report.get('final_evaluation', {}).get('overall_score', 0)
+
+            # Score display with color coding
+            ws[f'A{row}'] = "OVERALL SCORE"
+            ws[f'A{row}'].font = Font(bold=True, size=11, color="FFFFFF")
+            ws[f'B{row}'] = f"{final_score}/10"
+            ws[f'B{row}'].font = Font(bold=True, size=14, color="FFFFFF")
+
+            # Color code: Red < 6, Yellow 6-7.5, Green > 7.5
+            if final_score >= 7.5:
+                ws[f'B{row}'].fill = PatternFill(start_color="70AD47", end_color="70AD47", fill_type="solid")  # Green
+            elif final_score >= 6:
+                ws[f'B{row}'].fill = PatternFill(start_color="FFC000", end_color="FFC000", fill_type="solid")  # Yellow
+            else:
+                ws[f'B{row}'].fill = PatternFill(start_color="E74C3C", end_color="E74C3C", fill_type="solid")  # Red
+
+            ws[f'C{row}'] = "STATUS"
+            ws[f'C{row}'].font = Font(bold=True, color="FFFFFF")
+            status_text = "Ready to Use" if final_score >= 7 else "Needs Review" if final_score >= 6 else "Needs Rewriting"
+            ws[f'D{row}'] = status_text
+            ws[f'D{row}'].font = Font(bold=True, size=11, color="FFFFFF")
+            if final_score >= 7:
+                ws[f'D{row}'].fill = PatternFill(start_color="70AD47", end_color="70AD47", fill_type="solid")
+            elif final_score >= 6:
+                ws[f'D{row}'].fill = PatternFill(start_color="FFC000", end_color="FFC000", fill_type="solid")
+            else:
+                ws[f'D{row}'].fill = PatternFill(start_color="E74C3C", end_color="E74C3C", fill_type="solid")
+            row += 1
+
+            # Improvement summary
+            improvement = final_score - initial_score
+            ws[f'A{row}'] = "IMPROVEMENT"
+            ws[f'A{row}'].font = Font(bold=True, color="FFFFFF")
+            ws[f'B{row}'] = f"+{improvement:.1f}" if improvement >= 0 else f"{improvement:.1f}"
+            ws[f'B{row}'].font = Font(bold=True, size=11)
+            ws[f'B{row}'].fill = PatternFill(start_color="E7F3FF", end_color="E7F3FF", fill_type="solid")
+            ws[f'C{row}'] = "ITERATIONS"
+            ws[f'C{row}'].font = Font(bold=True, color="FFFFFF")
+            ws[f'D{row}'] = report.get('iterations_required', 0)
+            ws[f'D{row}'].font = Font(bold=True, size=11)
+            ws[f'D{row}'].fill = PatternFill(start_color="E7F3FF", end_color="E7F3FF", fill_type="solid")
             row += 2
 
-            # ===== SCORE SUMMARY =====
-            ws[f'A{row}'] = "EVALUATION SUMMARY"
-            ws[f'A{row}'].font = section_font
-            ws[f'A{row}'].fill = section_fill
+            # ===== TOP FINDINGS =====
+            ws[f'A{row}'] = "⚡ TOP FINDINGS (What To Fix)"
+            ws[f'A{row}'].font = Font(bold=True, size=12, color="FFFFFF")
+            ws[f'A{row}'].fill = PatternFill(start_color="C00000", end_color="C00000", fill_type="solid")
             ws.merge_cells(f'A{row}:D{row}')
             row += 1
 
-            initial_score = report.get('initial_evaluation', {}).get('overall_score', 'N/A')
-            final_score = report.get('final_evaluation', {}).get('overall_score', 'N/A')
+            # Extract top issues
+            analysis = report.get('analysis', {}) or {}
+            missing = analysis.get('missing_information', [])[:3]
+            ambiguities = analysis.get('ambiguities', [])[:2]
 
-            ws[f'A{row}'] = "Initial Score"
-            ws[f'B{row}'] = initial_score
-            ws[f'C{row}'] = "Final Score"
-            ws[f'D{row}'] = final_score
-            row += 1
+            for i, issue in enumerate(missing[:3], 1):
+                ws[f'A{row}'] = f"• MISSING: {issue}"
+                ws[f'A{row}'].font = Font(bold=True, color="C00000", size=11)
+                ws.merge_cells(f'A{row}:D{row}')
+                row += 1
 
-            ws[f'A{row}'] = "Status"
-            ws[f'B{row}'] = report.get('status', 'N/A')
-            ws[f'C{row}'] = "Threshold"
-            ws[f'D{row}'] = 9.5
-            row += 1
+            for i, issue in enumerate(ambiguities[:2], 1):
+                ws[f'A{row}'] = f"• UNCLEAR: {issue}"
+                ws[f'A{row}'].font = Font(bold=True, color="FF6600", size=11)
+                ws.merge_cells(f'A{row}:D{row}')
+                row += 1
 
-            ws[f'A{row}'] = "Iterations Required"
-            ws[f'B{row}'] = report.get('iterations_required', 0)
-            ws[f'C{row}'] = "Improvements Made"
-            ws[f'D{row}'] = report.get('improvements_made', 0)
             row += 2
 
             # ===== PROMPTS =====
@@ -577,7 +619,6 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             missing_info_list = analysis.get('missing_information', [])
             if missing_info_list:
                 missing_text = ", ".join(missing_info_list)
-                # Highlight only keywords in text (bold orange), not entire cell
                 ws[f'B{row}'] = self.build_highlighted_text(missing_text)
             else:
                 ws[f'B{row}'] = "None"
@@ -592,7 +633,6 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             ambiguities_list = analysis.get('ambiguities', [])
             if ambiguities_list:
                 ambig_text = ", ".join(ambiguities_list)
-                # Highlight only keywords in text (bold orange), not entire cell
                 ws[f'B{row}'] = self.build_highlighted_text(ambig_text)
             else:
                 ws[f'B{row}'] = "None"
@@ -601,51 +641,11 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             ws.row_dimensions[row].height = 40
             row += 2
 
-            # ===== VALIDATION DIMENSIONS =====
-            ws[f'A{row}'] = "VALIDATION DIMENSIONS"
-            ws[f'A{row}'].font = section_font
-            ws[f'A{row}'].fill = section_fill
-            ws.merge_cells(f'A{row}:D{row}')
-            row += 1
+            # ===== VALIDATION DIMENSIONS (SKIPPED - using quick summary instead) =====
+            pass
+            row += 0
 
-            # Header row for dimensions
-            ws[f'A{row}'] = "Dimension"
-            ws[f'B{row}'] = "Score"
-            ws[f'C{row}'] = "Level"
-            ws[f'D{row}'] = "Issues & Recommendations"
-            for col in ['A', 'B', 'C', 'D']:
-                ws[f'{col}{row}'].font = Font(bold=True)
-                ws[f'{col}{row}'].fill = PatternFill(start_color="E7E6E6", end_color="E7E6E6", fill_type="solid")
-            row += 1
-
-            validation = report.get('initial_evaluation', {}).get('validation', {})
-            for dim_name, dim_data in validation.items():
-                ws[f'A{row}'] = dim_name.replace('_', ' ').title()
-                ws[f'B{row}'] = dim_data.get('score', 'N/A')
-
-                # Highlight score level with background
-                level = dim_data.get('level', 'N/A')
-                if level.lower() == 'poor':
-                    ws[f'C{row}'].fill = PatternFill(start_color="FFB3BA", end_color="FFB3BA", fill_type="solid")
-                elif level.lower() == 'moderate':
-                    ws[f'C{row}'].fill = PatternFill(start_color="FFFFBA", end_color="FFFFBA", fill_type="solid")
-                elif level.lower() == 'good':
-                    ws[f'C{row}'].fill = PatternFill(start_color="BAFFC9", end_color="BAFFC9", fill_type="solid")
-                elif level.lower() == 'excellent':
-                    ws[f'C{row}'].fill = PatternFill(start_color="BAE1FF", end_color="BAE1FF", fill_type="solid")
-
-                ws[f'C{row}'] = level
-
-                issues = dim_data.get('issues', [])
-                rec = dim_data.get('recommendation', '')
-                issues_rec_text = f"Issues: {', '.join(issues) if issues else 'None'}. Recommendation: {rec}"
-                # Highlight only keywords in text, not entire cell
-                ws[f'D{row}'] = self.build_highlighted_text(issues_rec_text)
-                ws[f'D{row}'].alignment = Alignment(wrap_text=True)
-                ws.row_dimensions[row].height = 40
-                row += 1
-
-            row += 1
+            # (Skipped - dimension details are in the main report already)
 
             # ===== AGENT PIPELINE OUTPUTS =====
             ws[f'A{row}'] = "AGENT PIPELINE OUTPUTS"
@@ -777,7 +777,6 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
 
             ws[f'A{row}'] = "Summary"
             summary_text = report.get('summary', '')
-            # Highlight only keywords in summary
             ws[f'B{row}'] = self.build_highlighted_text(summary_text)
             ws[f'B{row}'].alignment = Alignment(wrap_text=True)
             ws.merge_cells(f'B{row}:D{row}')
@@ -872,3 +871,12 @@ class PromptHistoryViewSet(viewsets.ReadOnlyModelViewSet):
             stats['prompts_needing_review'] = user_results.filter(status='needs_manual_review').count()
 
         return Response(stats)
+
+    @action(detail=False, methods=['get'])
+    def config(self, request):
+        """Get application configuration (threshold, dimensions, etc)."""
+        return Response({
+            "quality_threshold": QUALITY_THRESHOLD,
+            "quality_dimensions": QUALITY_DIMENSIONS,
+            "max_iterations": 3
+        })

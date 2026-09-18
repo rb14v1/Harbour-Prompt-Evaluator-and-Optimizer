@@ -37,15 +37,27 @@ class ReportAgent:
             Comprehensive final report
         """
         final_score = final_evaluation.get("overall_score", 0.0)
+        # Use threshold from final_evaluation or default to 7.0
         threshold = final_evaluation.get("threshold", 7.0)
+
+        print(f"\n📊 Status Determination:")
+        print(f"   Final score: {final_score}")
+        print(f"   Threshold: {threshold}")
+        print(f"   Status will be: {'Ready' if final_score >= threshold else 'Needs Manual Review'}")
 
         # Determine final prompt (improved or original)
         final_prompt = original_prompt
         improvements_made = 0
 
         if improvement_history:
+            print(f"\n✅ Improvement History found: {len(improvement_history)} improvements")
+            for i, h in enumerate(improvement_history):
+                print(f"   Improvement {i}: keys={list(h.keys())}, has_improved_prompt={bool(h.get('improved_prompt'))}")
             final_prompt = improvement_history[-1].get("improved_prompt", original_prompt)
+            print(f"   Final prompt set: {bool(final_prompt and final_prompt != original_prompt)}")
             improvements_made = len([h for h in improvement_history if h.get("intent_preserved", True)])
+        else:
+            print("\n⚠️  No improvement history found - using original prompt")
 
         # Determine status
         status = "Ready" if final_score >= threshold else "Needs Manual Review"
