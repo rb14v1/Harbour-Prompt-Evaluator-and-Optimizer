@@ -789,8 +789,11 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             wb.save(excel_file)
             excel_file.seek(0)
 
-            # Return file
-            filename = f"evaluation_{result.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+            # Return file with meaningful name
+            task_type = report.get('classification', {}).get('task_type', 'Evaluation').replace(' ', '_')
+            final_score = report.get('final_evaluation', {}).get('overall_score', 0)
+            status = report.get('status', 'Pending').replace(' ', '_')
+            filename = f"Evaluation_{task_type}_{final_score:.1f}_{status}.xlsx"
             response = FileResponse(excel_file, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
             return self.add_cors_headers(response)

@@ -88,147 +88,159 @@ Return JSON with validation scores for: clarity, specificity, context, completen
         words = prompt.split()
         word_count = len(words)
         sentences = len([s for s in prompt.split('.') if s.strip()])
-        lines = [l.strip() for l in prompt.split('\n') if l.strip()]
+
+        # Count placeholder patterns - signs of generic template
+        placeholder_count = prompt.count('[') + prompt.count(']') + prompt.count('{') + prompt.count('}')
+        generic_template_patterns = sum(1 for x in [
+            "[who will", "[what ", "[why ", "[example ", "[detailed ",
+            "[specific ", "[concrete ", "[your ", "[describe "
+        ] if x in prompt_lower)
 
         # Calculate scores based on actual content depth, not just keywords
         validation = {}
 
-        # Clarity: Based on length, structure, and organization (more granular)
+        # Clarity: Assess if language is clear and unambiguous
         clarity = 5.0
-        if word_count > 150:
-            clarity = 8.5
-        elif word_count > 80:
-            clarity = 8.0
-        elif word_count > 50:
-            clarity = 7.5
-        elif word_count > 30:
-            clarity = 7.0
-        elif word_count > 20:
-            clarity = 6.5
-        elif word_count > 10:
-            clarity = 5.5
-        # Penalize if has too many sections (sign of generic template)
-        section_count = prompt_lower.count('###') + prompt_lower.count('##')
-        if section_count > 8:
-            clarity = max(2.5, clarity - 1.5)  # Template-like, less clear
+        if placeholder_count > 5:
+            clarity = 3.0  # Heavy penalty for placeholder-filled content
+        else:
+            if word_count > 150:
+                clarity = 8.0
+            elif word_count > 80:
+                clarity = 7.5
+            elif word_count > 50:
+                clarity = 7.0
+            elif word_count > 30:
+                clarity = 6.5
+            elif word_count > 10:
+                clarity = 5.5
 
-        # Specificity: Check for concrete examples and custom details (not generic placeholders)
+            # Check for vague language
+            vague_words = sum(1 for x in ["etc", "various", "several", "some", "many", "other"] if f" {x}" in f" {prompt_lower}")
+            if vague_words > 2:
+                clarity = max(2.5, clarity - 1.5)
+
+        # Specificity: Check for concrete details and real examples (not [Placeholder] text)
         specificity = 2.5
-        spec_score = 0
-        # Actual examples mentioned (not placeholder text)
-        actual_examples = prompt.count('[') + prompt.count('{')  # Code/placeholder indicators
-        if actual_examples > 0 and "example" in prompt_lower:
-            spec_score += 2
-        elif "example" in prompt_lower or "such as" in prompt_lower or "for instance" in prompt_lower:
-            spec_score += 1.5
+        if placeholder_count > 3:
+            specificity = 2.5  # Placeholder-heavy = low specificity
+        else:
+            spec_score = 0
+            # Real specific details (e.g., "3 examples", "Python", "JSON format", numbers, actual tool names)
+            has_numbers = any(c.isdigit() for c in prompt)
+            has_specific_terms = sum(1 for x in ["json", "xml", "python", "javascript", "example 1", "example 2"] if x in prompt_lower)
 
-        # Concrete details vs generic statements
-        if any(x in prompt_lower for x in ["step", "instruction", "procedure", "method"]):
-            spec_score += 1.5
-        if any(x in prompt_lower for x in ["specific", "concrete", "exact", "particular"]):
-            spec_score += 1
+            if has_numbers and has_specific_terms > 0:
+                spec_score += 3
+            elif has_numbers or has_specific_terms > 0:
+                spec_score += 2
+            elif "example" in prompt_lower or "such as" in prompt_lower:
+                spec_score += 1
 
-        # Penalize if only has generic "example:" text without actual content
-        if "example:" in prompt_lower or "[example" in prompt_lower:
-            if actual_examples == 0:
-                spec_score -= 1  # Generic placeholder, not real example
+            # Penalty for generic placeholders
+            if "[example" in prompt_lower or "[specific" in prompt_lower:
+                spec_score -= 1.5
 
-        if word_count > 80:
-            spec_score += 1
-        specificity = max(2.5, min(10.0, 3.0 + spec_score))
+            specificity = max(2.5, min(10.0, 3.0 + spec_score))
 
-        # Context: Check for actual audience/purpose definition (not generic)
+        # Context: Actual audience/purpose stated (not generic [Who will use this?])
         context = 2.5
-        ctx_score = 0
-        # Specific context with details
-        context_keywords = sum(1 for x in ["audience:", "target:", "context:", "background:", "purpose:"] if x in prompt_lower)
-        if context_keywords > 1:
-            ctx_score += 3
-        elif any(x in prompt_lower for x in ["audience", "target", "professional", "beginner"]):
-            ctx_score += 2
-        elif any(x in prompt_lower for x in ["user", "reader"]):
-            ctx_score += 1
-        if word_count > 50:
-            ctx_score += 0.5
-        context = max(2.5, min(10.0, 3.0 + ctx_score))
+        if placeholder_count > 5:
+            context = 3.0  # Placeholder-heavy template
+        else:
+            ctx_score = 0
+            # Specific audience identification (not [Placeholder])
+            if "audience:" in prompt_lower or "for " in prompt_lower or "target:" in prompt_lower:
+                if "[who" not in prompt_lower:
+                    ctx_score += 2
+            if any(x in prompt_lower for x in ["professional", "technical", "beginner", "expert", "user"]):
+                ctx_score += 1.5
+            if "background:" in prompt_lower or "context:" in prompt_lower:
+                if "[" not in prompt_lower:
+                    ctx_score += 1
+            context = max(2.5, min(10.0, 3.0 + ctx_score))
 
-        # Completeness: Check for actual coverage, not just keyword presence
+        # Completeness: Actual content coverage (not just [Coverage requirements])
         completeness = 2.5
-        comp_score = 0
-        # Check for structured sections indicating comprehensive coverage
-        has_intro = any(x in prompt_lower for x in ["introduction", "overview", "background"])
-        has_details = any(x in prompt_lower for x in ["detail", "specific", "example"])
-        has_conclusion = any(x in prompt_lower for x in ["conclusion", "summary", "outcome"])
+        if placeholder_count > 5:
+            completeness = 3.0  # Too many placeholders = incomplete
+        else:
+            comp_score = 0
+            # Real coverage vs placeholders
+            has_multiple_sections = prompt.count('\n') > 5 or prompt.count('###') > 2
+            if has_multiple_sections and placeholder_count < 3:
+                comp_score += 2
+            elif has_multiple_sections:
+                comp_score -= 1  # Sections but mostly placeholders
 
-        sections_count = sum([has_intro, has_details, has_conclusion])
-        comp_score += sections_count * 1.5
+            if word_count > 100:
+                comp_score += 1.5
+            elif word_count > 50:
+                comp_score += 0.5
 
-        if "comprehensive" in prompt_lower or "complete" in prompt_lower:
-            comp_score += 1
-        if word_count > 100:
-            comp_score += 1
-        completeness = max(2.5, min(10.0, 3.0 + comp_score))
+            completeness = max(2.5, min(10.0, 3.0 + comp_score))
 
-        # Requirements: Explicit success criteria (not generic placeholder)
+        # Requirements: Explicit, measurable criteria (not generic [Non-negotiable criteria])
         requirements = 2.5
-        req_score = 0
-        # Real criteria (use "must:", "should:" format) vs generic keywords
-        has_must = "must" in prompt_lower and ":" in prompt.lower()
-        has_should = "should" in prompt_lower and ":" in prompt.lower()
-        if has_must or has_should:
-            req_score += 2.5
-        elif any(x in prompt_lower for x in ["must", "requirement", "criteria", "success"]):
-            req_score += 1.5
+        if "[must" in prompt_lower or "[non-" in prompt_lower or "[should" in prompt_lower:
+            requirements = 2.5  # Just placeholder text
+        else:
+            req_score = 0
+            # Real requirements with specifics (numbers, percentages, metrics)
+            if "must" in prompt_lower or "requirement" in prompt_lower or "criteria" in prompt_lower:
+                if any(c.isdigit() for c in prompt) or "%" in prompt:
+                    req_score += 2.5  # Requirements with metrics
+                else:
+                    req_score += 1.5  # Requirements but no metrics
+            if any(x in prompt_lower for x in ["success", "pass", "achieve"]):
+                req_score += 1
+            requirements = max(2.5, min(10.0, 3.5 + req_score))
 
-        if "expected:" in prompt_lower or "criteria:" in prompt_lower:
-            req_score += 1
-        if word_count > 40:
-            req_score += 0.5
-        requirements = max(2.5, min(10.0, 3.0 + req_score))
-
-        # Constraints: Actual boundaries defined (not generic list)
+        # Constraints: Real limitations stated (not generic [Time constraints:])
         constraints = 2.5
-        con_score = 0
-        has_limits = any(x in prompt_lower for x in ["limit:", "constraint:", "boundary:", "maximum:", "minimum:"])
-        if has_limits:
-            con_score += 2.5
-        elif any(x in prompt_lower for x in ["limit", "constraint", "boundary"]):
-            con_score += 1.5
+        if "[constraint" in prompt_lower or "[time " in prompt_lower or "[resource" in prompt_lower:
+            constraints = 2.5  # Just placeholder
+        else:
+            con_score = 0
+            if "limit" in prompt_lower or "maximum" in prompt_lower or "minimum" in prompt_lower:
+                con_score += 2
+            if "avoid" in prompt_lower or "not " in prompt_lower or "don't" in prompt_lower:
+                con_score += 1.5
+            if "constraint" in prompt_lower or "boundary" in prompt_lower:
+                con_score += 1
+            constraints = max(2.5, min(10.0, 3.0 + con_score))
 
-        if "avoid" in prompt_lower or "not " in prompt_lower:
-            con_score += 1
-        constraints = max(2.5, min(10.0, 3.0 + con_score))
-
-        # Expected Output: Specific format not generic template
+        # Expected Output: Real format specification (not generic [Format type:])
         expected_output = 2.5
-        out_score = 0
-        has_format_spec = "format:" in prompt_lower or "output:" in prompt_lower or "structure:" in prompt_lower
-        if has_format_spec:
-            out_score += 2.5
-        elif any(x in prompt_lower for x in ["output", "return", "format", "structure"]):
-            out_score += 1.5
+        if "[format" in prompt_lower or "[deliverable" in prompt_lower or "[structure" in prompt_lower:
+            expected_output = 2.5  # Placeholder only
+        else:
+            out_score = 0
+            # Specific formats mentioned
+            if any(x in prompt_lower for x in ["json", "xml", "csv", "table", "list", "document", "code"]):
+                out_score += 2.5
+            elif "format" in prompt_lower or "output" in prompt_lower or "return" in prompt_lower:
+                out_score += 1.5
+            if any(x in prompt_lower for x in ["section", "page", "organized", "structured"]):
+                out_score += 1
+            expected_output = max(2.5, min(10.0, 3.0 + out_score))
 
-        if any(x in prompt_lower for x in ["table", "list", "section", "code", "example"]):
-            out_score += 1
-        if word_count > 50:
-            out_score += 0.5
-        expected_output = max(2.5, min(10.0, 3.0 + out_score))
-
-        # Actionability: Real steps not generic placeholder
+        # Actionability: Real executable steps (not generic [Step 1: ...])
         actionability = 2.5
-        act_score = 0
-        # Check for numbered steps or actual procedure
-        has_steps = any(f"step {i}:" in prompt_lower for i in range(1, 10)) or "step 1:" in prompt_lower
-        if has_steps:
-            act_score += 2.5
-        elif any(x in prompt_lower for x in ["step", "instruction", "procedure", "guide"]):
-            act_score += 1.5
+        if "[step" in prompt_lower or "[first action" in prompt_lower:
+            actionability = 2.5  # Placeholder only
+        else:
+            act_score = 0
+            # Real procedural steps
+            step_count = sum(1 for i in range(1, 10) if f"step {i}" in prompt_lower)
+            if step_count > 2:
+                act_score += 3  # Multiple real steps
+            elif "step" in prompt_lower or "process:" in prompt_lower:
+                act_score += 1.5
 
-        if any(x in prompt_lower for x in ["action", "implement", "execute", "run"]):
-            act_score += 1
-        if word_count > 60:
-            act_score += 0.5
-        actionability = max(2.5, min(10.0, 3.0 + act_score))
+            if any(x in prompt_lower for x in ["then", "next", "finally", "afterwards"]):
+                act_score += 1  # Procedural flow indicators
+            actionability = max(2.5, min(10.0, 3.0 + act_score))
 
         # Build validation dict
         for dim, score in [
