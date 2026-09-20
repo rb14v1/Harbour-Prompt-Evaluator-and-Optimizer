@@ -10,7 +10,7 @@ import json
 from io import BytesIO
 from datetime import datetime
 from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, Color
 from openpyxl.cell.rich_text import CellRichText, TextBlock
 
 from evaluator.models import EvaluationResult, Prompt, AgentOutput
@@ -627,23 +627,26 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                 # Highlight BOTH score and level with background color based on score value
                 level = dim_data.get('level', 'N/A')
                 if isinstance(score, (int, float)):
+                    # Use proper RGB hex colors - Red/Yellow/Green/Blue scale
                     if score < 4:
-                        # Red/Light red for low scores (Poor)
-                        color = "FF6B6B"
+                        bg_color = "FF4444"  # Red
+                        fg_color = "FFFFFF"
                     elif score < 7:
-                        # Yellow/Light yellow for medium scores (Moderate)
-                        color = "FFD93D"
+                        bg_color = "FFCC00"  # Yellow
+                        fg_color = "000000"
                     elif score < 9:
-                        # Light green for good scores (Good)
-                        color = "6BCB77"
+                        bg_color = "44CC44"  # Green
+                        fg_color = "FFFFFF"
                     else:
-                        # Bright green for excellent scores (Excellent)
-                        color = "4D96FF"
+                        bg_color = "0066CC"  # Blue
+                        fg_color = "FFFFFF"
 
-                    ws[f'B{row}'].fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
-                    ws[f'C{row}'].fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
-                    ws[f'B{row}'].font = Font(bold=True, color="FFFFFF") if score < 7 else Font(bold=True)
-                    ws[f'C{row}'].font = Font(bold=True, color="FFFFFF") if score < 7 else Font(bold=True)
+                    # Apply fill and font to both score and level cells
+                    fill = PatternFill(start_color=bg_color, end_color=bg_color, fill_type="solid")
+                    ws[f'B{row}'].fill = fill
+                    ws[f'C{row}'].fill = fill
+                    ws[f'B{row}'].font = Font(bold=True, color=fg_color, size=11)
+                    ws[f'C{row}'].font = Font(bold=True, color=fg_color, size=11)
 
                 ws[f'C{row}'] = level
 
@@ -801,11 +804,12 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             excel_file.seek(0)
 
             # Return file with meaningful, unique name
-            task_type = report.get('classification', {}).get('task_type', 'Evaluation').replace(' ', '_')
+            task_type = report.get('classification', {}).get('task_type', 'Evaluation').replace(' ', '')
             final_score = report.get('final_evaluation', {}).get('overall_score', 0)
-            status = report.get('status', 'Pending').replace(' ', '_')
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            filename = f"Evaluation_{task_type}_{final_score:.1f}_{status}_{timestamp}.xlsx"
+            status = 'Ready' if report.get('status', '').lower() == 'ready' else 'Review'
+            # Use timestamp with milliseconds for true uniqueness
+            timestamp = datetime.now().strftime('%Y%m%d-%H%M%S-%f')[:17]  # YYYYMMDD-HHMMSS-mmm
+            filename = f"Evaluation_{task_type}_{final_score:.2f}_{status}_{timestamp}.xlsx"
             response = FileResponse(excel_file, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
             return self.add_cors_headers(response)

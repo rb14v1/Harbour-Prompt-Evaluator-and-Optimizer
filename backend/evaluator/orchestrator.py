@@ -171,9 +171,16 @@ class PromptEvaluationOrchestrator:
                 validation = best_validation
                 score_improvement = 0
 
-            # Early stopping: if improvement is less than 0.3 and we already passed 6.0, stop iterating
-            # This prevents wasting time on tiny improvements
-            if best_score >= 6.0 and score_improvement < 0.3 and iteration >= 1:
+            # Early stopping: Stop if threshold reached or improvement is small
+            # This prevents wasting iterations on tiny improvements
+            if best_score >= self.threshold:
+                # Threshold met - stop immediately
+                break
+            elif iteration >= 1 and score_improvement < 0.5:
+                # After iteration 1, if improvement < 0.5 points, stop
+                break
+            elif iteration >= 1:
+                # Max 2 iterations - stop after 2nd iteration regardless
                 break
 
             # Add updated Validator and Scoring to this iteration (using the re-validated results)
