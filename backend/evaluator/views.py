@@ -621,18 +621,29 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             validation = report.get('initial_evaluation', {}).get('validation', {})
             for dim_name, dim_data in validation.items():
                 ws[f'A{row}'] = dim_name.replace('_', ' ').title()
-                ws[f'B{row}'] = dim_data.get('score', 'N/A')
+                score = dim_data.get('score', 'N/A')
+                ws[f'B{row}'] = score
 
-                # Highlight score level with background
+                # Highlight BOTH score and level with background color based on score value
                 level = dim_data.get('level', 'N/A')
-                if level.lower() == 'poor':
-                    ws[f'C{row}'].fill = PatternFill(start_color="FFB3BA", end_color="FFB3BA", fill_type="solid")
-                elif level.lower() == 'moderate':
-                    ws[f'C{row}'].fill = PatternFill(start_color="FFFFBA", end_color="FFFFBA", fill_type="solid")
-                elif level.lower() == 'good':
-                    ws[f'C{row}'].fill = PatternFill(start_color="BAFFC9", end_color="BAFFC9", fill_type="solid")
-                elif level.lower() == 'excellent':
-                    ws[f'C{row}'].fill = PatternFill(start_color="BAE1FF", end_color="BAE1FF", fill_type="solid")
+                if isinstance(score, (int, float)):
+                    if score < 4:
+                        # Red/Light red for low scores (Poor)
+                        color = "FF6B6B"
+                    elif score < 7:
+                        # Yellow/Light yellow for medium scores (Moderate)
+                        color = "FFD93D"
+                    elif score < 9:
+                        # Light green for good scores (Good)
+                        color = "6BCB77"
+                    else:
+                        # Bright green for excellent scores (Excellent)
+                        color = "4D96FF"
+
+                    ws[f'B{row}'].fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
+                    ws[f'C{row}'].fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
+                    ws[f'B{row}'].font = Font(bold=True, color="FFFFFF") if score < 7 else Font(bold=True)
+                    ws[f'C{row}'].font = Font(bold=True, color="FFFFFF") if score < 7 else Font(bold=True)
 
                 ws[f'C{row}'] = level
 
@@ -789,11 +800,12 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             wb.save(excel_file)
             excel_file.seek(0)
 
-            # Return file with meaningful name
+            # Return file with meaningful, unique name
             task_type = report.get('classification', {}).get('task_type', 'Evaluation').replace(' ', '_')
             final_score = report.get('final_evaluation', {}).get('overall_score', 0)
             status = report.get('status', 'Pending').replace(' ', '_')
-            filename = f"Evaluation_{task_type}_{final_score:.1f}_{status}.xlsx"
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"Evaluation_{task_type}_{final_score:.1f}_{status}_{timestamp}.xlsx"
             response = FileResponse(excel_file, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
             return self.add_cors_headers(response)

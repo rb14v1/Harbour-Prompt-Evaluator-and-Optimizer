@@ -100,7 +100,7 @@ Return JSON with validation scores for: clarity, specificity, context, completen
         validation = {}
 
         # Clarity: Assess if language is clear and unambiguous
-        clarity = 5.0
+        clarity = 6.5
         if placeholder_count > 5:
             clarity = 3.0  # Heavy penalty for placeholder-filled content
         else:
@@ -121,9 +121,9 @@ Return JSON with validation scores for: clarity, specificity, context, completen
                 clarity = max(2.5, clarity - 1.5)
 
         # Specificity: Check for concrete details and real examples (not [Placeholder] text)
-        specificity = 2.5
+        specificity = 5.0
         if placeholder_count > 3:
-            specificity = 2.5  # Placeholder-heavy = low specificity
+            specificity = 5.0  # Placeholder-heavy = low specificity
         else:
             spec_score = 0
             # Real specific details (e.g., "3 examples", "Python", "JSON format", numbers, actual tool names)
@@ -144,7 +144,7 @@ Return JSON with validation scores for: clarity, specificity, context, completen
             specificity = max(2.5, min(10.0, 3.0 + spec_score))
 
         # Context: Actual audience/purpose stated (not generic [Who will use this?])
-        context = 2.5
+        context = 5.0
         if placeholder_count > 5:
             context = 3.0  # Placeholder-heavy template
         else:
@@ -161,7 +161,7 @@ Return JSON with validation scores for: clarity, specificity, context, completen
             context = max(2.5, min(10.0, 3.0 + ctx_score))
 
         # Completeness: Actual content coverage (not just [Coverage requirements])
-        completeness = 2.5
+        completeness = 5.0
         if placeholder_count > 5:
             completeness = 3.0  # Too many placeholders = incomplete
         else:
@@ -181,9 +181,9 @@ Return JSON with validation scores for: clarity, specificity, context, completen
             completeness = max(2.5, min(10.0, 3.0 + comp_score))
 
         # Requirements: Explicit, measurable criteria (not generic [Non-negotiable criteria])
-        requirements = 2.5
+        requirements = 5.0
         if "[must" in prompt_lower or "[non-" in prompt_lower or "[should" in prompt_lower:
-            requirements = 2.5  # Just placeholder text
+            requirements = 5.0  # Just placeholder text
         else:
             req_score = 0
             # Real requirements with specifics (numbers, percentages, metrics)
@@ -197,9 +197,9 @@ Return JSON with validation scores for: clarity, specificity, context, completen
             requirements = max(2.5, min(10.0, 3.5 + req_score))
 
         # Constraints: Real limitations stated (not generic [Time constraints:])
-        constraints = 2.5
+        constraints = 5.0
         if "[constraint" in prompt_lower or "[time " in prompt_lower or "[resource" in prompt_lower:
-            constraints = 2.5  # Just placeholder
+            constraints = 5.0  # Just placeholder
         else:
             con_score = 0
             if "limit" in prompt_lower or "maximum" in prompt_lower or "minimum" in prompt_lower:
@@ -211,9 +211,9 @@ Return JSON with validation scores for: clarity, specificity, context, completen
             constraints = max(2.5, min(10.0, 3.0 + con_score))
 
         # Expected Output: Real format specification (not generic [Format type:])
-        expected_output = 2.5
+        expected_output = 5.0
         if "[format" in prompt_lower or "[deliverable" in prompt_lower or "[structure" in prompt_lower:
-            expected_output = 2.5  # Placeholder only
+            expected_output = 5.0  # Placeholder only
         else:
             out_score = 0
             # Specific formats mentioned
@@ -226,9 +226,9 @@ Return JSON with validation scores for: clarity, specificity, context, completen
             expected_output = max(2.5, min(10.0, 3.0 + out_score))
 
         # Actionability: Real executable steps (not generic [Step 1: ...])
-        actionability = 2.5
+        actionability = 5.0
         if "[step" in prompt_lower or "[first action" in prompt_lower:
-            actionability = 2.5  # Placeholder only
+            actionability = 5.0  # Placeholder only
         else:
             act_score = 0
             # Real procedural steps

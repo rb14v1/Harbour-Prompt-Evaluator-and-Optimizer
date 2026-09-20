@@ -83,7 +83,7 @@ class ImproverAgent:
         return []
 
     def _comprehensive_improvement(self, original_prompt: str, validation: Dict[str, Any], scoring: Dict[str, Any], iteration: int) -> Dict[str, Any]:
-        """Generate customized improvement based on actual validation feedback."""
+        """Generate customized improvement based on actual validation feedback - be smart about detailed prompts."""
         try:
             if not original_prompt:
                 return {
@@ -105,60 +105,115 @@ class ImproverAgent:
             improvements = []
             dims_addressed = []
 
-            # Build customized improvement sections based on actual low scores
+            # Check if original prompt is already detailed (has lots of content OR specific technical details)
+            word_count = len(original_prompt.split())
+            prompt_lower = original_prompt.lower()
+
+            # Detailed if: many words OR contains specific technical terms/details
+            has_technical_details = any(x in prompt_lower for x in [
+                "django", "flask", "api", "json", "xml", "azure", "aws", "database",
+                "docker", "kubernetes", "sql", "mongodb", "sha-256", "oauth", "jwt",
+                "rest", "graphql", "websocket", "python", "javascript", "java", "golang"
+            ])
+            has_specific_formats = any(x in prompt_lower for x in [
+                "pdf", "jpg", "png", "csv", "xml", "json", "html", ".xlsx"
+            ])
+            is_detailed_prompt = word_count > 80 or (word_count > 40 and (has_technical_details or has_specific_formats))
+
+            # Build customized improvement
             improved = original_prompt
 
-            # Clarity: Expand with more structure
-            if validation_data.get("clarity", {}).get("score", 10) < 8:
-                improved += f"\n\n### Clarity Improvements:\n- Rephrase ambiguous terms with precise definitions\n- Break down complex ideas into smaller, digestible parts\n- Use consistent terminology throughout\n- Provide clear step-by-step structure"
-                improvements.append("Clarified language and structure")
-                dims_addressed.append("clarity")
+            # For detailed prompts, add concise enhancements focused on low dimensions
+            # For brief prompts, add fuller template sections
 
-            # Specificity: Add concrete examples
-            if validation_data.get("specificity", {}).get("score", 10) < 8:
-                improved += f"\n\n### Specific Examples & Details:\n- Example 1: [Detailed example showing expected behavior]\n- Example 2: [Concrete use case demonstrating the concept]\n- Example 3: [Real-world scenario with measurable outcomes]\n- Specific deliverables: [List exact outputs expected]"
-                improvements.append("Added specific examples and use cases")
-                dims_addressed.append("specificity")
+            if is_detailed_prompt:
+                # DETAILED PROMPT MODE: Add concise, targeted improvements
 
-            # Context: Add background information
-            if validation_data.get("context", {}).get("score", 10) < 8:
-                improved += f"\n\n### Context & Background:\n- Target audience: [Who will use this?]\n- Business context: [Why is this important?]\n- Technical context: [What existing systems/knowledge are assumed?]\n- Historical context: [What led to this requirement?]"
-                improvements.append("Added relevant context and background")
-                dims_addressed.append("context")
+                if validation_data.get("clarity", {}).get("score", 10) < 8:
+                    improved += f"\n\n**Clarity Enhancement:** Break down complex concepts with step-by-step breakdown. Define all technical terms and acronyms on first mention."
+                    improvements.append("Added clarity enhancements")
+                    dims_addressed.append("clarity")
 
-            # Completeness: Identify missing parts
-            if validation_data.get("completeness", {}).get("score", 10) < 8:
-                improved += f"\n\n### Missing Components Added:\n- Introduction explaining the overall goal\n- Prerequisite knowledge or setup required\n- Step-by-step process from start to finish\n- Edge cases and special scenarios\n- Conclusion or summary of expected outcomes"
-                improvements.append("Added missing components for completeness")
-                dims_addressed.append("completeness")
+                if validation_data.get("specificity", {}).get("score", 10) < 8:
+                    improved += f"\n\n**Specificity Enhancement:** Include concrete examples with actual values/formats. For example, if mentioning 'validate data', specify: 'Validate email format as RFC 5322 compliant.'"
+                    improvements.append("Added specific examples")
+                    dims_addressed.append("specificity")
 
-            # Requirements: Define explicit success criteria
-            if validation_data.get("requirements", {}).get("score", 10) < 8:
-                improved += f"\n\n### Success Criteria & Requirements:\n- Must meet: [Non-negotiable criteria]\n- Should meet: [Highly desirable criteria]\n- Performance metrics: [Measurable success indicators]\n- Validation method: [How will we know if this succeeds?]"
-                improvements.append("Defined explicit success criteria")
-                dims_addressed.append("requirements")
+                if validation_data.get("context", {}).get("score", 10) < 8:
+                    improved += f"\n\n**Context Enhancement:** Specify the target audience explicitly. Define the business/technical context. Example: 'For enterprise users familiar with REST APIs' or 'Assumes knowledge of Docker.'"
+                    improvements.append("Clarified context and audience")
+                    dims_addressed.append("context")
 
-            # Constraints: Define boundaries
-            if validation_data.get("constraints", {}).get("score", 10) < 8:
-                improved += f"\n\n### Constraints & Limitations:\n- Time constraints: [Deadlines or duration limits]\n- Resource constraints: [Budget, tools, or personnel limits]\n- Technical constraints: [Systems or technology limitations]\n- Scope boundaries: [What's included/excluded]\n- Out of scope: [Explicitly what NOT to do]"
-                improvements.append("Defined constraints and boundaries")
-                dims_addressed.append("constraints")
+                if validation_data.get("completeness", {}).get("score", 10) < 8:
+                    improved += f"\n\n**Completeness Enhancement:** Add sections for setup/prerequisites, detailed process, error handling, and success validation."
+                    improvements.append("Enhanced completeness")
+                    dims_addressed.append("completeness")
 
-            # Expected Output: Specify format
-            if validation_data.get("expected_output", {}).get("score", 10) < 8:
-                improved += f"\n\n### Expected Output Format:\n- Format type: [Document/Code/Analysis/etc]\n- Structure: [Specific sections or organization]\n- Deliverables: [What exactly should be provided]\n- Quality standards: [What makes good output]\n- Examples of good output: [Reference templates or samples]"
-                improvements.append("Specified expected output format")
-                dims_addressed.append("expected_output")
+                if validation_data.get("requirements", {}).get("score", 10) < 8:
+                    improved += f"\n\n**Requirements Enhancement:** State success criteria explicitly with measurable metrics. Example: 'Must process 100 receipts/minute with <2% error rate' instead of 'Must work fast.'"
+                    improvements.append("Added measurable success criteria")
+                    dims_addressed.append("requirements")
 
-            # Actionability: Make it executable
-            if validation_data.get("actionability", {}).get("score", 10) < 8:
-                improved += f"\n\n### Actionability & Implementation:\n- Step 1: [First action with clear inputs]\n- Step 2: [Second action with dependencies]\n- Step 3: [Subsequent actions]\n- Tools needed: [Specific tools or resources]\n- Troubleshooting: [Common issues and solutions]"
-                improvements.append("Enhanced actionability with executable steps")
-                dims_addressed.append("actionability")
+                if validation_data.get("constraints", {}).get("score", 10) < 8:
+                    improved += f"\n\n**Constraints Enhancement:** Define explicit boundaries and exclusions. Example: 'Only supports PDF, JPG, PNG (not GIF). Maximum file size 10MB. No support for handwritten receipts.'"
+                    improvements.append("Clarified constraints")
+                    dims_addressed.append("constraints")
+
+                if validation_data.get("expected_output", {}).get("score", 10) < 8:
+                    improved += f"\n\n**Output Format Enhancement:** Specify exact response format. Example: 'Return JSON with fields: {{\"receipt_id\": UUID, \"total\": float, \"items\": [{item}], \"confidence\": 0-100%}}'"
+                    improvements.append("Specified output format")
+                    dims_addressed.append("expected_output")
+
+                if validation_data.get("actionability", {}).get("score", 10) < 8:
+                    improved += f"\n\n**Actionability Enhancement:** Break down into numbered steps with clear inputs/outputs. Example: 'Step 1: User uploads receipt (input: image file). Step 2: System extracts text (output: JSON with OCR data).'"
+                    improvements.append("Added actionable steps")
+                    dims_addressed.append("actionability")
+            else:
+                # BRIEF PROMPT MODE: Add fuller template sections with actual examples
+
+                if validation_data.get("clarity", {}).get("score", 10) < 8:
+                    improved += f"\n\n### Clarity Improvements:\n- Use clear, non-ambiguous language\n- Define all acronyms and technical terms\n- Break complex steps into smaller parts"
+                    improvements.append("Clarified language and structure")
+                    dims_addressed.append("clarity")
+
+                if validation_data.get("specificity", {}).get("score", 10) < 8:
+                    improved += f"\n\n### Specific Examples & Details:\n- Include concrete examples with actual values\n- Specify exact formats, data types, and structures\n- Provide sample inputs and outputs"
+                    improvements.append("Added specific examples")
+                    dims_addressed.append("specificity")
+
+                if validation_data.get("context", {}).get("score", 10) < 8:
+                    improved += f"\n\n### Context & Background:\n- Define target audience and skill level\n- Explain why this task is important\n- State any assumptions about prior knowledge"
+                    improvements.append("Added context and background")
+                    dims_addressed.append("context")
+
+                if validation_data.get("completeness", {}).get("score", 10) < 8:
+                    improved += f"\n\n### Completeness:\n- Include all necessary prerequisites\n- Describe complete workflow from start to finish\n- Mention edge cases and error handling"
+                    improvements.append("Added missing components")
+                    dims_addressed.append("completeness")
+
+                if validation_data.get("requirements", {}).get("score", 10) < 8:
+                    improved += f"\n\n### Success Criteria:\n- Must meet: (non-negotiable requirements)\n- Performance metrics: (speed, scale, accuracy targets)\n- How to validate success"
+                    improvements.append("Defined success criteria")
+                    dims_addressed.append("requirements")
+
+                if validation_data.get("constraints", {}).get("score", 10) < 8:
+                    improved += f"\n\n### Constraints & Limitations:\n- What's included vs excluded\n- Technology/tool limitations\n- Time or resource constraints"
+                    improvements.append("Defined constraints")
+                    dims_addressed.append("constraints")
+
+                if validation_data.get("expected_output", {}).get("score", 10) < 8:
+                    improved += f"\n\n### Expected Output Format:\n- Format type (JSON, text, code, etc.)\n- Specific fields/structure required\n- Example of good output"
+                    improvements.append("Specified output format")
+                    dims_addressed.append("expected_output")
+
+                if validation_data.get("actionability", {}).get("score", 10) < 8:
+                    improved += f"\n\n### Actionable Steps:\n- Step 1: (clear input and output)\n- Step 2: (with dependencies)\n- Step 3: (completion criteria)"
+                    improvements.append("Added executable steps")
+                    dims_addressed.append("actionability")
 
             if not improvements:
-                improved += f"\n\n### Quality Enhancement:\nThe original prompt is already well-structured. Minor enhancements for consistency:\n- Verify all requirements are explicitly stated\n- Confirm examples are provided for complex concepts\n- Check that constraints are clearly defined"
-                improvements = ["Enhanced overall prompt quality"]
+                improved += f"\n\n**Quality Assessment:** This prompt is well-structured and specific. It clearly defines requirements, constraints, and expected outcomes."
+                improvements = ["Prompt already well-specified"]
                 dims_addressed = ["general"]
 
             return {
@@ -167,7 +222,7 @@ class ImproverAgent:
                 "dimensions_addressed": dims_addressed,
                 "intent_preserved": True,
                 "iteration": iteration,
-                "reasoning": f"Iteration {iteration}: Addressed low-scoring dimensions with targeted improvements"
+                "reasoning": f"Iteration {iteration}: {'Concise enhancements for detailed prompt' if is_detailed_prompt else 'Comprehensive guidance for brief prompt'}"
             }
 
         except Exception as e:
