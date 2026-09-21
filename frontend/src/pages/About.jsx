@@ -90,14 +90,14 @@ export default function About() {
           <li className="flex gap-4">
             <span className="flex-shrink-0 w-8 h-8 bg-warning-600 text-white rounded-full flex items-center justify-center font-bold">6A</span>
             <div>
-              <p className="font-semibold">Improver Agent</p>
+              <p className="font-semibold">Improver Agent (if score &lt; 7)</p>
               <p className="text-gray-600 dark:text-gray-400">Rewrites prompt to address weaknesses, preserves intent, focuses on low-scoring dimensions. Loops up to 3 times.</p>
             </div>
           </li>
           <li className="flex gap-4">
             <span className="flex-shrink-0 w-8 h-8 bg-success-600 text-white rounded-full flex items-center justify-center font-bold">7</span>
             <div>
-              <p className="font-semibold">Report Agent</p>
+              <p className="font-semibold">Report Agent (if score ≥ 9.8 or max iterations reached)</p>
               <p className="text-gray-600 dark:text-gray-400">Generates comprehensive report with original/improved prompts, full evaluation history, scores, and recommendations</p>
             </div>
           </li>

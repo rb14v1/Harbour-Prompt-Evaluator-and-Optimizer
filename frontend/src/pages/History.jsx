@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react'
 import { evaluationAPI } from '../services/api'
 import { Link } from 'react-router-dom'
 import LoadingSpinner from '../components/LoadingSpinner'
-import { Eye } from 'lucide-react'
+import { Eye, Download } from 'lucide-react'
 
 export default function History() {
   const [history, setHistory] = useState([])
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,6 +27,53 @@ export default function History() {
 
     fetchData()
   }, [])
+
+  const exportToCSV = () => {
+    if (history.length === 0) {
+      alert('No data to export')
+      return
+    }
+
+    setExporting(true)
+    try {
+      // Prepare CSV header
+      const headers = ['ID', 'Original Prompt', 'Final Prompt', 'Initial Score', 'Final Score', 'Status', 'Iterations', 'Improvements Made', 'Created At']
+
+      // Prepare CSV rows
+      const rows = history.map(item => [
+        item.id,
+        `"${(item.original_prompt || '').replace(/"/g, '""')}"`,
+        `"${(item.final_prompt || '').replace(/"/g, '""')}"`,
+        item.initial_score || 'N/A',
+        item.final_score || 'N/A',
+        item.status || 'N/A',
+        item.iterations_required || 'N/A',
+        item.improvements_made || 'N/A',
+        new Date(item.created_at).toLocaleString()
+      ])
+
+      // Create CSV content
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+      ].join('\n')
+
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      const url = URL.createObjectURL(blob)
+      link.setAttribute('href', url)
+      link.setAttribute('download', `prompt-evaluations-${new Date().toISOString().split('T')[0]}.csv`)
+      link.style.visibility = 'hidden'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } catch (err) {
+      alert(`Export failed: ${err.message}`)
+    } finally {
+      setExporting(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -61,7 +109,17 @@ export default function History() {
 
       {/* History List */}
       <div className="card">
-        <h2 className="text-2xl font-bold mb-4">Evaluation History</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold">Evaluation History</h2>
+          <button
+            onClick={exportToCSV}
+            disabled={exporting || history.length === 0}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <Download size={18} />
+            {exporting ? 'Exporting...' : 'Download CSV'}
+          </button>
+        </div>
 
         {error && (
           <div className="p-3 bg-danger-100 dark:bg-danger-900 text-danger-700 dark:text-danger-200 rounded mb-4">

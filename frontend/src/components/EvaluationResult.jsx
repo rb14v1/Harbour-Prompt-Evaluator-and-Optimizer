@@ -8,18 +8,29 @@ import IterationTabs from './IterationTabs'
 import TabInterface from './TabInterface'
 import TableDisplay from './TableDisplay'
 import JsonDisplay from './JsonDisplay'
-import apiClient, { getConfig } from '../services/api'
+import apiClient from '../services/api'
 
 export default function EvaluationResult({ result, isLoading = false }) {
   const [activeAgent, setActiveAgent] = useState('preprocessor')
   const [activeIteration, setActiveIteration] = useState(0)
-  const [isExporting, setIsExporting] = useState(false)
   const [viewMode, setViewMode] = useState('text')
-  const [THRESHOLD, setThreshold] = useState(9.5)
+  const [isExporting, setIsExporting] = useState(false)
+  const [THRESHOLD, setThreshold] = useState(7.0)
 
   useEffect(() => {
-    const config = getConfig()
-    setThreshold(config.threshold)
+    // Fetch threshold from backend config
+    const fetchConfig = async () => {
+      try {
+        const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+        const response = await fetch(`${apiBaseUrl}/config/`)
+        const config = await response.json()
+        setThreshold(config.threshold)
+      } catch (error) {
+        console.log('Using default threshold:', 7.0)
+        setThreshold(7.0)
+      }
+    }
+    fetchConfig()
   }, [])
 
   const handleExportExcel = async () => {
@@ -30,7 +41,6 @@ export default function EvaluationResult({ result, isLoading = false }) {
 
     setIsExporting(true)
     try {
-      console.log('Exporting evaluation with ID:', result.id)
       const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
       const url = `${apiBaseUrl}/evaluations/${result.id}/export_excel/`
 
@@ -40,8 +50,7 @@ export default function EvaluationResult({ result, isLoading = false }) {
       })
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(`HTTP ${response.status}: ${errorData.error || response.statusText}`)
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
       }
 
       const blob = await response.blob()
@@ -63,18 +72,12 @@ export default function EvaluationResult({ result, isLoading = false }) {
 
   if (!result) return null
 
-  // Extract execution history
-  const executionHistory = result.execution_history
-  if (!executionHistory || !executionHistory.iterations) {
-    return <div className="text-gray-500 p-4">No execution history available</div>
-  }
+  const executionHistory = result.execution_history || { iterations: [] }
+  const currentIteration = executionHistory.iterations?.[0] || {}
+  const stages = currentIteration.stages || {}
 
   const statusIcon = result.status === 'Ready' ? <Check className="text-success-500" /> : <AlertCircle className="text-warning-500" />
   const statusColor = result.status === 'Ready' ? 'bg-success-100 dark:bg-success-900 text-success-800 dark:text-success-200' : 'bg-warning-100 dark:bg-warning-900 text-warning-800 dark:text-warning-200'
-
-  // Get current iteration stages
-  const currentIteration = executionHistory.iterations[activeIteration]
-  const stages = currentIteration?.stages || {}
 
   return (
     <div className="space-y-6">
@@ -88,14 +91,14 @@ export default function EvaluationResult({ result, isLoading = false }) {
               {result.status}
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col items-end gap-3">
             <button
               onClick={handleExportExcel}
               disabled={isExporting}
               className="flex items-center gap-2 px-4 py-2 bg-white text-primary-600 rounded-lg font-medium hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <Download size={18} />
-              {isExporting ? 'Exporting...' : 'Export Excel'}
+              {isExporting ? 'Exporting...' : 'Download Excel'}
             </button>
             <div className="text-right">
               <p className="text-sm opacity-90 mb-1">Final Score</p>
@@ -108,7 +111,7 @@ export default function EvaluationResult({ result, isLoading = false }) {
         <div className="mt-4 flex gap-4 text-sm">
           <div>
             <p className="opacity-75">Iterations</p>
-            <p className="font-semibold">{result.iterations_required}/{3}</p>
+            <p className="font-semibold">{result.iterations_required}/3</p>
           </div>
           <div>
             <p className="opacity-75">Improvements</p>
@@ -125,35 +128,6 @@ export default function EvaluationResult({ result, isLoading = false }) {
           onIterationChange={setActiveIteration}
         />
       )}
-
-      {/* Main View Tabs - JSON vs Text */}
-      <TabInterface activeTab={viewMode} onTabChange={setViewMode}>
-        {viewMode === 'text' ? (
-          // TEXT VIEW - Agent Pipeline Inspector Layout
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: Agent Pipeline */}
-        <div className="lg:col-span-1">
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-            <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Pipeline</h3>
-            <AgentPipeline
-              executionHistory={executionHistory}
-              activeAgent={activeAgent}
-              onAgentSelect={setActiveAgent}
-              activeIteration={activeIteration}
-            />
-          </div>
-        </div>
-
-        {/* Right: Agent Detail Panel */}
-        <div className="lg:col-span-2">
-          <AgentDetailPanel
-            stages={stages}
-            activeAgent={activeAgent}
-            threshold={THRESHOLD}
-          />
-        </div>
-      </div>
 
       {/* Summary Section */}
       <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
@@ -179,22 +153,17 @@ export default function EvaluationResult({ result, isLoading = false }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
           <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-3">Original Prompt</h3>
-          <p className="text-sm text-gray-700 dark:text-gray-300 p-3 bg-gray-50 dark:bg-gray-800 rounded">
+          <p className="text-sm text-gray-700 dark:text-gray-300 p-3 bg-gray-50 dark:bg-gray-800 rounded whitespace-pre-wrap">
             {result.original_prompt}
           </p>
         </div>
 
-        {result.final_prompt !== result.original_prompt && (
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-success-500 border-2 p-6">
-            <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-              <Check size={18} className="text-success-500" />
-              Improved Prompt
-            </h3>
-            <p className="text-sm text-gray-700 dark:text-gray-300 p-3 bg-success-50 dark:bg-success-900/20 rounded">
-              {result.final_prompt}
-            </p>
-          </div>
-        )}
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-success-500 border-2 p-6">
+          <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-3">✓ Final Prompt</h3>
+          <p className="text-sm text-gray-700 dark:text-gray-300 p-3 bg-success-50 dark:bg-success-900/20 rounded whitespace-pre-wrap">
+            {result.final_prompt}
+          </p>
+        </div>
       </div>
 
       {/* Score Comparison */}
@@ -213,14 +182,40 @@ export default function EvaluationResult({ result, isLoading = false }) {
 
       {/* Dimensions Chart */}
       <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">Quality Dimensions</h3>
         <DimensionChart scores={result.final_evaluation.dimension_scores} />
       </div>
+
+      {/* Main View Tabs - JSON vs Text */}
+      <TabInterface activeTab={viewMode} onTabChange={setViewMode}>
+        {viewMode === 'text' ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left: Agent Pipeline */}
+              <div className="lg:col-span-1">
+                <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                  <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Pipeline</h3>
+                  <AgentPipeline
+                    executionHistory={executionHistory}
+                    activeAgent={activeAgent}
+                    onAgentSelect={setActiveAgent}
+                    activeIteration={activeIteration}
+                  />
+                </div>
+              </div>
+
+              {/* Right: Agent Detail Panel */}
+              <div className="lg:col-span-2">
+                <AgentDetailPanel
+                  stages={stages}
+                  activeAgent={activeAgent}
+                  threshold={THRESHOLD}
+                />
+              </div>
             </div>
-        ) : (
-          // JSON VIEW - Complete Result as JSON
-          <div className="space-y-4">
-            <JsonDisplay data={result} />
           </div>
+        ) : (
+          <JsonDisplay data={result} />
         )}
       </TabInterface>
     </div>

@@ -12,7 +12,11 @@ load_dotenv()
 # ========== QUALITY THRESHOLD ==========
 # Change this in .env file: THRESHOLD=7.0
 # It will automatically update everywhere in the project
+<<<<<<< HEAD
 QUALITY_THRESHOLD = float(os.getenv('THRESHOLD', '9.0'))
+=======
+QUALITY_THRESHOLD = float(os.getenv('THRESHOLD', '7.5'))
+>>>>>>> 358dfedfd21eb7648ce4bcf9dfc40114d396bf84
 
 # Description:
 # - 7.0  = Easy (most prompts pass)
@@ -31,7 +35,7 @@ QUALITY_SCORES = {
 
 # ========== EVALUATION SETTINGS ==========
 # Change in .env file: MAX_ITERATIONS=3
-MAX_ITERATIONS = int(os.getenv('MAX_ITERATIONS', '3'))
+MAX_ITERATIONS = int(os.getenv('MAX_ITERATIONS', '2'))
 DEFAULT_API_TIMEOUT = 300000  # Milliseconds (300 seconds = 5 minutes)
 
 # ========== QUALITY DIMENSIONS ==========
