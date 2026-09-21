@@ -29,16 +29,20 @@ class PromptEvaluationOrchestrator:
         self.improver = ImproverAgent()
         self.report_agent = ReportAgent()
 
-    def evaluate(self, raw_prompt: str) -> Dict[str, Any]:
+    def evaluate(self, raw_prompt: str, metadata: Dict[str, Any] = None) -> Dict[str, Any]:
         """
         Run complete evaluation pipeline on a prompt.
 
         Args:
             raw_prompt: Raw user prompt
+            metadata: Optional user metadata (role, expertise_level, context)
 
         Returns:
             Complete evaluation report
         """
+        if metadata is None:
+            metadata = {}
+
         # Stage 1: Preprocess
         preprocessed = self.preprocessor.process(raw_prompt)
         prompt_id = preprocessed["prompt_id"]
@@ -128,13 +132,14 @@ class PromptEvaluationOrchestrator:
             execution_history["iterations"][iteration]["stages"]["classifier"] = execution_history["iterations"][0]["stages"]["classifier"]
             execution_history["iterations"][iteration]["stages"]["analyzer"] = execution_history["iterations"][0]["stages"]["analyzer"]
 
-            # Improve prompt
+            # Improve prompt with user metadata
             improvement = self.improver.improve(
                 original_prompt=current_prompt,
                 analysis=analysis,
                 validation=validation,
                 scoring=current_evaluation,
-                iteration=iteration
+                iteration=iteration,
+                metadata=metadata
             )
 
             execution_history["iterations"][iteration]["stages"]["improver"] = {

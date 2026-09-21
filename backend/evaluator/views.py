@@ -355,7 +355,10 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
  
         prompt_text = serializer.validated_data['prompt']
- 
+        user_role = serializer.validated_data.get('user_role', 'Developer')
+        expertise_level = serializer.validated_data.get('expertise_level', 'Intermediate')
+        context = serializer.validated_data.get('context', 'Work')
+
         try:
             with transaction.atomic():
                 # Create or get prompt (allow anonymous for testing)
@@ -366,11 +369,12 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                     processed_prompt=prompt_text
                 )
  
-                # Run evaluation with 7.0 threshold (from .env or default)
+                # Run evaluation with metadata
                 import os
                 threshold = float(os.getenv('THRESHOLD', 7.0))
                 orchestrator = PromptEvaluationOrchestrator(threshold=threshold)
-                report = orchestrator.evaluate(prompt_text)
+                metadata = {'user_role': user_role, 'expertise_level': expertise_level, 'context': context}
+                report = orchestrator.evaluate(prompt_text, metadata=metadata)
  
                 # Store result
                 result = EvaluationResult.objects.create(

@@ -74,6 +74,9 @@ class EvaluationResultSerializer(serializers.ModelSerializer):
 class PromptEvaluationRequestSerializer(serializers.Serializer):
     """Serializer for evaluation request."""
     prompt = serializers.CharField(required=True, help_text="The prompt to evaluate")
+    user_role = serializers.CharField(required=False, default="Developer", help_text="User's role")
+    expertise_level = serializers.CharField(required=False, default="Intermediate", help_text="User's expertise level")
+    context = serializers.CharField(required=False, default="Work", help_text="Context/place of use")
 
     def validate_prompt(self, value):
         if not value or not value.strip():

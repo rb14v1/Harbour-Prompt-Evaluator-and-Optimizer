@@ -60,9 +60,12 @@ apiClient.interceptors.response.use(
 
 export const evaluationAPI = {
   // Submit a single prompt for evaluation
-  evaluatePrompt: async (prompt) => {
+  evaluatePrompt: async (prompt, metadata = {}) => {
     const response = await apiClient.post('/evaluations/evaluate/', {
       prompt,
+      user_role: metadata.role || 'Developer',
+      expertise_level: metadata.expertise || 'Intermediate',
+      context: metadata.context || 'Work',
     })
     return response.data
   },

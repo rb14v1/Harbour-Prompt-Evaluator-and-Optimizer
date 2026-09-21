@@ -87,7 +87,6 @@ export default function SimpleResults({ result }) {
           <div>
             <p className="text-sm opacity-90 mb-2">Final Score</p>
             <p className="text-5xl font-bold">{result.final_score ? result.final_score.toFixed(1) : 'N/A'}/10</p>
-            <p className="text-xs opacity-75 mt-1">Threshold: {THRESHOLD}</p>
           </div>
           <div>
             <p className="text-sm opacity-90 mb-2">Status</p>

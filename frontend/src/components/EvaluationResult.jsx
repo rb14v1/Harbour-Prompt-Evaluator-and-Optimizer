@@ -15,23 +15,6 @@ export default function EvaluationResult({ result, isLoading = false }) {
   const [activeIteration, setActiveIteration] = useState(0)
   const [viewMode, setViewMode] = useState('text')
   const [isExporting, setIsExporting] = useState(false)
-  const [THRESHOLD, setThreshold] = useState(7.0)
-
-  useEffect(() => {
-    // Fetch threshold from backend config
-    const fetchConfig = async () => {
-      try {
-        const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
-        const response = await fetch(`${apiBaseUrl}/config/`)
-        const config = await response.json()
-        setThreshold(config.threshold)
-      } catch (error) {
-        console.log('Using default threshold:', 7.0)
-        setThreshold(7.0)
-      }
-    }
-    fetchConfig()
-  }, [])
 
   const handleExportExcel = async () => {
     if (!result?.id) {
@@ -103,7 +86,6 @@ export default function EvaluationResult({ result, isLoading = false }) {
             <div className="text-right">
               <p className="text-sm opacity-90 mb-1">Final Score</p>
               <p className="text-4xl font-bold">{result.final_score ? result.final_score.toFixed(2) : 'N/A'}/10</p>
-              <p className="text-xs opacity-75 mt-1">Threshold: {THRESHOLD}</p>
             </div>
           </div>
         </div>
@@ -209,7 +191,6 @@ export default function EvaluationResult({ result, isLoading = false }) {
                 <AgentDetailPanel
                   stages={stages}
                   activeAgent={activeAgent}
-                  threshold={THRESHOLD}
                 />
               </div>
             </div>
