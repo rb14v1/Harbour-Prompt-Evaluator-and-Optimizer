@@ -100,7 +100,8 @@ class PromptEvaluationOrchestrator:
             "low_scoring_dimensions": initial_scoring["low_scoring_dimensions"]
         }
 
-        # Stage 6: Decision and optimization loop
+        # Stage 6: ALWAYS OPTIMIZE (no threshold - this is an optimizer!)
+        # Try to improve the prompt as much as possible, regardless of initial score
         improvement_history = []
         current_prompt = processed_prompt
         current_evaluation = initial_scoring
@@ -110,10 +111,12 @@ class PromptEvaluationOrchestrator:
         best_evaluation = initial_scoring
         iteration = 0
 
-        while (
-            current_evaluation["overall_score"] < self.threshold
-            and iteration < self.max_iterations
-        ):
+        print(f"\n📊 Starting Optimization:")
+        print(f"   Initial Score: {best_score:.1f}/10")
+
+        print(f"   Goal: Optimize to best possible version")
+
+        while iteration < self.max_iterations:
             iteration += 1
 
             # Create new iteration in execution history
@@ -171,26 +174,11 @@ class PromptEvaluationOrchestrator:
                 validation = best_validation
                 score_improvement = 0
 
-<<<<<<< HEAD
-            # Early stopping: only stop if we've tried at least 2 iterations with minimal improvement
-            # OR if score already meets threshold
-            if best_score >= self.threshold:
-                print(f"✅ Score {best_score} meets threshold {self.threshold} - stopping")
-                break
-            if best_score >= 6.0 and score_improvement < 0.3 and iteration >= 2:
-                print(f"⚠️  Minimal improvement ({score_improvement}) after 2+ iterations - stopping")
-=======
-            # Early stopping: Stop if threshold reached or improvement is small
-            # This prevents wasting iterations on tiny improvements
-            if best_score >= self.threshold:
-                # Threshold met - stop immediately
-                break
-            elif iteration >= 1 and score_improvement < 0.5:
-                # After iteration 1, if improvement < 0.5 points, stop
-                break
-            elif iteration >= 1:
-                # Max 2 iterations - stop after 2nd iteration regardless
->>>>>>> 358dfedfd21eb7648ce4bcf9dfc40114d396bf84
+            # Stop if score is plateauing (minimal improvement = not worth iterating)
+            print(f"\n   Iteration {iteration}: Score {current_evaluation['overall_score']:.1f} ({score_improvement:+.2f})")
+
+            if score_improvement < 0.1 and iteration >= 1:
+                print(f"✅ Score plateauing - optimization complete")
                 break
 
             # Add updated Validator and Scoring to this iteration (using the re-validated results)
@@ -204,21 +192,26 @@ class PromptEvaluationOrchestrator:
                 "output": current_evaluation
             }
 
-        # If score >= threshold, add improver as "skipped"
-        if iteration == 0 and execution_history["iterations"][0]["stages"]["scoring"]["output"]["overall_score"] >= self.threshold:
-            execution_history["iterations"][0]["stages"]["improver"] = {
-                "status": "skipped",
-                "reason": "prompt already meets threshold"
-            }
-
         # Final evaluation - always use best score found
         final_evaluation = best_evaluation if best_evaluation else current_evaluation
 
-        # Debug: Ensure final_evaluation has overall_score and threshold
+        # Ensure final_evaluation has all required fields
         if "overall_score" not in final_evaluation:
             final_evaluation["overall_score"] = best_score
-        if "threshold" not in final_evaluation:
-            final_evaluation["threshold"] = self.threshold
+
+        # Status based on optimization result (not threshold)
+        final_score = final_evaluation.get("overall_score", 0)
+        if final_score >= 8.5:
+            final_status = "Excellent"
+        elif final_score >= 7.5:
+            final_status = "Good"
+        elif final_score >= 5.0:
+            final_status = "Optimized"
+        else:
+            final_status = "Needs Review"
+
+        final_evaluation["status"] = final_status
+        final_evaluation["iterations_completed"] = iteration
 
         # Stage 6b: Generate Report
         report = self.report_agent.generate_report(

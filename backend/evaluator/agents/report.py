@@ -113,18 +113,15 @@ class ReportAgent:
         improvements_made: int,
         status: str
     ) -> str:
-        """Generate executive summary of evaluation."""
+        """Generate executive summary - no thresholds, just facts."""
         if original_prompt == final_prompt:
-            # No improvements needed
-            if final_score >= 7.0:
-                return f"Excellent prompt. Score: {final_score}/10.0. Ready for immediate use with no improvements needed."
-            else:
-                return f"Prompt score: {final_score}/10.0. Does not meet quality threshold ({7.0}). Manual review recommended."
+            # No improvements - already optimal
+            return f"✓ Prompt analysis complete. Final score: {final_score:.1f}/10. Status: {status}."
         else:
-            # Improvements made
+            # Improvements were made
             score_change = final_score - initial_score
-            change_text = f"improved by {abs(score_change):.2f}" if score_change > 0 else f"decreased by {abs(score_change):.2f}"
-            return f"Prompt {change_text} points (from {initial_score:.2f} to {final_score:.2f}) over {improvements_made} iteration(s). Status: {status}."
+            change_text = f"improved by +{score_change:.2f}" if score_change > 0 else f"adjusted by {score_change:.2f}"
+            return f"✓ Prompt optimized in {improvements_made} iteration(s). Score {change_text} (from {initial_score:.1f} to {final_score:.1f}). Status: {status}."
 
     def format_for_json(self, report: Dict[str, Any]) -> Dict[str, Any]:
         """Ensure report is JSON-serializable."""

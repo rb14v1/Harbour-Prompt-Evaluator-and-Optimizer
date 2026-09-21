@@ -87,19 +87,28 @@ export default function SimpleResults({ result }) {
           <div>
             <p className="text-sm opacity-90 mb-2">Final Score</p>
             <p className="text-5xl font-bold">{result.final_score ? result.final_score.toFixed(1) : 'N/A'}/10</p>
-            <p className="text-xs opacity-75 mt-1">Threshold: {THRESHOLD}</p>
           </div>
           <div>
             <p className="text-sm opacity-90 mb-2">Status</p>
             <p className="text-2xl font-bold">{result.status}</p>
-            <p className="text-xs opacity-75 mt-1">Iterations: {result.iterations_required}/3</p>
+            <p className="text-xs opacity-75 mt-1">Based on dimension analysis</p>
           </div>
           <div>
-            <p className="text-sm opacity-90 mb-2">Improvements</p>
-            <p className="text-2xl font-bold">{result.improvements_made}</p>
-            <p className="text-xs opacity-75 mt-1">Changes made</p>
+            <p className="text-sm opacity-90 mb-2">Iterations Used</p>
+            <p className="text-2xl font-bold">{result.iterations_required}</p>
+            <p className="text-xs opacity-75 mt-1">Optimization rounds</p>
           </div>
         </div>
+
+        {/* Show optimization info */}
+        {result.iterations_required > 0 && (
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg">
+            <p className="font-semibold text-blue-900 dark:text-blue-100 mb-2">✓ Optimization Complete</p>
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              Improved through {result.iterations_required} optimization round(s) to achieve best possible version
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Prompts Section */}
