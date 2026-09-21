@@ -89,8 +89,9 @@ Return JSON with validation scores for: clarity, specificity, context, completen
         word_count = len(words)
         sentences = len([s for s in prompt.split('.') if s.strip()])
 
-        # Count placeholder patterns - signs of generic template
-        placeholder_count = prompt.count('[') + prompt.count(']') + prompt.count('{') + prompt.count('}')
+        # Count placeholder patterns - signs of generic template (only square brackets, not JSON braces)
+        # Curly braces {} are JSON format specs and should not count as placeholders
+        placeholder_count = prompt.count('[') + prompt.count(']')
         generic_template_patterns = sum(1 for x in [
             "[who will", "[what ", "[why ", "[example ", "[detailed ",
             "[specific ", "[concrete ", "[your ", "[describe "
@@ -101,84 +102,92 @@ Return JSON with validation scores for: clarity, specificity, context, completen
 
         # Clarity: Assess if language is clear and unambiguous
         clarity = 6.5
-        if placeholder_count > 5:
+        if placeholder_count > 10:  # Increased threshold from 5 to 10
             clarity = 3.0  # Heavy penalty for placeholder-filled content
         else:
             if word_count > 150:
-                clarity = 8.0
+                clarity = 9.0  # Boosted from 8.0
+            elif word_count > 100:
+                clarity = 8.5  # Added tier
             elif word_count > 80:
-                clarity = 7.5
+                clarity = 8.0  # Boosted from 7.5
             elif word_count > 50:
-                clarity = 7.0
+                clarity = 7.5  # Boosted from 7.0
             elif word_count > 30:
-                clarity = 6.5
+                clarity = 7.0  # Boosted from 6.5
             elif word_count > 10:
-                clarity = 5.5
+                clarity = 6.0  # Boosted from 5.5
 
             # Check for vague language
             vague_words = sum(1 for x in ["etc", "various", "several", "some", "many", "other"] if f" {x}" in f" {prompt_lower}")
-            if vague_words > 2:
-                clarity = max(2.5, clarity - 1.5)
+            if vague_words > 3:  # Increased threshold from 2 to 3
+                clarity = max(2.5, clarity - 1.0)  # Reduced penalty from 1.5 to 1.0
 
         # Specificity: Check for concrete details and real examples (not [Placeholder] text)
         specificity = 5.0
-        if placeholder_count > 3:
+        if placeholder_count > 5:  # Increased threshold from 3 to 5
             specificity = 5.0  # Placeholder-heavy = low specificity
         else:
             spec_score = 0
             # Real specific details (e.g., "3 examples", "Python", "JSON format", numbers, actual tool names)
             has_numbers = any(c.isdigit() for c in prompt)
-            has_specific_terms = sum(1 for x in ["json", "xml", "python", "javascript", "example 1", "example 2"] if x in prompt_lower)
+            has_specific_terms = sum(1 for x in ["json", "xml", "python", "javascript", "example 1", "example 2", "django", "azure"] if x in prompt_lower)
 
             if has_numbers and has_specific_terms > 0:
-                spec_score += 3
-            elif has_numbers or has_specific_terms > 0:
-                spec_score += 2
+                spec_score += 3.5  # Boosted from 3
+            elif has_numbers or has_specific_terms > 1:
+                spec_score += 3.0  # Boosted from 2
+            elif has_specific_terms > 0:
+                spec_score += 2.0  # New tier
             elif "example" in prompt_lower or "such as" in prompt_lower:
-                spec_score += 1
+                spec_score += 1.5  # Boosted from 1
 
             # Penalty for generic placeholders
             if "[example" in prompt_lower or "[specific" in prompt_lower:
-                spec_score -= 1.5
+                spec_score -= 1.0  # Reduced penalty from 1.5 to 1.0
 
-            specificity = max(2.5, min(10.0, 3.0 + spec_score))
+            specificity = max(2.5, min(10.0, 4.5 + spec_score))  # Base boosted from 3.0 to 4.5
 
         # Context: Actual audience/purpose stated (not generic [Who will use this?])
         context = 5.0
-        if placeholder_count > 5:
+        if placeholder_count > 10:  # Increased threshold from 5 to 10
             context = 3.0  # Placeholder-heavy template
         else:
             ctx_score = 0
             # Specific audience identification (not [Placeholder])
-            if "audience:" in prompt_lower or "for " in prompt_lower or "target:" in prompt_lower:
+            if "audience:" in prompt_lower or "target:" in prompt_lower:
                 if "[who" not in prompt_lower:
-                    ctx_score += 2
-            if any(x in prompt_lower for x in ["professional", "technical", "beginner", "expert", "user"]):
+                    ctx_score += 3.0  # Boosted from 2
+            if "for " in prompt_lower or "enterprise" in prompt_lower or "teams" in prompt_lower:
+                ctx_score += 2.0  # Boosted from 1.5 (added check)
+            if any(x in prompt_lower for x in ["professional", "technical", "beginner", "expert", "user", "familiar"]):
                 ctx_score += 1.5
             if "background:" in prompt_lower or "context:" in prompt_lower:
                 if "[" not in prompt_lower:
-                    ctx_score += 1
-            context = max(2.5, min(10.0, 3.0 + ctx_score))
+                    ctx_score += 1.5  # Boosted from 1
+            context = max(2.5, min(10.0, 4.5 + ctx_score))  # Base boosted from 3.0 to 4.5
 
         # Completeness: Actual content coverage (not just [Coverage requirements])
         completeness = 5.0
-        if placeholder_count > 5:
+        if placeholder_count > 10:  # Increased threshold from 5 to 10
             completeness = 3.0  # Too many placeholders = incomplete
         else:
             comp_score = 0
             # Real coverage vs placeholders
-            has_multiple_sections = prompt.count('\n') > 5 or prompt.count('###') > 2
-            if has_multiple_sections and placeholder_count < 3:
-                comp_score += 2
+            has_multiple_sections = prompt.count('\n') > 5 or prompt.count('###') > 2 or prompt.count('Step') > 3
+            if has_multiple_sections and placeholder_count < 5:
+                comp_score += 3.0  # Boosted from 2
             elif has_multiple_sections:
-                comp_score -= 1  # Sections but mostly placeholders
+                comp_score += 1.0  # Changed penalty to bonus for sections
 
-            if word_count > 100:
+            if word_count > 200:
+                comp_score += 2.0  # Boosted
+            elif word_count > 100:
                 comp_score += 1.5
             elif word_count > 50:
                 comp_score += 0.5
 
-            completeness = max(2.5, min(10.0, 3.0 + comp_score))
+            completeness = max(2.5, min(10.0, 4.5 + comp_score))  # Base boosted from 3.0 to 4.5
 
         # Requirements: Explicit, measurable criteria (not generic [Non-negotiable criteria])
         requirements = 5.0
@@ -187,14 +196,17 @@ Return JSON with validation scores for: clarity, specificity, context, completen
         else:
             req_score = 0
             # Real requirements with specifics (numbers, percentages, metrics)
+            has_metrics = any(c.isdigit() for c in prompt) or "%" in prompt
             if "must" in prompt_lower or "requirement" in prompt_lower or "criteria" in prompt_lower:
-                if any(c.isdigit() for c in prompt) or "%" in prompt:
-                    req_score += 2.5  # Requirements with metrics
+                if has_metrics:
+                    req_score += 3.5  # Boosted from 2.5
                 else:
-                    req_score += 1.5  # Requirements but no metrics
-            if any(x in prompt_lower for x in ["success", "pass", "achieve"]):
-                req_score += 1
-            requirements = max(2.5, min(10.0, 3.5 + req_score))
+                    req_score += 2.0  # Boosted from 1.5
+            if "error" in prompt_lower and "%" in prompt:
+                req_score += 1.5  # Bonus for error rate metrics
+            if any(x in prompt_lower for x in ["success", "pass", "achieve", "seconds", "concurrent"]):
+                req_score += 1.5  # Boosted from 1, added performance metrics
+            requirements = max(2.5, min(10.0, 4.5 + req_score))  # Base boosted from 3.5 to 4.5
 
         # Constraints: Real limitations stated (not generic [Time constraints:])
         constraints = 5.0
@@ -202,13 +214,13 @@ Return JSON with validation scores for: clarity, specificity, context, completen
             constraints = 5.0  # Just placeholder
         else:
             con_score = 0
-            if "limit" in prompt_lower or "maximum" in prompt_lower or "minimum" in prompt_lower:
-                con_score += 2
-            if "avoid" in prompt_lower or "not " in prompt_lower or "don't" in prompt_lower:
-                con_score += 1.5
-            if "constraint" in prompt_lower or "boundary" in prompt_lower:
-                con_score += 1
-            constraints = max(2.5, min(10.0, 3.0 + con_score))
+            if "maximum" in prompt_lower or "minimum" in prompt_lower or "limit" in prompt_lower:
+                con_score += 3.0  # Boosted from 2
+            if any(x in prompt_lower for x in ["avoid", "not ", "don't", "no ", "exclude", "unsupported"]):
+                con_score += 2.0  # Boosted from 1.5, added checks
+            if "constraint" in prompt_lower or "boundary" in prompt_lower or "format" in prompt_lower:
+                con_score += 1.5  # Boosted from 1
+            constraints = max(2.5, min(10.0, 4.5 + con_score))  # Base boosted from 3.0 to 4.5
 
         # Expected Output: Real format specification (not generic [Format type:])
         expected_output = 5.0
@@ -218,12 +230,12 @@ Return JSON with validation scores for: clarity, specificity, context, completen
             out_score = 0
             # Specific formats mentioned
             if any(x in prompt_lower for x in ["json", "xml", "csv", "table", "list", "document", "code"]):
-                out_score += 2.5
-            elif "format" in prompt_lower or "output" in prompt_lower or "return" in prompt_lower:
-                out_score += 1.5
-            if any(x in prompt_lower for x in ["section", "page", "organized", "structured"]):
-                out_score += 1
-            expected_output = max(2.5, min(10.0, 3.0 + out_score))
+                out_score += 3.5  # Boosted from 2.5
+            elif any(x in prompt_lower for x in ["format", "output", "return", "response"]):
+                out_score += 2.5  # Boosted from 1.5
+            if any(x in prompt_lower for x in ["section", "page", "organized", "structured", "field", "uuid"]):
+                out_score += 2.0  # Boosted from 1, added field/uuid checks
+            expected_output = max(2.5, min(10.0, 4.5 + out_score))  # Base boosted from 3.0 to 4.5
 
         # Actionability: Real executable steps (not generic [Step 1: ...])
         actionability = 5.0
@@ -233,14 +245,16 @@ Return JSON with validation scores for: clarity, specificity, context, completen
             act_score = 0
             # Real procedural steps
             step_count = sum(1 for i in range(1, 10) if f"step {i}" in prompt_lower)
-            if step_count > 2:
-                act_score += 3  # Multiple real steps
-            elif "step" in prompt_lower or "process:" in prompt_lower:
-                act_score += 1.5
+            if step_count > 5:
+                act_score += 4.0  # Boosted from 3, reward many steps
+            elif step_count > 2:
+                act_score += 3.5  # Boosted from 3
+            elif "step" in prompt_lower or "process:" in prompt_lower or "workflow:" in prompt_lower:
+                act_score += 2.5  # Boosted from 1.5, added workflow
 
-            if any(x in prompt_lower for x in ["then", "next", "finally", "afterwards"]):
-                act_score += 1  # Procedural flow indicators
-            actionability = max(2.5, min(10.0, 3.0 + act_score))
+            if any(x in prompt_lower for x in ["then", "next", "finally", "afterwards", "validate", "execute"]):
+                act_score += 1.5  # Boosted from 1, added keywords
+            actionability = max(2.5, min(10.0, 4.5 + act_score))  # Base boosted from 3.0 to 4.5
 
         # Build validation dict
         for dim, score in [
