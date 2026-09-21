@@ -40,7 +40,7 @@ class ReportAgent:
         # Use threshold from final_evaluation or default to 7.0
         threshold = final_evaluation.get("threshold", 7.0)
 
-        print(f"\n📊 Status Determination:")
+        print(f"\n[REPORT] Status Determination:")
         print(f"   Final score: {final_score}")
         print(f"   Threshold: {threshold}")
         print(f"   Status will be: {'Ready' if final_score >= threshold else 'Needs Manual Review'}")
@@ -50,7 +50,7 @@ class ReportAgent:
         improvements_made = 0
 
         if improvement_history:
-            print(f"\n✅ Improvement History found: {len(improvement_history)} improvements")
+            print(f"\n[REPORT] Improvement History found: {len(improvement_history)} improvements")
             for i, h in enumerate(improvement_history):
                 print(f"   Improvement {i}: keys={list(h.keys())}, has_improved_prompt={bool(h.get('improved_prompt'))}")
             final_prompt = improvement_history[-1].get("improved_prompt", original_prompt)

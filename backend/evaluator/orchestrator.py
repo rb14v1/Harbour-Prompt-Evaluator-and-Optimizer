@@ -111,7 +111,7 @@ class PromptEvaluationOrchestrator:
         best_evaluation = initial_scoring
         iteration = 0
 
-        print(f"\n📊 Starting Optimization:")
+        print(f"\n[ORCHESTRATOR] Starting Optimization:")
         print(f"   Initial Score: {best_score:.1f}/10")
 
         print(f"   Goal: Optimize to best possible version")
@@ -178,7 +178,7 @@ class PromptEvaluationOrchestrator:
             print(f"\n   Iteration {iteration}: Score {current_evaluation['overall_score']:.1f} ({score_improvement:+.2f})")
 
             if score_improvement < 0.1 and iteration >= 1:
-                print(f"✅ Score plateauing - optimization complete")
+                print(f"[ORCHESTRATOR] Score plateauing - optimization complete")
                 break
 
             # Add updated Validator and Scoring to this iteration (using the re-validated results)

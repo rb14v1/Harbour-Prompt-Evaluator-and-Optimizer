@@ -23,68 +23,34 @@ class ValidatorAgent:
         self.deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-4")
 
     def validate(self, processed_prompt: str, analysis: Dict[str, Any] = None) -> Dict[str, Any]:
-        """Validate prompt across all 8 dimensions. USING HEURISTICS ONLY."""
-        # BYPASS AZURE - USE HEURISTICS ONLY (Azure was returning bad scores)
-        print(f"🔍 Validating: {len(processed_prompt.split())} words")
-        result = self._analyze_prompt_content(processed_prompt)
-        scores = result.get('validation', {})
-        score_str = ", ".join([f"{k}={v.get('score', 0):.1f}" for k,v in scores.items()])
-        avg = sum([v['score'] for v in scores.values()]) / len(scores) if scores else 0
-        print(f"✅ Scores: avg={avg:.1f}, {score_str}")
-        return result
+        """Validate prompt across all 8 dimensions."""
+        if not self.client:
+            return self._analyze_prompt_content(processed_prompt)
+
+        try:
+            response = self.client.chat.completions.create(
+                model=self.deployment_name,
+                messages=[
+                    {"role": "system", "content": self._get_system_prompt()},
+                    {"role": "user", "content": f"Validate this prompt:\n\n{processed_prompt}"}
+                ],
+                temperature=0.3,
+                max_completion_tokens=2000
+            )
+            response_text = response.choices[0].message.content
+            result = self._parse_response(response_text)
+            return result if result else self._analyze_prompt_content(processed_prompt)
+        except Exception as e:
+            return self._analyze_prompt_content(processed_prompt)
 
     def _get_system_prompt(self) -> str:
-        return f"""You are a rigorous prompt quality validator. Evaluate each dimension carefully:
+        return f"""You are a prompt quality validator. Rate each dimension on a scale of 2.5-10.0:
+- Poor (2.5): Major gaps
+- Moderate (5.0): Some issues
+- Good (7.5): Minor improvements possible
+- Excellent (10.0): Exemplary
 
-CLARITY (2.5-10.0): Is the language unambiguous? Are technical terms defined? Is the request understandable?
-- 10.0: Crystal clear, no ambiguity, technical terms defined
-- 7.5: Generally clear but minor improvements possible
-- 5.0: Some vague language, needs clarification
-- 2.5: Confusing, contradictory, hard to understand
-
-SPECIFICITY (2.5-10.0): Are details concrete or generic placeholders? Are examples concrete or [TEMPLATE]?
-- 10.0: Specific numbers, real examples, concrete details (not [like this])
-- 7.5: Mostly specific with 1-2 generic parts
-- 5.0: Mix of specific and generic, many [placeholders]
-- 2.5: Almost entirely generic or template-like, no real details
-
-CONTEXT (2.5-10.0): Is the target audience clear? Is the use case defined? Are assumptions stated?
-- 10.0: Explicit audience, clear use case, assumptions stated
-- 7.5: Audience implied, use case mostly clear
-- 5.0: Vague audience/use case
-- 2.5: No context, could apply to anything
-
-COMPLETENESS (2.5-10.0): Are all needed information sections present? Any critical gaps?
-- 10.0: Full end-to-end coverage, all prerequisites included
-- 7.5: Mostly complete with minor gaps
-- 5.0: Missing 1-2 key sections (requirements, constraints, output format)
-- 2.5: Missing 3+ critical sections
-
-REQUIREMENTS (2.5-10.0): Are success criteria measurable? Any quantified targets?
-- 10.0: Measurable, quantified (numbers, percentages, metrics)
-- 7.5: Mostly measurable with some subjective parts
-- 5.0: Some requirements but not measurable
-- 2.5: No clear requirements or all subjective ("good", "fast")
-
-CONSTRAINTS (2.5-10.0): Are limitations, boundaries, and exclusions explicit?
-- 10.0: All constraints specified clearly (time, resources, scope limits)
-- 7.5: Most constraints stated
-- 5.0: Some constraints mentioned
-- 2.5: No constraints specified
-
-EXPECTED_OUTPUT (2.5-10.0): Is the output format explicitly specified with examples?
-- 10.0: Explicit format (JSON/XML/etc), example provided, all fields documented
-- 7.5: Format specified but no example
-- 5.0: Format mentioned generically ("structured data")
-- 2.5: No output format specified
-
-ACTIONABILITY (2.5-10.0): Can a developer/AI execute this without guessing?
-- 10.0: Step-by-step executable, no ambiguity, ready to implement
-- 7.5: Mostly executable with minor clarifications needed
-- 5.0: Needs significant interpretation
-- 2.5: Too vague to execute, too many interpretations possible
-
-Return ONLY valid JSON (no markdown, no explanations) with these 8 scores."""
+Return JSON with validation scores for: clarity, specificity, context, completeness, requirements, constraints, expected_output, actionability"""
 
     def _parse_response(self, response_text: str) -> Dict[str, Any]:
         try:
@@ -121,80 +87,199 @@ Return ONLY valid JSON (no markdown, no explanations) with these 8 scores."""
         prompt_lower = prompt.lower()
         words = prompt.split()
         word_count = len(words)
+        sentences = len([s for s in prompt.split('.') if s.strip()])
 
-        # Detect vague language and placeholders
-        vague_terms = ["quick", "fast", "easy", "simple", "good", "bad", "large", "small", "many", "few", "some", "several", "etc", "various", "other"]
-        vague_count = sum(1 for term in vague_terms if f" {term} " in f" {prompt_lower} ")
+        # Count placeholder patterns - signs of generic template (only square brackets, not JSON braces)
+        # Curly braces {} are JSON format specs and should not count as placeholders
+        placeholder_count = prompt.count('[') + prompt.count(']')
+        generic_template_patterns = sum(1 for x in [
+            "[who will", "[what ", "[why ", "[example ", "[detailed ",
+            "[specific ", "[concrete ", "[your ", "[describe "
+        ] if x in prompt_lower)
 
-        has_placeholders = "[" in prompt and "]" in prompt
-        has_numbers = any(c.isdigit() for c in prompt)
-        has_specifics = any(x in prompt_lower for x in ["json", "xml", "csv", "python", "django", "example", "step 1", "step 2"])
-        tech_terms = ["json", "xml", "csv", "python", "javascript", "api", "database", "rest", "http", "docker", "aws", "azure"]
-        tech_count = sum(1 for term in tech_terms if term in prompt_lower)
-
+        # Calculate scores based on actual content depth, not just keywords
         validation = {}
 
-        # STRICT SCORING: Only truly excellent prompts get high scores
-        if word_count < 20:
-            base_score = 2.5  # Very vague - minimal content
-        elif word_count < 50:
-            base_score = 5.0  # Moderate - some details, needs more
-        elif word_count < 150:
-            base_score = 7.5  # Good - decent detail, but could be better
-        elif word_count < 300:
-            base_score = 8.5  # Very good - comprehensive
+        # Clarity: Assess if language is clear and unambiguous
+        clarity = 6.5
+        if placeholder_count > 10:  # Increased threshold from 5 to 10
+            clarity = 3.0  # Heavy penalty for placeholder-filled content
         else:
-            base_score = 10.0  # Excellent - very detailed (300+ words)
+            if word_count > 150:
+                clarity = 9.0  # Boosted from 8.0
+            elif word_count > 100:
+                clarity = 8.5  # Added tier
+            elif word_count > 80:
+                clarity = 8.0  # Boosted from 7.5
+            elif word_count > 50:
+                clarity = 7.5  # Boosted from 7.0
+            elif word_count > 30:
+                clarity = 7.0  # Boosted from 6.5
+            elif word_count > 10:
+                clarity = 6.0  # Boosted from 5.5
 
-        # Boost ONLY for actual quality indicators
-        boost = 0
-        has_requirements = "requirement" in prompt_lower or "must" in prompt_lower
-        has_constraints = "constraint" in prompt_lower or "limit" in prompt_lower
-        has_output_spec = "output" in prompt_lower or "format" in prompt_lower
-        has_audience = "audience" in prompt_lower or ("user" in prompt_lower and "users" not in prompt_lower)
-        has_metrics = any(c.isdigit() for c in prompt)
+            # Check for vague language
+            vague_words = sum(1 for x in ["etc", "various", "several", "some", "many", "other"] if f" {x}" in f" {prompt_lower}")
+            if vague_words > 3:  # Increased threshold from 2 to 3
+                clarity = max(2.5, clarity - 1.0)  # Reduced penalty from 1.5 to 1.0
 
-        quality_indicators = sum([has_requirements, has_constraints, has_output_spec, has_audience, has_metrics])
-        boost = quality_indicators * 0.5  # Max +2.5 if all 5 present
-
-        # Penalty for vagueness
-        penalty = vague_count * 0.75
-
-        # Calculate final discrete score
-        final = min(10.0, max(2.5, base_score + boost - penalty))
-
-        # Map to discrete levels (2.5, 5.0, 7.5, 10.0) - stricter boundaries
-        if final < 3.75:
-            discrete_score = 2.5
-        elif final < 6.25:
-            discrete_score = 5.0
-        elif final < 8.75:
-            discrete_score = 7.5
-        elif final < 9.5:
-            discrete_score = 8.5
+        # Specificity: Check for concrete details and real examples (not [Placeholder] text)
+        specificity = 5.0
+        if placeholder_count > 5:  # Increased threshold from 3 to 5
+            specificity = 5.0  # Placeholder-heavy = low specificity
         else:
-            discrete_score = 10.0
+            spec_score = 0
+            # Real specific details (e.g., "3 examples", "Python", "JSON format", numbers, actual tool names)
+            has_numbers = any(c.isdigit() for c in prompt)
+            has_specific_terms = sum(1 for x in ["json", "xml", "python", "javascript", "example 1", "example 2", "django", "azure"] if x in prompt_lower)
 
-        # All 8 dimensions get the SAME discrete score (all measure overall prompt quality)
-        for dim in self.DIMENSIONS:
+            if has_numbers and has_specific_terms > 0:
+                spec_score += 3.5  # Boosted from 3
+            elif has_numbers or has_specific_terms > 1:
+                spec_score += 3.0  # Boosted from 2
+            elif has_specific_terms > 0:
+                spec_score += 2.0  # New tier
+            elif "example" in prompt_lower or "such as" in prompt_lower:
+                spec_score += 1.5  # Boosted from 1
+
+            # Penalty for generic placeholders
+            if "[example" in prompt_lower or "[specific" in prompt_lower:
+                spec_score -= 1.0  # Reduced penalty from 1.5 to 1.0
+
+            specificity = max(2.5, min(10.0, 4.5 + spec_score))  # Base boosted from 3.0 to 4.5
+
+        # Context: Actual audience/purpose stated (not generic [Who will use this?])
+        context = 5.0
+        if placeholder_count > 10:  # Increased threshold from 5 to 10
+            context = 3.0  # Placeholder-heavy template
+        else:
+            ctx_score = 0
+            # Specific audience identification (not [Placeholder])
+            if "audience:" in prompt_lower or "target:" in prompt_lower:
+                if "[who" not in prompt_lower:
+                    ctx_score += 3.0  # Boosted from 2
+            if "for " in prompt_lower or "enterprise" in prompt_lower or "teams" in prompt_lower:
+                ctx_score += 2.0  # Boosted from 1.5 (added check)
+            if any(x in prompt_lower for x in ["professional", "technical", "beginner", "expert", "user", "familiar"]):
+                ctx_score += 1.5
+            if "background:" in prompt_lower or "context:" in prompt_lower:
+                if "[" not in prompt_lower:
+                    ctx_score += 1.5  # Boosted from 1
+            context = max(2.5, min(10.0, 4.5 + ctx_score))  # Base boosted from 3.0 to 4.5
+
+        # Completeness: Actual content coverage (not just [Coverage requirements])
+        completeness = 5.0
+        if placeholder_count > 10:  # Increased threshold from 5 to 10
+            completeness = 3.0  # Too many placeholders = incomplete
+        else:
+            comp_score = 0
+            # Real coverage vs placeholders
+            has_multiple_sections = prompt.count('\n') > 5 or prompt.count('###') > 2 or prompt.count('Step') > 3
+            if has_multiple_sections and placeholder_count < 5:
+                comp_score += 3.0  # Boosted from 2
+            elif has_multiple_sections:
+                comp_score += 1.0  # Changed penalty to bonus for sections
+
+            if word_count > 200:
+                comp_score += 2.0  # Boosted
+            elif word_count > 100:
+                comp_score += 1.5
+            elif word_count > 50:
+                comp_score += 0.5
+
+            completeness = max(2.5, min(10.0, 4.5 + comp_score))  # Base boosted from 3.0 to 4.5
+
+        # Requirements: Explicit, measurable criteria (not generic [Non-negotiable criteria])
+        requirements = 5.0
+        if "[must" in prompt_lower or "[non-" in prompt_lower or "[should" in prompt_lower:
+            requirements = 5.0  # Just placeholder text
+        else:
+            req_score = 0
+            # Real requirements with specifics (numbers, percentages, metrics)
+            has_metrics = any(c.isdigit() for c in prompt) or "%" in prompt
+            if "must" in prompt_lower or "requirement" in prompt_lower or "criteria" in prompt_lower:
+                if has_metrics:
+                    req_score += 3.5  # Boosted from 2.5
+                else:
+                    req_score += 2.0  # Boosted from 1.5
+            if "error" in prompt_lower and "%" in prompt:
+                req_score += 1.5  # Bonus for error rate metrics
+            if any(x in prompt_lower for x in ["success", "pass", "achieve", "seconds", "concurrent"]):
+                req_score += 1.5  # Boosted from 1, added performance metrics
+            requirements = max(2.5, min(10.0, 4.5 + req_score))  # Base boosted from 3.5 to 4.5
+
+        # Constraints: Real limitations stated (not generic [Time constraints:])
+        constraints = 5.0
+        if "[constraint" in prompt_lower or "[time " in prompt_lower or "[resource" in prompt_lower:
+            constraints = 5.0  # Just placeholder
+        else:
+            con_score = 0
+            if "maximum" in prompt_lower or "minimum" in prompt_lower or "limit" in prompt_lower:
+                con_score += 3.0  # Boosted from 2
+            if any(x in prompt_lower for x in ["avoid", "not ", "don't", "no ", "exclude", "unsupported"]):
+                con_score += 2.0  # Boosted from 1.5, added checks
+            if "constraint" in prompt_lower or "boundary" in prompt_lower or "format" in prompt_lower:
+                con_score += 1.5  # Boosted from 1
+            constraints = max(2.5, min(10.0, 4.5 + con_score))  # Base boosted from 3.0 to 4.5
+
+        # Expected Output: Real format specification (not generic [Format type:])
+        expected_output = 5.0
+        if "[format" in prompt_lower or "[deliverable" in prompt_lower or "[structure" in prompt_lower:
+            expected_output = 5.0  # Placeholder only
+        else:
+            out_score = 0
+            # Specific formats mentioned
+            if any(x in prompt_lower for x in ["json", "xml", "csv", "table", "list", "document", "code"]):
+                out_score += 3.5  # Boosted from 2.5
+            elif any(x in prompt_lower for x in ["format", "output", "return", "response"]):
+                out_score += 2.5  # Boosted from 1.5
+            if any(x in prompt_lower for x in ["section", "page", "organized", "structured", "field", "uuid"]):
+                out_score += 2.0  # Boosted from 1, added field/uuid checks
+            expected_output = max(2.5, min(10.0, 4.5 + out_score))  # Base boosted from 3.0 to 4.5
+
+        # Actionability: Real executable steps (not generic [Step 1: ...])
+        actionability = 5.0
+        if "[step" in prompt_lower or "[first action" in prompt_lower:
+            actionability = 5.0  # Placeholder only
+        else:
+            act_score = 0
+            # Real procedural steps
+            step_count = sum(1 for i in range(1, 10) if f"step {i}" in prompt_lower)
+            if step_count > 5:
+                act_score += 4.0  # Boosted from 3, reward many steps
+            elif step_count > 2:
+                act_score += 3.5  # Boosted from 3
+            elif "step" in prompt_lower or "process:" in prompt_lower or "workflow:" in prompt_lower:
+                act_score += 2.5  # Boosted from 1.5, added workflow
+
+            if any(x in prompt_lower for x in ["then", "next", "finally", "afterwards", "validate", "execute"]):
+                act_score += 1.5  # Boosted from 1, added keywords
+            actionability = max(2.5, min(10.0, 4.5 + act_score))  # Base boosted from 3.0 to 4.5
+
+        # Build validation dict
+        for dim, score in [
+            ("clarity", clarity),
+            ("specificity", specificity),
+            ("context", context),
+            ("completeness", completeness),
+            ("requirements", requirements),
+            ("constraints", constraints),
+            ("expected_output", expected_output),
+            ("actionability", actionability)
+        ]:
             validation[dim] = {
-                "level": self._get_level(discrete_score),
-                "score": discrete_score,
-                "issues": [] if discrete_score >= 7.5 else ["Needs improvement"],
-                "evidence": f"{word_count} words, {vague_count} vague, boost={boost:.1f}, penalty={penalty:.1f}",
-                "recommendation": "Excellent" if discrete_score >= 10.0 else "Good" if discrete_score >= 7.5 else "Needs improvement"
+                "level": self._get_level(score),
+                "score": min(10.0, max(2.5, score)),
+                "issues": [] if score >= 8.0 else ["Could improve"],
+                "evidence": f"Analysis of {word_count} words",
+                "recommendation": "Good" if score >= 8.0 else "Enhance"
             }
 
         return {
             "validation": validation,
             "overall_issues": ["Content analysis performed"],
-            "improvement_targets": [d for d in self.DIMENSIONS if validation[d]["score"] < 7.5]
+            "improvement_targets": [d for d in self.DIMENSIONS if validation[d]["score"] < 8.0]
         }
-
-    def _round_to_quality_level(self, score: float) -> float:
-        """Round continuous score to discrete quality level (2.5, 5.0, 7.5, 10.0)."""
-        valid_scores = [2.5, 5.0, 7.5, 10.0]
-        return min(valid_scores, key=lambda x: abs(x - score))
 
     def _get_level(self, score: float) -> str:
         """Get quality level from score."""

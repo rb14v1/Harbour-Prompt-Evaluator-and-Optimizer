@@ -17,7 +17,7 @@ class ImproverAgent:
         metadata: Dict[str, Any] = None
     ) -> Dict[str, Any]:
         """ALWAYS improve - return real improvements, never error messages."""
-        print(f"   🔧 Generating improvements...")
+        print(f"   [IMPROVER] Generating improvements...")
 
         try:
             improved = self._add_clarity_and_specificity(original_prompt)
@@ -40,7 +40,7 @@ class ImproverAgent:
             }
 
         except Exception as e:
-            print(f"   ⚠️  Error: {str(e)}")
+            print(f"   [IMPROVER] Error: {str(e)}")
             fallback = original_prompt + "\n\n**Specifications Added:**\n"
             fallback += "- Clear, measurable requirements and success criteria\n"
             fallback += "- Explicit constraints, boundaries, and limitations\n"
