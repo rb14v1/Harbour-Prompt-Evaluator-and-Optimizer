@@ -2,23 +2,14 @@ import os
 import json
 from typing import Dict, Any, List
 from openai import AzureOpenAI
-<<<<<<< HEAD
  
  
-=======
-
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
 class ImproverAgent:
     """
     Intelligently rewrites prompts to address specific low-scoring dimensions.
     Uses Azure OpenAI to generate targeted improvements based on validation analysis.
     """
-<<<<<<< HEAD
  
-=======
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
     def __init__(self):
         self.name = "Improver Agent"
         if os.getenv("DISABLE_AZURE", "false").lower() == "true":
@@ -30,11 +21,7 @@ class ImproverAgent:
                 azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
             )
         self.deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-4")
-<<<<<<< HEAD
  
-=======
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
     def improve(
         self,
         original_prompt: str,
@@ -46,11 +33,7 @@ class ImproverAgent:
     ) -> Dict[str, Any]:
         """
         Intelligently improve a prompt by targeting low-scoring dimensions.
-<<<<<<< HEAD
  
-=======
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
         Args:
             original_prompt: The original prompt text
             analysis: Analysis breakdown (intent, requirements, missing_info, ambiguities)
@@ -58,26 +41,17 @@ class ImproverAgent:
             scoring: Scoring results with low_scoring_dimensions
             iteration: Current iteration number
             metadata: User metadata (role, expertise_level, context)
-<<<<<<< HEAD
  
-=======
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
         Returns:
             Dict with improved_prompt, changes_made, dimensions_addressed, intent_preserved
         """
         if metadata is None:
             metadata = {}
-<<<<<<< HEAD
  
-=======
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
         # If no Azure client, use fallback rule-based improvement
         if not self.client:
             print("[IMPROVER] Azure unavailable - using fallback heuristics")
             return self._fallback_improvement(original_prompt, validation, scoring, iteration)
-<<<<<<< HEAD
  
         try:
             print("[IMPROVER] Generating targeted improvements...")
@@ -85,15 +59,6 @@ class ImproverAgent:
             # Get low-scoring dimensions to focus on
             low_dims = scoring.get("low_scoring_dimensions", [])
  
-=======
-
-        try:
-            print("[IMPROVER] Generating targeted improvements...")
-
-            # Get low-scoring dimensions to focus on
-            low_dims = scoring.get("low_scoring_dimensions", [])
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
             # If score is already good enough (>= 9.0 threshold), minimal changes
             overall_score = scoring.get('overall_score', 0)
             if overall_score >= 9.0:
@@ -106,11 +71,7 @@ class ImproverAgent:
                     "iteration": iteration,
                     "reasoning": f"Iteration {iteration}: Score {overall_score:.1f} already above threshold"
                 }
-<<<<<<< HEAD
  
-=======
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
             # Call Azure to generate targeted improvements
             response = self.client.chat.completions.create(
                 model=self.deployment_name,
@@ -129,22 +90,14 @@ class ImproverAgent:
                 temperature=0.7,
                 max_completion_tokens=3000
             )
-<<<<<<< HEAD
  
             response_text = response.choices[0].message.content
             result = self._parse_response(response_text, iteration)
  
-=======
-
-            response_text = response.choices[0].message.content
-            result = self._parse_response(response_text, iteration)
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
             # Verify intent preservation
             if not self._verify_intent(original_prompt, result.get("improved_prompt", ""), analysis):
                 print("[IMPROVER] Intent preservation check failed - reverting to fallback")
                 return self._fallback_improvement(original_prompt, validation, scoring, iteration)
-<<<<<<< HEAD
  
             improved_length = len(result.get("improved_prompt", ""))
             print(f"[IMPROVER] Generated improved prompt: {improved_length} chars, addressing: {result.get('dimensions_addressed', [])}")
@@ -158,32 +111,13 @@ class ImproverAgent:
         """System prompt for targeted prompt improvement."""
         return """You are a prompt improvement specialist. Your task is to rewrite a prompt to address specific identified weaknesses.
  
-=======
-
-            improved_length = len(result.get("improved_prompt", ""))
-            print(f"[IMPROVER] Generated improved prompt: {improved_length} chars, addressing: {result.get('dimensions_addressed', [])}")
-            return result
-
-        except Exception as e:
-            print(f"[IMPROVER] Error during improvement: {str(e)}")
-            return self._fallback_improvement(original_prompt, validation, scoring, iteration)
-
-    def _get_system_prompt(self) -> str:
-        """System prompt for targeted prompt improvement."""
-        return """You are a prompt improvement specialist. Your task is to rewrite a prompt to address specific identified weaknesses.
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
 CRITICAL RULES:
 1. **Target Only Weak Dimensions**: Focus improvements on the dimensions specified as low-scoring (not on already-strong areas)
 2. **Preserve Original Intent**: The rewritten prompt must maintain the exact same core objective as the original
 3. **Be Specific**: Add concrete details, examples, requirements—not generic boilerplate
 4. **Be Domain-Aware**: If the prompt is about Python, add Python-specific context. If about design, design-specific requirements. Etc.
 5. **No Templates**: Do NOT use generic sections like "Deliverables" or "Success Criteria" unless they directly address identified gaps
-<<<<<<< HEAD
  
-=======
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
 Return a valid JSON object with these exact keys:
 {
   "improved_prompt": "The rewritten prompt addressing specific weaknesses while preserving intent",
@@ -192,11 +126,7 @@ Return a valid JSON object with these exact keys:
   "intent_preserved": true,
   "reasoning": "Brief explanation of improvements made"
 }"""
-<<<<<<< HEAD
  
-=======
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
     def _format_user_message(
         self,
         original_prompt: str,
@@ -206,7 +136,6 @@ Return a valid JSON object with these exact keys:
         metadata: Dict[str, Any]
     ) -> str:
         """Format user message with diagnostic data about what needs improvement."""
-<<<<<<< HEAD
  
         low_dims = scoring.get("low_scoring_dimensions", [])
         low_dims_text = ", ".join(low_dims) if low_dims else "multiple dimensions"
@@ -224,40 +153,16 @@ Return a valid JSON object with these exact keys:
         user_role = metadata.get("user_role", "General")
         expertise = metadata.get("expertise_level", "Intermediate")
  
-=======
-
-        low_dims = scoring.get("low_scoring_dimensions", [])
-        low_dims_text = ", ".join(low_dims) if low_dims else "multiple dimensions"
-
-        # Extract key issues from validation
-        validation_issues = self._extract_validation_issues(validation, low_dims)
-
-        # Extract missing information and ambiguities from analysis
-        missing_info = analysis.get("missing_information", [])
-        ambiguities = analysis.get("ambiguities", [])
-
-        missing_text = "\n".join([f"- {item}" for item in missing_info[:5]])
-        ambiguities_text = "\n".join([f"- {item}" for item in ambiguities[:5]])
-
-        user_role = metadata.get("user_role", "General")
-        expertise = metadata.get("expertise_level", "Intermediate")
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
         return f"""ORIGINAL PROMPT:
 ========================================
 {original_prompt}
 ========================================
-<<<<<<< HEAD
  
-=======
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
 IMPROVEMENT CONTEXT:
 - Current Score: {scoring.get('overall_score', 0):.1f}/10.0
 - Low-Scoring Dimensions: {low_dims_text}
 - User Role: {user_role}
 - Expertise Level: {expertise}
-<<<<<<< HEAD
  
 IDENTIFIED GAPS (from validation):
 {validation_issues if validation_issues else "No specific issues recorded"}
@@ -268,36 +173,16 @@ MISSING INFORMATION:
 AMBIGUITIES TO CLARIFY:
 {ambiguities_text if ambiguities_text else "None identified"}
  
-=======
-
-IDENTIFIED GAPS (from validation):
-{validation_issues if validation_issues else "No specific issues recorded"}
-
-MISSING INFORMATION:
-{missing_text if missing_text else "None identified"}
-
-AMBIGUITIES TO CLARIFY:
-{ambiguities_text if ambiguities_text else "None identified"}
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
 YOUR TASK:
 Rewrite this prompt to specifically address the low-scoring dimensions ({low_dims_text})
 while preserving the original intent. Add concrete details, requirements, and constraints
 that were identified as missing. Make it specific to the domain and user's expertise level."""
-<<<<<<< HEAD
  
-=======
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
     def _extract_validation_issues(self, validation: Dict[str, Any], low_dims: List[str]) -> str:
         """Extract validation issues for low-scoring dimensions."""
         issues_text = []
         validation_data = validation.get("validation", {})
-<<<<<<< HEAD
  
-=======
-
->>>>>>> 63a94289521ae1c7cf00ddc7e35a96f771c4eacb
         for dim in low_dims:
             if dim in validation_data:
                 data = validation_data[dim]
