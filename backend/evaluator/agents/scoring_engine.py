@@ -26,13 +26,14 @@ class ScoringEngine:
         dimension_scores = {}
         validation_data = validation.get("validation", {})
 
-        # Extract and validate dimension scores
+        # Extract and validate dimension scores (must be 2.5, 5.0, 7.5, or 10.0)
         for dimension, data in validation_data.items():
             if isinstance(data, dict) and "score" in data:
                 score = float(data["score"])
-                # Ensure score is valid
-                if score not in self.QUALITY_SCORES.values():
-                    score = self._round_to_valid_score(score)
+                # Ensure score is one of the valid discrete levels
+                valid_scores = [2.5, 5.0, 7.5, 10.0]
+                if score not in valid_scores:
+                    score = min(valid_scores, key=lambda x: abs(x - score))
                 dimension_scores[dimension] = score
             else:
                 dimension_scores[dimension] = 5.0  # Default to Moderate

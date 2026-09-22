@@ -37,15 +37,27 @@ class ReportAgent:
             Comprehensive final report
         """
         final_score = final_evaluation.get("overall_score", 0.0)
+        # Use threshold from final_evaluation or default to 7.0
         threshold = final_evaluation.get("threshold", 7.0)
+
+        print(f"\n[REPORT] Status Determination:")
+        print(f"   Final score: {final_score}")
+        print(f"   Threshold: {threshold}")
+        print(f"   Status will be: {'Ready' if final_score >= threshold else 'Needs Manual Review'}")
 
         # Determine final prompt (improved or original)
         final_prompt = original_prompt
         improvements_made = 0
 
         if improvement_history:
+            print(f"\n[REPORT] Improvement History found: {len(improvement_history)} improvements")
+            for i, h in enumerate(improvement_history):
+                print(f"   Improvement {i}: keys={list(h.keys())}, has_improved_prompt={bool(h.get('improved_prompt'))}")
             final_prompt = improvement_history[-1].get("improved_prompt", original_prompt)
+            print(f"   Final prompt set: {bool(final_prompt and final_prompt != original_prompt)}")
             improvements_made = len([h for h in improvement_history if h.get("intent_preserved", True)])
+        else:
+            print("\n⚠️  No improvement history found - using original prompt")
 
         # Determine status
         status = "Ready" if final_score >= threshold else "Needs Manual Review"
@@ -101,18 +113,15 @@ class ReportAgent:
         improvements_made: int,
         status: str
     ) -> str:
-        """Generate executive summary of evaluation."""
+        """Generate executive summary - no thresholds, just facts."""
         if original_prompt == final_prompt:
-            # No improvements needed
-            if final_score >= 7.0:
-                return f"Excellent prompt. Score: {final_score}/10.0. Ready for immediate use with no improvements needed."
-            else:
-                return f"Prompt score: {final_score}/10.0. Does not meet quality threshold ({7.0}). Manual review recommended."
+            # No improvements - already optimal
+            return f"✓ Prompt analysis complete. Final score: {final_score:.1f}/10. Status: {status}."
         else:
-            # Improvements made
+            # Improvements were made
             score_change = final_score - initial_score
-            change_text = f"improved by {abs(score_change):.2f}" if score_change > 0 else f"decreased by {abs(score_change):.2f}"
-            return f"Prompt {change_text} points (from {initial_score:.2f} to {final_score:.2f}) over {improvements_made} iteration(s). Status: {status}."
+            change_text = f"improved by +{score_change:.2f}" if score_change > 0 else f"adjusted by {score_change:.2f}"
+            return f"✓ Prompt optimized in {improvements_made} iteration(s). Score {change_text} (from {initial_score:.1f} to {final_score:.1f}). Status: {status}."
 
     def format_for_json(self, report: Dict[str, Any]) -> Dict[str, Any]:
         """Ensure report is JSON-serializable."""

@@ -44,7 +44,7 @@ export default function Home() {
       {/* How It Works */}
       <section className="bg-gray-50 dark:bg-gray-800 rounded-lg p-8">
         <h2 className="text-3xl font-bold mb-8 text-center">How It Works</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="text-center">
             <div className="w-10 h-10 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2">
               1
@@ -61,13 +61,7 @@ export default function Home() {
             <div className="w-10 h-10 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2">
               3
             </div>
-            <p className="font-semibold">View Results</p>
-          </div>
-          <div className="text-center">
-            <div className="w-10 h-10 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2">
-              4
-            </div>
-            <p className="font-semibold">Track History</p>
+            <p className="font-semibold">Download Report</p>
           </div>
         </div>
       </section>

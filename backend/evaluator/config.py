@@ -10,9 +10,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ========== QUALITY THRESHOLD ==========
-# Change this in .env file: THRESHOLD=9.5
+# Change this in .env file: THRESHOLD=7.0
 # It will automatically update everywhere in the project
-QUALITY_THRESHOLD = float(os.getenv('THRESHOLD', '7.5'))
+QUALITY_THRESHOLD = float(os.getenv('THRESHOLD', '7.0'))
 
 # Description:
 # - 7.0  = Easy (most prompts pass)

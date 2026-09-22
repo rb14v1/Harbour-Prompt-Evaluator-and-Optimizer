@@ -22,8 +22,8 @@ export default function PromptForm({ onSuccess }) {
     setError('')
 
     try {
-      console.log('[PromptForm] Submitting prompt with metadata...', { role, expertise, context })
-      const result = await evaluationAPI.evaluatePrompt(prompt, { role, expertise, context })
+      console.log('[PromptForm] Submitting evaluation...')
+      const result = await evaluationAPI.evaluatePrompt(prompt)
       console.log('[PromptForm] Success! Result:', result)
       onSuccess(result)
       setPrompt('')
@@ -136,11 +136,11 @@ export default function PromptForm({ onSuccess }) {
       >
         {loading ? (
           <>
-            <LoadingSpinner /> Evaluating...
+            <LoadingSpinner /> Evaluating with AI agents... (40-60s)
           </>
         ) : (
           <>
-            <Send size={18} /> Evaluate Prompt
+            <Send size={18} /> Evaluate & Optimize
           </>
         )}
       </button>

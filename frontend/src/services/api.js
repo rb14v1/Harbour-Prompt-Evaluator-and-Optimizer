@@ -60,12 +60,17 @@ apiClient.interceptors.response.use(
 
 export const evaluationAPI = {
   // Submit a single prompt for evaluation
-  evaluatePrompt: async (prompt, metadata = {}) => {
+  evaluatePrompt: async (prompt) => {
     const response = await apiClient.post('/evaluations/evaluate/', {
       prompt,
-      user_role: metadata.role || 'Developer',
-      expertise_level: metadata.expertise || 'Intermediate',
-      context: metadata.context || 'Work',
+    })
+    return response.data
+  },
+
+  // Quick evaluation (no iterations, ~10-15 seconds)
+  quickEvaluatePrompt: async (prompt) => {
+    const response = await apiClient.post('/evaluations/quick_evaluate/', {
+      prompt,
     })
     return response.data
   },

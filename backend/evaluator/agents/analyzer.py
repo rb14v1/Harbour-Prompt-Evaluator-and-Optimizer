@@ -45,7 +45,7 @@ class AnalyzerAgent:
                         "content": f"Analyze this prompt:\n\n{processed_prompt}"
                     }
                 ],
-                temperature=0.3,
+                temperature=0.0,
                 max_completion_tokens=1500
             )
 
@@ -60,29 +60,30 @@ class AnalyzerAgent:
         """Return system prompt for analysis."""
         task_context = f"Task type: {task_type}" if task_type else ""
 
-        return f"""You are a prompt analyzer. Decompose the given prompt into components.
+        return f"""You are a rigorous prompt analyzer. Identify gaps, ambiguities, and missing information.
 
 {task_context}
 
-Extract and return JSON with these fields:
-- intent: primary goal (one sentence)
-- requirements: list of specific requirements
-- context: list of relevant background information
-- constraints: list of limitations or boundaries
-- expected_output: description of desired output format/structure
-- missing_information: list of gaps or unclear information
-- ambiguities: list of ambiguous phrases or concepts
+ANALYZE THE PROMPT FOR:
+1. Intent: What is the core request?
+2. Requirements: What are the EXPLICIT success criteria? (Look for vague words and flag them)
+3. Missing Information: What QUESTIONS would a developer ask? (Look for assumptions)
+4. Ambiguities: What phrases have MULTIPLE interpretations? (Flag vague terms)
+5. Constraints: What are the LIMITS and BOUNDARIES? (Identify missing constraints)
+6. Expected Output: What is the EXACT FORMAT required?
 
-Example output:
+Return JSON:
 {{
-  "intent": "Write a Python function that sorts arrays",
-  "requirements": ["Accept list of integers", "Return sorted list", "Use specific algorithm"],
-  "context": ["For educational purposes"],
-  "constraints": ["Must be O(n log n) or better"],
-  "expected_output": "Python function with docstring",
-  "missing_information": ["Should handle duplicates?"],
-  "ambiguities": ["What sorting order? (ascending assumed)"]
-}}"""
+  "intent": "One clear sentence describing the goal",
+  "requirements": ["Specific, measurable requirement 1", "Requirement 2"],
+  "context": ["Relevant background information"],
+  "constraints": ["Specific limit or boundary"],
+  "expected_output": "Exact format, example structure",
+  "missing_information": ["Critical question that needs answering", "Assumption that needs clarification"],
+  "ambiguities": ["Vague term: 'X' could mean A, B, or C", "Unclear phrase and what questions it raises"]
+}}
+
+IMPORTANT: Find ACTUAL GAPS, not generic ones. Flag vague words like "quick", "large", "many", "easily", "simple"."""
 
     def _parse_response(self, response_text: str) -> Dict[str, Any]:
         """Parse LLM response into structured format."""

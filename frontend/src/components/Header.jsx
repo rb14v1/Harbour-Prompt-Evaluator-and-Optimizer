@@ -33,12 +33,6 @@ export default function Header({ darkMode, toggleDarkMode }) {
               Home
             </Link>
             <Link
-              to="/history"
-              className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-            >
-              History
-            </Link>
-            <Link
               to="/about"
               className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
             >
@@ -76,13 +70,6 @@ export default function Header({ darkMode, toggleDarkMode }) {
               onClick={() => setMobileMenuOpen(false)}
             >
               Home
-            </Link>
-            <Link
-              to="/history"
-              className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              History
             </Link>
             <Link
               to="/about"
