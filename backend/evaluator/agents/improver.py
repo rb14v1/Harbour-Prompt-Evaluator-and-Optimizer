@@ -263,41 +263,84 @@ that were identified as missing. Make it specific to the domain and user's exper
         iteration: int
     ) -> Dict[str, Any]:
         """
-        Fallback rule-based improvement when Azure unavailable.
-        Adds targeted content to address low-scoring dimensions.
+        Intelligent fallback improvement using actual validation data.
+        Appends targeted content to address low-scoring dimensions.
         """
         improved = original_prompt
         changes = []
         dims_addressed = []
 
         low_dims = scoring.get("low_scoring_dimensions", [])
+        validation_data = validation.get("validation", {})
 
-        # Add requirements section if 'requirements' dimension is low
-        if "requirements" in low_dims and "require" not in original_prompt.lower():
-            improved += "\n\nKey Requirements:\n- Clear, measurable deliverables\n- Performance/quality targets\n- Success metrics"
-            changes.append("Added explicit requirements section")
-            dims_addressed.append("requirements")
+        # For each low-scoring dimension, extract specific issues and append targeted improvements
+        for dim in low_dims:
+            if dim not in validation_data:
+                continue
 
-        # Add constraints section if 'constraints' dimension is low
-        if "constraints" in low_dims and "constraint" not in original_prompt.lower():
-            improved += "\n\nConstraints & Boundaries:\n- Resource limitations\n- Technical constraints\n- Time/scope boundaries"
-            changes.append("Added constraints section")
-            dims_addressed.append("constraints")
+            dim_data = validation_data[dim]
+            issues = dim_data.get("issues", [])
+            evidence = dim_data.get("evidence", "")
 
-        # Add context section if 'context' dimension is low
-        if "context" in low_dims and "context" not in original_prompt.lower():
-            improved += "\n\nContext & Background:\n- Target audience and expertise level\n- Problem domain\n- Expected environment/conditions"
-            changes.append("Added context section")
-            dims_addressed.append("context")
+            # Extract the specific issue from validation
+            specific_issue = issues[0] if issues else evidence[:80] if evidence else "Needs improvement"
 
-        # Add output format section if 'expected_output' dimension is low
-        if "expected_output" in low_dims and "output" not in original_prompt.lower():
-            improved += "\n\nExpected Output:\n- Format and structure\n- Level of detail required\n- Examples (if applicable)"
-            changes.append("Added output format specification")
-            dims_addressed.append("expected_output")
+            # Generate targeted improvement based on the specific dimension and issue
+            addition = None
+            change_desc = None
+
+            if dim == "requirements":
+                if "require" not in original_prompt.lower():
+                    addition = f"\n\nRequirements:\n- {specific_issue}\n- Define clear deliverables and acceptance criteria\n- Specify measurable success metrics\n- Include quality standards"
+                    change_desc = f"Added requirements based on validation finding"
+                    dims_addressed.append("requirements")
+
+            elif dim == "constraints":
+                if "constraint" not in original_prompt.lower():
+                    addition = f"\n\nConstraints:\n- {specific_issue}\n- Define resource limitations and boundaries\n- Specify technical constraints\n- Set scope and timeline limits"
+                    change_desc = f"Added constraints based on validation finding"
+                    dims_addressed.append("constraints")
+
+            elif dim == "context":
+                if "context" not in original_prompt.lower():
+                    addition = f"\n\nContext:\n- {specific_issue}\n- Specify target audience and expertise level\n- Define problem domain and business context\n- Describe expected environment"
+                    change_desc = f"Added context based on validation finding"
+                    dims_addressed.append("context")
+
+            elif dim == "clarity":
+                if len(original_prompt) < 80:
+                    addition = f"\n\nClarity:\n- {specific_issue}\n- Use clear, direct language\n- Add examples or illustrations\n- Structure with headings and lists"
+                    change_desc = f"Improved clarity based on validation finding"
+                    dims_addressed.append("clarity")
+
+            elif dim == "specificity":
+                addition = f"\n\nSpecificity:\n- {specific_issue}\n- Provide concrete examples and use cases\n- Define measurable targets and metrics\n- Specify exact deliverables"
+                change_desc = f"Increased specificity based on validation finding"
+                dims_addressed.append("specificity")
+
+            elif dim == "expected_output":
+                if "output" not in original_prompt.lower():
+                    addition = f"\n\nExpected Output:\n- {specific_issue}\n- Define output format and structure\n- Specify required level of detail\n- Include examples or templates"
+                    change_desc = f"Clarified expected output based on validation finding"
+                    dims_addressed.append("expected_output")
+
+            elif dim == "actionability":
+                addition = f"\n\nActionable Steps:\n- {specific_issue}\n1. Define clear starting point and objectives\n2. List required inputs and resources\n3. Specify execution process and steps\n4. Include success criteria and metrics"
+                change_desc = f"Made more actionable based on validation finding"
+                dims_addressed.append("actionability")
+
+            elif dim == "completeness":
+                addition = f"\n\nCompleteness:\n- {specific_issue}\n- Ensure all required information is included\n- Fill in missing details and specifications\n- Complete the full requirement set"
+                change_desc = f"Improved completeness based on validation finding"
+                dims_addressed.append("completeness")
+
+            # Apply the targeted addition
+            if addition and change_desc:
+                improved += addition
+                changes.append(change_desc)
 
         if not changes:
-            changes = ["Applied structural improvements"]
+            changes = ["Applied targeted improvements based on validation findings"]
 
         return {
             "improved_prompt": improved,
@@ -305,7 +348,7 @@ that were identified as missing. Make it specific to the domain and user's exper
             "dimensions_addressed": dims_addressed,
             "intent_preserved": True,
             "iteration": iteration,
-            "reasoning": f"Iteration {iteration}: Fallback rule-based improvements applied"
+            "reasoning": f"Iteration {iteration}: Intelligent improvements using validation data"
         }
 
     def _ensure_list(self, value: Any) -> List[str]:

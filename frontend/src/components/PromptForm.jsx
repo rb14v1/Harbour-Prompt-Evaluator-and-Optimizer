@@ -6,8 +6,8 @@ import LoadingSpinner from './LoadingSpinner'
 export default function PromptForm({ onSuccess }) {
   const [prompt, setPrompt] = useState('')
   const [role, setRole] = useState('Software')
-  const [expertise, setExpertise] = useState('Intermediate')
-  const [context, setContext] = useState('Work')
+  const [taskType, setTaskType] = useState('Create Code')
+  const [outputFormat, setOutputFormat] = useState('text')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -23,7 +23,7 @@ export default function PromptForm({ onSuccess }) {
 
     try {
       console.log('[PromptForm] Submitting evaluation...')
-      const result = await evaluationAPI.evaluatePrompt(prompt)
+      const result = await evaluationAPI.evaluatePrompt(prompt, { role, taskType, outputFormat })
       console.log('[PromptForm] Success! Result:', result)
       onSuccess(result)
       setPrompt('')
@@ -74,40 +74,44 @@ export default function PromptForm({ onSuccess }) {
             <option>Product Management</option>
             <option>Support</option>
             <option>Business Analysis</option>
-            <option>Other</option>
           </select>
         </div>
 
         <div>
-          <label className="label">Your Expertise Level</label>
+          <label className="label">Task Type</label>
           <select
-            value={expertise}
-            onChange={(e) => setExpertise(e.target.value)}
+            value={taskType}
+            onChange={(e) => setTaskType(e.target.value)}
             className="input"
             disabled={loading}
           >
-            <option>Beginner</option>
-            <option>Know Basics</option>
-            <option>Intermediate</option>
-            <option>Advanced</option>
-            <option>Expert</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="label">Context/Place</label>
-          <select
-            value={context}
-            onChange={(e) => setContext(e.target.value)}
-            className="input"
-            disabled={loading}
-          >
-            <option>Work</option>
-            <option>Personal</option>
+            <option>Create Content</option>
+            <option>Create Code</option>
             <option>Research</option>
-            <option>Conference</option>
-            <option>Training</option>
-            <option>Client Presentation</option>
+            <option>Deep Research / Analysis</option>
+            <option>Plan and Organize</option>
+            <option>Ideate</option>
+            <option>Summarize</option>
+            <option>Explain</option>
+            <option>Optimize</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="label">Output Format</label>
+          <select
+            value={outputFormat}
+            onChange={(e) => setOutputFormat(e.target.value)}
+            className="input"
+            disabled={loading}
+          >
+            <option>text</option>
+            <option>code</option>
+            <option>chart/graph</option>
+            <option>checklist/table</option>
+            <option>template/framework</option>
+            <option>image/visual</option>
+            <option>slide/report</option>
           </select>
         </div>
       </div>
