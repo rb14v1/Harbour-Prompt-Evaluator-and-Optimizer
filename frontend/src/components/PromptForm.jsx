@@ -7,7 +7,7 @@ export default function PromptForm({ onSuccess }) {
   const [prompt, setPrompt] = useState('')
   const [role, setRole] = useState('Software')
   const [taskType, setTaskType] = useState('Create Code')
-  const [outputFormat, setOutputFormat] = useState('Document')
+  const [outputFormat, setOutputFormat] = useState('text')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -74,7 +74,6 @@ export default function PromptForm({ onSuccess }) {
             <option>Product Management</option>
             <option>Support</option>
             <option>Business Analysis</option>
-            <option>Other</option>
           </select>
         </div>
 
@@ -106,14 +105,13 @@ export default function PromptForm({ onSuccess }) {
             className="input"
             disabled={loading}
           >
-            <option>Document</option>
-            <option>Code</option>
-            <option>Specification</option>
-            <option>Plan</option>
-            <option>Summary</option>
-            <option>Presentation</option>
-            <option>Email</option>
-            <option>Report</option>
+            <option>text</option>
+            <option>code</option>
+            <option>chart/graph</option>
+            <option>checklist/table</option>
+            <option>template/framework</option>
+            <option>image/visual</option>
+            <option>slide/report</option>
           </select>
         </div>
       </div>

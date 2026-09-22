@@ -360,7 +360,7 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
         metadata = {
             'user_role': request.data.get('user_role', 'Software'),
             'task_type': request.data.get('task_type', 'Create Code'),
-            'output_format': request.data.get('output_format', 'Document')
+            'output_format': request.data.get('output_format', 'text')
         }
 
         try:

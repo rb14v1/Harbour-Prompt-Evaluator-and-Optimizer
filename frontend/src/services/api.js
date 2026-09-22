@@ -65,7 +65,7 @@ export const evaluationAPI = {
       prompt,
       user_role: metadata.role || 'Software',
       task_type: metadata.taskType || 'Create Code',
-      output_format: metadata.outputFormat || 'Document',
+      output_format: metadata.outputFormat || 'text',
     })
     return response.data
   },
