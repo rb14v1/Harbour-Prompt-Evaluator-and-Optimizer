@@ -356,12 +356,14 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
  
         prompt_text = serializer.validated_data['prompt']
 
-        # Extract metadata from request
-        metadata = {
-            'user_role': request.data.get('user_role', 'Software'),
-            'task_type': request.data.get('task_type', 'Create Code'),
-            'output_format': request.data.get('output_format', 'text')
-        }
+        # Extract metadata from request (only include if explicitly provided)
+        metadata = {}
+        if request.data.get('user_role'):
+            metadata['user_role'] = request.data.get('user_role')
+        if request.data.get('task_type'):
+            metadata['task_type'] = request.data.get('task_type')
+        if request.data.get('output_format'):
+            metadata['output_format'] = request.data.get('output_format')
 
         try:
             with transaction.atomic():

@@ -64,8 +64,22 @@ class PromptEvaluationOrchestrator:
             "output": preprocessed
         }
 
-        # Stage 2: Classify
-        classification = self.classifier.classify(processed_prompt)
+        # Stage 2: Classify (or use provided task_type from metadata)
+        if metadata.get("task_type"):
+            # User provided task_type - use it directly
+            task_type = metadata.get("task_type")
+            classification = {
+                "task_type": task_type,
+                "complexity": metadata.get("complexity", "Moderate"),
+                "confidence": 1.0,
+                "reasoning": f"User-provided task type: {task_type}",
+                "classification_method": "user_provided"
+            }
+            print(f"[CLASSIFIER] Using user-provided task type: {task_type}")
+        else:
+            # Auto-detect task_type using classifier
+            classification = self.classifier.classify(processed_prompt)
+
         execution_history["iterations"][0]["stages"]["classifier"] = {
             "input": preprocessed,
             "output": classification
@@ -82,7 +96,7 @@ class PromptEvaluationOrchestrator:
         }
 
         # Stage 4-5: Validate and Score
-        validation = self.validator.validate(processed_prompt, analysis)
+        validation = self.validator.validate(processed_prompt, analysis, metadata=metadata)
         initial_scoring = self.scoring_engine.calculate_scores(validation)
 
         execution_history["iterations"][0]["stages"]["validator"] = {
@@ -160,7 +174,7 @@ class PromptEvaluationOrchestrator:
             improvement_history.append(improvement)
 
             # Re-validate improved prompt
-            validation = self.validator.validate(current_prompt, analysis)
+            validation = self.validator.validate(current_prompt, analysis, metadata=metadata)
             current_evaluation = self.scoring_engine.calculate_scores(validation)
 
             # Only accept improvement if score actually increased

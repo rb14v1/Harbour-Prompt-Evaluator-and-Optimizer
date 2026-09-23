@@ -5,9 +5,9 @@ import LoadingSpinner from './LoadingSpinner'
 
 export default function PromptForm({ onSuccess }) {
   const [prompt, setPrompt] = useState('')
-  const [role, setRole] = useState('Software')
-  const [taskType, setTaskType] = useState('Create Code')
-  const [outputFormat, setOutputFormat] = useState('text')
+  const [role, setRole] = useState('')
+  const [taskType, setTaskType] = useState('')
+  const [outputFormat, setOutputFormat] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -63,6 +63,7 @@ export default function PromptForm({ onSuccess }) {
             className="input"
             disabled={loading}
           >
+            <option value="">-- Select --</option>
             <option>Software</option>
             <option>Communication</option>
             <option>Design</option>
@@ -85,6 +86,7 @@ export default function PromptForm({ onSuccess }) {
             className="input"
             disabled={loading}
           >
+            <option value="">-- Select --</option>
             <option>Create Content</option>
             <option>Create Code</option>
             <option>Research</option>
@@ -105,6 +107,7 @@ export default function PromptForm({ onSuccess }) {
             className="input"
             disabled={loading}
           >
+            <option value="">-- Select --</option>
             <option>text</option>
             <option>code</option>
             <option>chart/graph</option>

@@ -33,14 +33,14 @@ class ImproverAgent:
     ) -> Dict[str, Any]:
         """
         Intelligently improve a prompt by targeting low-scoring dimensions.
- 
+
         Args:
             original_prompt: The original prompt text
             analysis: Analysis breakdown (intent, requirements, missing_info, ambiguities)
             validation: Validation results with dimension scores and issues
             scoring: Scoring results with low_scoring_dimensions
             iteration: Current iteration number
-            metadata: User metadata (role, expertise_level, context)
+            metadata: User metadata (user_role, task_type, output_format, expertise_level)
  
         Returns:
             Dict with improved_prompt, changes_made, dimensions_addressed, intent_preserved
@@ -51,7 +51,7 @@ class ImproverAgent:
         # If no Azure client, use fallback rule-based improvement
         if not self.client:
             print("[IMPROVER] Azure unavailable - using fallback heuristics")
-            return self._fallback_improvement(original_prompt, validation, scoring, iteration)
+            return self._fallback_improvement(original_prompt, validation, scoring, iteration, metadata)
  
         try:
             print("[IMPROVER] Generating targeted improvements...")
@@ -97,7 +97,7 @@ class ImproverAgent:
             # Verify intent preservation
             if not self._verify_intent(original_prompt, result.get("improved_prompt", ""), analysis):
                 print("[IMPROVER] Intent preservation check failed - reverting to fallback")
-                return self._fallback_improvement(original_prompt, validation, scoring, iteration)
+                return self._fallback_improvement(original_prompt, validation, scoring, iteration, metadata)
  
             improved_length = len(result.get("improved_prompt", ""))
             print(f"[IMPROVER] Generated improved prompt: {improved_length} chars, addressing: {result.get('dimensions_addressed', [])}")
@@ -105,7 +105,7 @@ class ImproverAgent:
  
         except Exception as e:
             print(f"[IMPROVER] Error during improvement: {str(e)}")
-            return self._fallback_improvement(original_prompt, validation, scoring, iteration)
+            return self._fallback_improvement(original_prompt, validation, scoring, iteration, metadata)
  
     def _get_system_prompt(self) -> str:
         """System prompt for targeted prompt improvement."""
@@ -152,31 +152,39 @@ Return a valid JSON object with these exact keys:
  
         user_role = metadata.get("user_role", "General")
         expertise = metadata.get("expertise_level", "Intermediate")
- 
+        task_type = metadata.get("task_type")
+        output_format = metadata.get("output_format")
+
+        output_format_instruction = ""
+        if output_format:
+            output_format_instruction = f"\n- IMPORTANT: The improved prompt MUST explicitly state that the output should be in '{output_format}' format."
+
         return f"""ORIGINAL PROMPT:
 ========================================
 {original_prompt}
 ========================================
- 
+
 IMPROVEMENT CONTEXT:
 - Current Score: {scoring.get('overall_score', 0):.1f}/10.0
 - Low-Scoring Dimensions: {low_dims_text}
 - User Role: {user_role}
 - Expertise Level: {expertise}
- 
+- Task Type: {task_type or "Not specified"}
+- Required Output Format: {output_format or "Not specified"}
+
 IDENTIFIED GAPS (from validation):
 {validation_issues if validation_issues else "No specific issues recorded"}
- 
+
 MISSING INFORMATION:
 {missing_text if missing_text else "None identified"}
- 
+
 AMBIGUITIES TO CLARIFY:
 {ambiguities_text if ambiguities_text else "None identified"}
- 
+
 YOUR TASK:
 Rewrite this prompt to specifically address the low-scoring dimensions ({low_dims_text})
 while preserving the original intent. Add concrete details, requirements, and constraints
-that were identified as missing. Make it specific to the domain and user's expertise level."""
+that were identified as missing. Make it specific to the domain and user's expertise level.{output_format_instruction}"""
  
     def _extract_validation_issues(self, validation: Dict[str, Any], low_dims: List[str]) -> str:
         """Extract validation issues for low-scoring dimensions."""
@@ -260,12 +268,15 @@ that were identified as missing. Make it specific to the domain and user's exper
         original_prompt: str,
         validation: Dict[str, Any],
         scoring: Dict[str, Any],
-        iteration: int
+        iteration: int,
+        metadata: Dict[str, Any] = None
     ) -> Dict[str, Any]:
         """
         Intelligent fallback improvement using actual validation data.
         Appends targeted content to address low-scoring dimensions.
         """
+        if metadata is None:
+            metadata = {}
         improved = original_prompt
         changes = []
         dims_addressed = []
@@ -319,8 +330,12 @@ that were identified as missing. Make it specific to the domain and user's exper
                 dims_addressed.append("specificity")
 
             elif dim == "expected_output":
-                if "output" not in original_prompt.lower():
-                    addition = f"\n\nExpected Output:\n- {specific_issue}\n- Define output format and structure\n- Specify required level of detail\n- Include examples or templates"
+                output_format = metadata.get("output_format")
+                format_check = output_format and output_format.lower() not in original_prompt.lower()
+
+                if "output" not in original_prompt.lower() or format_check:
+                    format_note = f" (user requires '{output_format}' format)" if output_format else ""
+                    addition = f"\n\nExpected Output:\n- {specific_issue}\n- Define output format and structure{format_note}\n- Specify required level of detail\n- Include examples or templates"
                     change_desc = f"Clarified expected output based on validation finding"
                     dims_addressed.append("expected_output")
 

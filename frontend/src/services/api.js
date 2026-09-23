@@ -61,12 +61,22 @@ apiClient.interceptors.response.use(
 export const evaluationAPI = {
   // Submit a single prompt for evaluation
   evaluatePrompt: async (prompt, metadata = {}) => {
-    const response = await apiClient.post('/evaluations/evaluate/', {
+    const payload = {
       prompt,
-      user_role: metadata.role || 'Software',
-      task_type: metadata.taskType || 'Create Code',
-      output_format: metadata.outputFormat || 'text',
-    })
+    }
+
+    // Only include metadata fields if explicitly provided (not empty)
+    if (metadata.role) {
+      payload.user_role = metadata.role
+    }
+    if (metadata.taskType) {
+      payload.task_type = metadata.taskType
+    }
+    if (metadata.outputFormat) {
+      payload.output_format = metadata.outputFormat
+    }
+
+    const response = await apiClient.post('/evaluations/evaluate/', payload)
     return response.data
   },
 

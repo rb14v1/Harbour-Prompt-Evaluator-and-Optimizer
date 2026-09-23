@@ -22,26 +22,30 @@ class ValidatorAgent:
             )
         self.deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-4")
  
-    def validate(self, processed_prompt: str, analysis: Dict[str, Any] = None) -> Dict[str, Any]:
+    def validate(self, processed_prompt: str, analysis: Dict[str, Any] = None, metadata: Dict[str, Any] = None) -> Dict[str, Any]:
         """Validate prompt across all 8 dimensions."""
+        if metadata is None:
+            metadata = {}
+
         if not self.client:
-            return self._analyze_prompt_content(processed_prompt)
- 
+            return self._analyze_prompt_content(processed_prompt, metadata=metadata)
+
         try:
+            user_msg = self._format_validation_message(processed_prompt, metadata)
             response = self.client.chat.completions.create(
                 model=self.deployment_name,
                 messages=[
                     {"role": "system", "content": self._get_system_prompt()},
-                    {"role": "user", "content": f"Validate this prompt:\n\n{processed_prompt}"}
+                    {"role": "user", "content": user_msg}
                 ],
                 temperature=0.3,
                 max_completion_tokens=2000
             )
             response_text = response.choices[0].message.content
             result = self._parse_response(response_text)
-            return result if result else self._analyze_prompt_content(processed_prompt)
+            return result if result else self._analyze_prompt_content(processed_prompt, metadata=metadata)
         except Exception as e:
-            return self._analyze_prompt_content(processed_prompt)
+            return self._analyze_prompt_content(processed_prompt, metadata=metadata)
  
     def _get_system_prompt(self) -> str:
         return f"""You are a prompt quality validator. Rate each dimension on a scale of 2.5-10.0:
@@ -49,9 +53,24 @@ class ValidatorAgent:
 - Moderate (5.0): Some issues
 - Good (7.5): Minor improvements possible
 - Excellent (10.0): Exemplary
- 
+
 Return JSON with validation scores for: clarity, specificity, context, completeness, requirements, constraints, expected_output, actionability"""
- 
+
+    def _format_validation_message(self, processed_prompt: str, metadata: Dict[str, Any]) -> str:
+        """Format validation message including metadata context."""
+        msg = f"Validate this prompt:\n\n{processed_prompt}"
+
+        # Add metadata context
+        if metadata.get("task_type"):
+            msg += f"\n\nContext: Task type is '{metadata['task_type']}'"
+        if metadata.get("user_role"):
+            msg += f"\nUser role: {metadata['user_role']}"
+        if metadata.get("output_format"):
+            msg += f"\nRequired output format: {metadata['output_format']}"
+            msg += "\n\nIMPORTANT: Check if the prompt explicitly states the output should be in the required format. If not, flag this as missing."
+
+        return msg
+
     def _parse_response(self, response_text: str) -> Dict[str, Any]:
         try:
             start_idx = response_text.find('{')
@@ -82,8 +101,10 @@ Return JSON with validation scores for: clarity, specificity, context, completen
             pass
         return None
  
-    def _analyze_prompt_content(self, prompt: str) -> Dict[str, Any]:
+    def _analyze_prompt_content(self, prompt: str, metadata: Dict[str, Any] = None) -> Dict[str, Any]:
         """Analyze actual prompt content to assign meaningful scores."""
+        if metadata is None:
+            metadata = {}
         prompt_lower = prompt.lower()
         words = prompt.split()
         word_count = len(words)
@@ -235,6 +256,23 @@ Return JSON with validation scores for: clarity, specificity, context, completen
                 out_score += 2.5  # Boosted from 1.5
             if any(x in prompt_lower for x in ["section", "page", "organized", "structured", "field", "uuid"]):
                 out_score += 2.0  # Boosted from 1, added field/uuid checks
+
+            # Check if user specified output_format but prompt doesn't mention it
+            user_format = metadata.get("output_format")
+            if user_format:
+                format_keywords = {
+                    "text": ["text", "document", "paragraph"],
+                    "code": ["code", "script", "function", "program"],
+                    "chart/graph": ["chart", "graph", "plot", "diagram", "visual"],
+                    "checklist/table": ["checklist", "table", "list", "rows", "columns"],
+                    "template/framework": ["template", "framework", "structure", "skeleton"],
+                    "image/visual": ["image", "visual", "diagram", "design"],
+                    "slide/report": ["slide", "presentation", "report", "deck"]
+                }
+                keywords_to_check = format_keywords.get(user_format, [user_format.lower()])
+                if not any(kw in prompt_lower for kw in keywords_to_check):
+                    out_score -= 2.0  # Penalty for not specifying the user's required format
+
             expected_output = max(2.5, min(10.0, 4.5 + out_score))  # Base boosted from 3.0 to 4.5
  
         # Actionability: Real executable steps (not generic [Step 1: ...])
