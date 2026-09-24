@@ -141,10 +141,37 @@ class PromptImprovement(models.Model):
 
 
 class EvaluationResult(models.Model):
+    ROLE_CHOICES = [
+        ('software', 'Software'),
+        ('communication', 'Communication'),
+        ('design', 'Design'),
+        ('engineering', 'Engineering'),
+        ('finance', 'Finance'),
+        ('human_resources', 'Human Resources'),
+        ('learning_development', 'Learning and Development'),
+        ('marketing', 'Marketing'),
+        ('product_management', 'Product Management'),
+        ('support', 'Support'),
+        ('business_analysis', 'Business Analysis'),
+    ]
+
+    TASK_CHOICES = [
+        ('create_content', 'Create Content'),
+        ('research', 'Research'),
+        ('deep_research', 'Deep Research / Analysis'),
+        ('plan_organize', 'Plan and Organize'),
+        ('ideate', 'Ideate'),
+        ('summarize', 'Summarize'),
+        ('explain', 'Explain'),
+        ('optimize', 'Optimize'),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     prompt = models.OneToOneField(Prompt, on_delete=models.CASCADE, related_name='result')
     original_prompt = models.TextField()
     final_prompt = models.TextField()
+    user_role = models.CharField(max_length=50, choices=ROLE_CHOICES, blank=True, null=True)
+    task_type = models.CharField(max_length=50, choices=TASK_CHOICES, blank=True, null=True)
     initial_score = models.FloatField()
     final_score = models.FloatField()
     improvements_made = models.IntegerField(default=0)

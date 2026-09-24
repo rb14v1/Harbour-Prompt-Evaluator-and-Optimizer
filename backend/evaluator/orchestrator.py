@@ -1,4 +1,5 @@
 from typing import Dict, Any
+
 from evaluator.agents.preprocessor import PreprocessorAgent
 from evaluator.agents.classifier import ClassifierAgent
 from evaluator.agents.analyzer import AnalyzerAgent
@@ -8,47 +9,82 @@ from evaluator.agents.improver import ImproverAgent
 from evaluator.agents.report import ReportAgent
 from evaluator.config import QUALITY_THRESHOLD, MAX_ITERATIONS
 
+
 class PromptEvaluationOrchestrator:
     """
-    Orchestrates the complete prompt evaluation pipeline.
+    Orchestrates the complete prompt evaluation and optimization pipeline.
+
+    Workflow:
+        Preprocess
+            ↓
+        Classify
+            ↓
+        Analyze
+            ↓
+        Validate
+            ↓
+        Score
+            ↓
+        Score >= threshold?
+          YES → Ready → Report
+          NO  → Improve → Re-analyze → Re-validate → Re-score
+                                      ↓
+                              Score >= threshold?
+                                      ↓
+                              YES → Ready → Report
+                              NO  → Continue until max iterations
     """
 
     MAX_ITERATIONS = MAX_ITERATIONS
     THRESHOLD = QUALITY_THRESHOLD
 
     def __init__(self, max_iterations: int = None, threshold: float = None):
-        self.max_iterations = max_iterations if max_iterations is not None else MAX_ITERATIONS
-        self.threshold = threshold if threshold is not None else QUALITY_THRESHOLD
+        self.max_iterations = (
+            max_iterations
+            if max_iterations is not None
+            else MAX_ITERATIONS
+        )
+
+        self.threshold = (
+            threshold
+            if threshold is not None
+            else QUALITY_THRESHOLD
+        )
 
         # Initialize agents
         self.preprocessor = PreprocessorAgent()
         self.classifier = ClassifierAgent()
         self.analyzer = AnalyzerAgent()
         self.validator = ValidatorAgent()
-        self.scoring_engine = ScoringEngine(threshold=threshold)
+        self.scoring_engine = ScoringEngine(threshold=self.threshold)
         self.improver = ImproverAgent()
         self.report_agent = ReportAgent()
 
     def evaluate(self, raw_prompt: str, metadata: Dict[str, Any] = None) -> Dict[str, Any]:
         """
-        Run complete evaluation pipeline on a prompt.
+        Run the complete prompt evaluation pipeline.
+
+        The original prompt is never modified.
+
+        Optimization happens only when the score is below the
+        configured threshold.
 
         Args:
             raw_prompt: Raw user prompt
             metadata: User metadata (user_role, task_type, output_format)
 
         Returns:
-            Complete evaluation report
+            Complete evaluation report.
         """
         if metadata is None:
             metadata = {}
 
         # Stage 1: Preprocess
         preprocessed = self.preprocessor.process(raw_prompt)
+
         prompt_id = preprocessed["prompt_id"]
         processed_prompt = preprocessed["processed_prompt"]
 
-        # Build execution history structure
         execution_history = {
             "iterations": [
                 {
@@ -58,7 +94,6 @@ class PromptEvaluationOrchestrator:
             ]
         }
 
-        # Add Preprocessor stage
         execution_history["iterations"][0]["stages"]["preprocessor"] = {
             "input": raw_prompt,
             "output": preprocessed
@@ -90,6 +125,7 @@ class PromptEvaluationOrchestrator:
             processed_prompt,
             task_type=classification.get("task_type")
         )
+
         execution_history["iterations"][0]["stages"]["analyzer"] = {
             "input": classification,
             "output": analysis
@@ -104,29 +140,41 @@ class PromptEvaluationOrchestrator:
             "output": validation
         }
 
+        # Stage 5: Score
+        initial_scoring = self.scoring_engine.calculate_scores(
+            validation
+        )
+
         execution_history["iterations"][0]["stages"]["scoring"] = {
             "input": validation,
             "output": initial_scoring
         }
 
-        # Store initial evaluation
+        # Keep the initial evaluation unchanged
         initial_evaluation = {
             "validation": validation,
             "dimension_scores": initial_scoring["dimension_scores"],
             "overall_score": initial_scoring["overall_score"],
             "status": initial_scoring["status"],
-            "low_scoring_dimensions": initial_scoring["low_scoring_dimensions"]
+            "low_scoring_dimensions": initial_scoring[
+                "low_scoring_dimensions"
+            ]
         }
 
-        # Stage 6: ALWAYS OPTIMIZE (no threshold - this is an optimizer!)
-        # Try to improve the prompt as much as possible, regardless of initial score
-        improvement_history = []
         current_prompt = processed_prompt
+        current_analysis = analysis
+        current_validation = validation
         current_evaluation = initial_scoring
-        best_score = initial_scoring["overall_score"]
+
         best_prompt = processed_prompt
+        best_analysis = analysis
         best_validation = validation
         best_evaluation = initial_scoring
+
+        best_score = initial_scoring["overall_score"]
+
+        improvement_history = []
+        iterations_completed = 0
         iteration = 0
 
         print(f"\n[ORCHESTRATOR] Starting Optimization:")
@@ -160,14 +208,50 @@ class PromptEvaluationOrchestrator:
             )
 
             execution_history["iterations"][iteration]["stages"]["improver"] = {
-                "input": current_evaluation,
+                "input": {
+                    "prompt": current_prompt,
+                    "analysis": current_analysis,
+                    "validation": current_validation,
+                    "scoring": current_evaluation
+                },
                 "output": improvement
             }
 
-            # Check if intent was preserved
+            improvement_history.append(improvement)
+
+            # ----------------------------------------------------
+            # CHECK IMPROVEMENT RESULT
+            # ----------------------------------------------------
+
             if not improvement.get("intent_preserved", False):
-                # Skip this iteration but still record it
-                improvement_history.append(improvement)
+
+                print(
+                    "[ORCHESTRATOR] "
+                    "Intent preservation check failed."
+                )
+                print(
+                    "[ORCHESTRATOR] "
+                    "Stopping optimization."
+                )
+
+                break
+
+            improved_prompt = improvement.get(
+                "improved_prompt",
+                ""
+            ).strip()
+
+            if not improved_prompt:
+
+                print(
+                    "[ORCHESTRATOR] "
+                    "Improver returned an empty prompt."
+                )
+                print(
+                    "[ORCHESTRATOR] "
+                    "Stopping optimization."
+                )
+
                 break
 
             current_prompt = improvement["improved_prompt"]
@@ -182,74 +266,131 @@ class PromptEvaluationOrchestrator:
             score_improvement = new_score - best_score
 
             if new_score > best_score:
+
+                print(
+                    "[ORCHESTRATOR] "
+                    "Improvement accepted."
+                )
+
+                iterations_completed += 1
+
                 best_score = new_score
-                best_prompt = current_prompt
+                best_prompt = improved_prompt
+                best_analysis = analysis
                 best_validation = validation
                 best_evaluation = current_evaluation
+
+                current_prompt = improved_prompt
+                current_analysis = analysis
+                current_validation = validation
+                current_evaluation = current_evaluation
+
             else:
-                # Score decreased or stayed same - revert to best known version
+
+                print(
+                    "[ORCHESTRATOR] "
+                    "No score improvement. "
+                    "Keeping previous best version."
+                )
+
+                # Keep current/best version unchanged
                 current_prompt = best_prompt
+                current_analysis = best_analysis
+                current_validation = best_validation
                 current_evaluation = best_evaluation
-                validation = best_validation
-                score_improvement = 0
 
-            # Stop if score is plateauing (minimal improvement = not worth iterating)
-            print(f"\n   Iteration {iteration}: Score {current_evaluation['overall_score']:.1f} ({score_improvement:+.2f})")
+            # ----------------------------------------------------
+            # STOP IMMEDIATELY WHEN THRESHOLD IS REACHED
+            # ----------------------------------------------------
 
-            if score_improvement < 0.1 and iteration >= 1:
-                print(f"[ORCHESTRATOR] Score plateauing - optimization complete")
+            if best_score >= self.threshold:
+
+                print(
+                    f"[ORCHESTRATOR] "
+                    f"Threshold reached: "
+                    f"{best_score:.2f} >= "
+                    f"{self.threshold:.2f}"
+                )
+
+                print(
+                    "[ORCHESTRATOR] "
+                    "Stopping optimization."
+                )
+
                 break
 
-            # Add updated Validator and Scoring to this iteration (using the re-validated results)
-            execution_history["iterations"][iteration]["stages"]["validator"] = {
-                "input": analysis,
-                "output": validation
-            }
-
-            execution_history["iterations"][iteration]["stages"]["scoring"] = {
-                "input": validation,
-                "output": current_evaluation
-            }
-
-        # Final evaluation - always use best score found
-        final_evaluation = best_evaluation if best_evaluation else current_evaluation
-
-        # Ensure final_evaluation has all required fields
-        if "overall_score" not in final_evaluation:
-            final_evaluation["overall_score"] = best_score
-
-        # Status based on optimization result (not threshold)
-        final_score = final_evaluation.get("overall_score", 0)
-        if final_score >= 8.5:
-            final_status = "Excellent"
-        elif final_score >= 7.5:
-            final_status = "Good"
-        elif final_score >= 5.0:
-            final_status = "Optimized"
         else:
-            final_status = "Needs Review"
 
+            print(
+                "[ORCHESTRATOR] "
+                "Maximum optimization iterations reached."
+            )
+
+        # ============================================================
+        # FINAL EVALUATION
+        # ============================================================
+
+        final_evaluation = dict(best_evaluation)
+
+        final_score = final_evaluation.get(
+            "overall_score",
+            best_score
+        )
+
+        # ------------------------------------------------------------
+        # FINAL STATUS
+        #
+        # REQUIRED BUSINESS RULE:
+        #
+        # >= 7.0  -> Ready
+        # <  7.0  -> Needs Manual Review
+        # ------------------------------------------------------------
+
+        if final_score >= self.threshold:
+            final_status = "Ready"
+        else:
+            final_status = "Needs Manual Review"
+
+        final_evaluation["overall_score"] = final_score
         final_evaluation["status"] = final_status
-        final_evaluation["iterations_completed"] = iteration
+        final_evaluation["iterations_completed"] = iterations_completed
 
-        # Stage 6b: Generate Report
+        print("\n" + "=" * 60)
+        print("[ORCHESTRATOR] Final Result")
+        print("=" * 60)
+        print(f"Final Score : {final_score:.2f}/10")
+        print(f"Status      : {final_status}")
+        print(
+            f"Iterations  : {iterations_completed}"
+        )
+        print("=" * 60)
+
+        # ============================================================
+        # REPORT
+        # ============================================================
+
         report = self.report_agent.generate_report(
             prompt_id=prompt_id,
             original_prompt=raw_prompt,
             classification=classification,
-            analysis=analysis,
+            analysis=best_analysis,
             initial_evaluation=initial_evaluation,
             improvement_history=improvement_history,
             final_evaluation=final_evaluation,
-            iterations_required=iteration
+            iterations_required=iterations_completed
         )
 
-        # Add Report stage output (exclude execution_history to avoid circular reference)
-        report_output = {k: v for k, v in report.items() if k != "execution_history"}
+        # Add report stage to execution history
+        report_output = {
+            key: value
+            for key, value in report.items()
+            if key != "execution_history"
+        }
+
         execution_history["iterations"][0]["stages"]["report"] = {
             "input": {
                 "classification": classification,
-                "analysis": analysis,
+                "analysis": best_analysis,
                 "initial_evaluation": initial_evaluation,
                 "improvement_history": improvement_history,
                 "final_evaluation": final_evaluation
@@ -257,7 +398,7 @@ class PromptEvaluationOrchestrator:
             "output": report_output
         }
 
-        # Add execution_history to report
+        # Attach execution history to final report
         report["execution_history"] = execution_history
 
         return report
@@ -267,19 +408,28 @@ class PromptEvaluationOrchestrator:
         Evaluate multiple prompts.
 
         Args:
-            prompts: List of prompt strings
+            prompts: List of prompt strings.
 
         Returns:
-            List of evaluation reports
+            List of evaluation reports.
         """
+
         results = []
+
         for prompt in prompts:
+
             try:
+
                 result = self.evaluate(prompt)
                 results.append(result)
+
             except Exception as e:
-                results.append({
-                    "error": str(e),
-                    "prompt": prompt
-                })
+
+                results.append(
+                    {
+                        "error": str(e),
+                        "prompt": prompt
+                    }
+                )
+
         return results

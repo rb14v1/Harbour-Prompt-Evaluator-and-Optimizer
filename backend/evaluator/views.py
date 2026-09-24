@@ -357,11 +357,41 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
         prompt_text = serializer.validated_data['prompt']
 
         # Extract metadata from request (only include if explicitly provided)
+        # Map frontend values to database choice values
+        ROLE_MAP = {
+            'Software': 'software',
+            'Communication': 'communication',
+            'Design': 'design',
+            'Engineering': 'engineering',
+            'Finance': 'finance',
+            'Human Resources': 'human_resources',
+            'Learning and Development': 'learning_development',
+            'Marketing': 'marketing',
+            'Product Management': 'product_management',
+            'Support': 'support',
+            'Business Analysis': 'business_analysis',
+        }
+
+        TASK_MAP = {
+            'Create Content': 'create_content',
+            'Research': 'research',
+            'Deep Research / Analysis': 'deep_research',
+            'Plan and Organize': 'plan_organize',
+            'Ideate': 'ideate',
+            'Summarize': 'summarize',
+            'Explain': 'explain',
+            'Optimize': 'optimize',
+        }
+
         metadata = {}
+        # Frontend sends user_role (not role)
         if request.data.get('user_role'):
-            metadata['user_role'] = request.data.get('user_role')
+            frontend_role = request.data.get('user_role')
+            metadata['user_role'] = ROLE_MAP.get(frontend_role, frontend_role)
+        # Frontend sends task_type (not taskType)
         if request.data.get('task_type'):
-            metadata['task_type'] = request.data.get('task_type')
+            frontend_task = request.data.get('task_type')
+            metadata['task_type'] = TASK_MAP.get(frontend_task, frontend_task)
         if request.data.get('output_format'):
             metadata['output_format'] = request.data.get('output_format')
 
@@ -381,11 +411,13 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
                 orchestrator = PromptEvaluationOrchestrator(threshold=threshold)
                 report = orchestrator.evaluate(prompt_text, metadata=metadata)
  
-                # Store result
+                # Store result with user_role and task_type
                 result = EvaluationResult.objects.create(
                     prompt=prompt_obj,
                     original_prompt=report['original_prompt'],
                     final_prompt=report['final_prompt'],
+                    user_role=metadata.get('user_role'),
+                    task_type=metadata.get('task_type'),
                     initial_score=report['initial_evaluation']['overall_score'],
                     final_score=report['final_evaluation']['overall_score'],
                     improvements_made=report['improvements_made'],

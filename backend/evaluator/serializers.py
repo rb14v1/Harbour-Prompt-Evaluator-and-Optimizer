@@ -63,8 +63,8 @@ class EvaluationResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = EvaluationResult
         fields = [
-            'id', 'prompt', 'original_prompt', 'final_prompt', 'initial_score',
-            'final_score', 'improvements_made', 'iterations_required', 'summary',
+            'id', 'prompt', 'original_prompt', 'final_prompt', 'user_role', 'task_type',
+            'initial_score', 'final_score', 'improvements_made', 'iterations_required', 'summary',
             'status', 'full_report', 'initial_evaluation', 'final_evaluation', 'agent_outputs', 'created_at'
         ]
         read_only_fields = ['id', 'created_at']
