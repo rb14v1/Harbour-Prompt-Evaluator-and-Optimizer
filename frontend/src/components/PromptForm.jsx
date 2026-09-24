@@ -135,7 +135,7 @@ export default function PromptForm({ onSuccess }) {
       >
         {loading ? (
           <>
-            <LoadingSpinner /> Evaluating with AI agents... (40-60s)
+            <LoadingSpinner /> Evaluating with AI agents... 
           </>
         ) : (
           <>
