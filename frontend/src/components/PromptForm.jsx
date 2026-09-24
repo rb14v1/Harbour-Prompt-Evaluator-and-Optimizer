@@ -12,6 +12,17 @@ export default function PromptForm({ onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    if (!role) {
+      setError('Please select your Department/Role')
+      return
+    }
+
+    if (!taskType) {
+      setError('Please select a Task Type')
+      return
+    }
+
     if (!prompt.trim()) {
       setError('Please enter a prompt')
       return
@@ -51,9 +62,9 @@ export default function PromptForm({ onSuccess }) {
 
   return (
     <form onSubmit={handleSubmit} className="card">
-      <h2 className="text-2xl font-bold mb-4">Evaluate Your Prompt</h2>
+      <h2 className="text-2xl font-bold mb-4">Evaluate Your Prompt    [Output format is in Text]</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
           <label className="label">Your Department/Role</label>
           <select
@@ -73,6 +84,8 @@ export default function PromptForm({ onSuccess }) {
             <option>Marketing</option>
             <option>Product Management</option>
             <option>Support</option>
+            <option>Commercial</option>
+            <option>Delivery Management</option>
             <option>Business Analysis</option>
           </select>
         </div>
@@ -90,10 +103,10 @@ export default function PromptForm({ onSuccess }) {
             <option>Research</option>
             <option>Deep Research / Analysis</option>
             <option>Plan and Organize</option>
-            <option>Ideate</option>
-            <option>Summarize</option>
-            <option>Explain</option>
-            <option>Optimize</option>
+            <option>Ideate / Brainstorm</option>
+            <option>Summarize / Review</option>
+            <option>Explain / Teach</option>
+            <option>Optimize / Improve</option>
           </select>
         </div>
       </div>
@@ -117,7 +130,7 @@ export default function PromptForm({ onSuccess }) {
 
       <button
         type="submit"
-        disabled={loading || !prompt.trim()}
+        disabled={loading || !prompt.trim() || !role || !taskType}
         className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? (
@@ -131,8 +144,14 @@ export default function PromptForm({ onSuccess }) {
         )}
       </button>
 
-      <p className="mt-3 text-sm text-gray-600 dark:text-gray-400 text-center">
+      
+
+      <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 text-center">
         Your prompt will be evaluated across 8 quality dimensions
+      </p>
+
+      <p className="mt-2 text-xs text-gray-500 dark:text-gray-500 text-center">
+        • Clarity • Specificity • Context • Completeness • Requirements • Constraints • Expected Output • Actionability
       </p>
     </form>
   )

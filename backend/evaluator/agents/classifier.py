@@ -16,14 +16,13 @@ class ClassifierAgent:
 
     TASK_CATEGORIES = [
         "Create Content",
-        "Create Code",
         "Research",
         "Deep Research / Analysis",
         "Plan and Organize",
-        "Ideate",
-        "Summarize",
-        "Explain",
-        "Optimize"
+        "Ideate / Brainstorm",
+        "Summarize / Review",
+        "Explain / Teach",
+        "Optimize / Improve"
     ]
 
     COMPLEXITY_LEVELS = ["Simple", "Moderate", "Complex"]
@@ -33,12 +32,7 @@ class ClassifierAgent:
         "Create Content": [
             "write", "blog", "article", "post", "newsletter", "email", "social media",
             "press release", "whitepaper", "guide", "tutorial", "documentation",
-            "product description", "copy", "content", "compose"
-        ],
-        "Create Code": [
-            "code", "function", "api", "script", "program", "application", "build",
-            "implement", "develop", "python", "javascript", "java", "sql", "react",
-            "algorithm", "library", "module", "class", "method"
+            "product description", "copy", "content", "compose", "draft", "create"
         ],
         "Research": [
             "research", "find", "look up", "investigate", "search", "discover",
@@ -51,23 +45,23 @@ class ClassifierAgent:
         ],
         "Plan and Organize": [
             "plan", "organize", "schedule", "roadmap", "timeline", "project plan",
-            "strategy", "structure", "outline", "create plan", "organize"
+            "strategy", "structure", "outline", "create plan", "organize", "budget"
         ],
-        "Ideate": [
+        "Ideate / Brainstorm": [
             "brainstorm", "ideas", "ideate", "concept", "generate", "think of",
-            "come up with", "creative", "innovation", "suggest", "proposal"
+            "come up with", "creative", "innovation", "suggest", "proposal", "create"
         ],
-        "Summarize": [
+        "Summarize / Review": [
             "summarize", "summary", "abstract", "condense", "brief", "overview",
-            "executive summary", "recap", "digest", "highlight"
+            "executive summary", "recap", "digest", "highlight", "review"
         ],
-        "Explain": [
+        "Explain / Teach": [
             "explain", "clarify", "describe", "define", "teach", "how to",
-            "understand", "learning", "education", "tutorial", "guide"
+            "understand", "learning", "education", "tutorial", "guide", "demonstrate"
         ],
-        "Optimize": [
+        "Optimize / Improve": [
             "optimize", "improve", "performance", "efficiency", "better", "faster",
-            "reduce", "increase", "enhance", "refactor", "speed up", "scale"
+            "reduce", "increase", "enhance", "refactor", "speed up", "scale", "fix"
         ]
     }
 

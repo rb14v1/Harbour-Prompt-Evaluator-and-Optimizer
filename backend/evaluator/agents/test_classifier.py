@@ -32,23 +32,6 @@ class TestClassifierAgent(unittest.TestCase):
                              f"Low confidence for: {prompt}")
             self.assertIn(result['complexity'], self.classifier.COMPLEXITY_LEVELS)
 
-    def test_create_code_classification(self):
-        """Test classification of 'Create Code' prompts."""
-        prompts = [
-            "Write a Python function to validate email addresses.",
-            "Build a REST API endpoint for user authentication.",
-            "Create a React component for a todo list.",
-            "Implement a sorting algorithm in Java.",
-            "Develop a SQL query to find top customers by revenue.",
-        ]
-
-        for prompt in prompts:
-            result = self.classifier.classify(prompt)
-            self.assertEqual(result['task_type'], 'Create Code',
-                           f"Failed to classify: {prompt}")
-            self.assertGreater(result['confidence'], 0.5)
-            self.assertIn(result['complexity'], self.classifier.COMPLEXITY_LEVELS)
-
     def test_research_classification(self):
         """Test classification of 'Research' prompts."""
         prompts = [
@@ -241,13 +224,13 @@ class TestClassifierAgent(unittest.TestCase):
 
     def test_category_info(self):
         """Test category info retrieval."""
-        info = self.classifier.get_category_info("Create Code")
+        info = self.classifier.get_category_info("Create Content")
 
-        self.assertEqual(info['category'], "Create Code")
+        self.assertEqual(info['category'], "Create Content")
         self.assertIsInstance(info['keywords'], list)
         self.assertGreater(len(info['keywords']), 0)
-        self.assertIn('python', info['keywords'])
-        self.assertIn('api', info['keywords'])
+        self.assertIn('write', info['keywords'])
+        self.assertIn('article', info['keywords'])
 
     def test_all_categories_accessible(self):
         """Test that all categories can be accessed."""
@@ -258,10 +241,10 @@ class TestClassifierAgent(unittest.TestCase):
 
     def test_mixed_category_prompts(self):
         """Test prompts that might match multiple categories."""
-        # Should classify as Create Code, not Optimize
-        prompt1 = "Write a Python script to optimize database queries."
+        # Should classify as Create Content, not Optimize / Improve
+        prompt1 = "Write a guide about best practices for database optimization."
         result1 = self.classifier.classify(prompt1)
-        self.assertEqual(result1['task_type'], 'Create Code')
+        self.assertEqual(result1['task_type'], 'Create Content')
 
         # Should classify as Deep Research / Analysis, not Research
         prompt2 = "Conduct detailed analysis and research on market trends."
@@ -297,14 +280,13 @@ class TestClassifierAgentMetrics(unittest.TestCase):
         test_cases = [
             # (prompt, expected_category)
             ("Write a blog post", "Create Content"),
-            ("Build a React app", "Create Code"),
             ("Research the market", "Research"),
             ("Analyze competitors", "Deep Research / Analysis"),
             ("Plan a project", "Plan and Organize"),
-            ("Brainstorm ideas", "Ideate"),
-            ("Summarize the report", "Summarize"),
-            ("Explain AI", "Explain"),
-            ("Optimize performance", "Optimize"),
+            ("Brainstorm ideas", "Ideate / Brainstorm"),
+            ("Summarize the report", "Summarize / Review"),
+            ("Explain AI", "Explain / Teach"),
+            ("Optimize performance", "Optimize / Improve"),
         ]
 
         correct = 0

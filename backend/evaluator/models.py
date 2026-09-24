@@ -21,14 +21,13 @@ class Prompt(models.Model):
 class Classification(models.Model):
     TASK_CATEGORIES = [
         ('create_content', 'Create Content'),
-        ('create_code', 'Create Code'),
         ('research', 'Research'),
         ('deep_research', 'Deep Research / Analysis'),
         ('plan_organize', 'Plan and Organize'),
-        ('ideate', 'Ideate'),
-        ('summarize', 'Summarize'),
-        ('explain', 'Explain'),
-        ('optimize', 'Optimize'),
+        ('ideate_brainstorm', 'Ideate / Brainstorm'),
+        ('summarize_review', 'Summarize / Review'),
+        ('explain_teach', 'Explain / Teach'),
+        ('optimize_improve', 'Optimize / Improve'),
     ]
 
     COMPLEXITY_LEVELS = [
@@ -152,6 +151,8 @@ class EvaluationResult(models.Model):
         ('marketing', 'Marketing'),
         ('product_management', 'Product Management'),
         ('support', 'Support'),
+        ('commercial', 'Commercial'),
+        ('delivery_management', 'Delivery Management'),
         ('business_analysis', 'Business Analysis'),
     ]
 
@@ -160,10 +161,10 @@ class EvaluationResult(models.Model):
         ('research', 'Research'),
         ('deep_research', 'Deep Research / Analysis'),
         ('plan_organize', 'Plan and Organize'),
-        ('ideate', 'Ideate'),
-        ('summarize', 'Summarize'),
-        ('explain', 'Explain'),
-        ('optimize', 'Optimize'),
+        ('ideate_brainstorm', 'Ideate / Brainstorm'),
+        ('summarize_review', 'Summarize / Review'),
+        ('explain_teach', 'Explain / Teach'),
+        ('optimize_improve', 'Optimize / Improve'),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

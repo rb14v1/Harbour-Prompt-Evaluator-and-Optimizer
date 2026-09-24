@@ -24,11 +24,6 @@ def demo_classification():
             "Create a product description for SaaS tool",
             "Compose a newsletter for tech professionals"
         ],
-        "Create Code": [
-            "Write a Python function to validate emails",
-            "Build a REST API endpoint with authentication",
-            "Create a React component for todo list"
-        ],
         "Research": [
             "Research AI adoption in healthcare",
             "Find information about cloud computing",
@@ -44,22 +39,22 @@ def demo_classification():
             "Plan a hackathon with judging criteria",
             "Develop a 24-month product roadmap"
         ],
-        "Ideate": [
+        "Ideate / Brainstorm": [
             "Brainstorm startup ideas for sustainable tech",
             "Generate business ideas for B2B SaaS",
             "Come up with creative marketing concepts"
         ],
-        "Summarize": [
+        "Summarize / Review": [
             "Summarize research paper in key findings",
             "Create executive summary of earnings",
             "Write brief overview of market analysis"
         ],
-        "Explain": [
+        "Explain / Teach": [
             "Explain transformer neural networks",
             "Clarify REST vs GraphQL APIs",
             "Teach Docker container setup"
         ],
-        "Optimize": [
+        "Optimize / Improve": [
             "Optimize Python database queries",
             "Improve React app load time",
             "Enhance API response time"
@@ -215,11 +210,6 @@ def demo_accuracy_comparison():
             "Create a product description",
             "Compose a newsletter"
         ],
-        "Create Code": [
-            "Write a Python function",
-            "Build a REST API",
-            "Create a React component"
-        ],
         "Research": [
             "Research market trends",
             "Find information about cloud",
@@ -235,22 +225,22 @@ def demo_accuracy_comparison():
             "Plan a hackathon",
             "Develop roadmap"
         ],
-        "Ideate": [
+        "Ideate / Brainstorm": [
             "Brainstorm startup ideas",
             "Generate business ideas",
             "Come up with concepts"
         ],
-        "Summarize": [
+        "Summarize / Review": [
             "Summarize research paper",
             "Create executive summary",
             "Write overview"
         ],
-        "Explain": [
+        "Explain / Teach": [
             "Explain neural networks",
             "Clarify APIs",
             "Teach Docker"
         ],
-        "Optimize": [
+        "Optimize / Improve": [
             "Optimize queries",
             "Improve load time",
             "Enhance performance"
@@ -315,7 +305,7 @@ if __name__ == '__main__':
     print("="*80)
     print(f"\nFinal Classification Accuracy: {final_accuracy:.1f}%")
     print("\nKey Features Demonstrated:")
-    print("  ✓ Dataset-driven classification (9 categories)")
+    print("  ✓ Dataset-driven classification (8 categories)")
     print("  ✓ Dynamic keyword extraction from dataset")
     print("  ✓ Similarity-based matching with examples")
     print("  ✓ Complexity detection (Simple/Moderate/Complex)")

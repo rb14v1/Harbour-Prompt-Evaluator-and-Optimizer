@@ -3,10 +3,10 @@
     "name": "Classification Reference Dataset",
     "version": "1.0",
     "created": "2026-09-09",
-    "description": "Labeled examples for 9 task categories classification",
-    "task_categories": 9,
+    "description": "Labeled examples for 8 task categories classification",
+    "task_categories": 8,
     "examples_per_category": 30,
-    "total_examples": 270
+    "total_examples": 240
   },
   "task_categories": [
     {
@@ -161,162 +161,6 @@
         {
           "id": "CC030",
           "prompt": "Create comprehensive brand voice and tone guidelines document.",
-          "complexity": "Complex"
-        }
-      ]
-    },
-    {
-      "name": "Create Code",
-      "description": "Writing functions, APIs, applications, scripts, algorithms, database schemas",
-      "examples": [
-        {
-          "id": "CCO001",
-          "prompt": "Write a Python function to validate email addresses.",
-          "complexity": "Simple"
-        },
-        {
-          "id": "CCO002",
-          "prompt": "Build a REST API endpoint for user authentication using FastAPI.",
-          "complexity": "Moderate"
-        },
-        {
-          "id": "CCO003",
-          "prompt": "Create a complete machine learning pipeline for image classification with data preprocessing, model training, evaluation, and deployment.",
-          "complexity": "Complex"
-        },
-        {
-          "id": "CCO004",
-          "prompt": "Write a simple CSS component for a button.",
-          "complexity": "Simple"
-        },
-        {
-          "id": "CCO005",
-          "prompt": "Build a React component for a multi-select dropdown with search.",
-          "complexity": "Moderate"
-        },
-        {
-          "id": "CCO006",
-          "prompt": "Create a distributed cache layer for a microservices architecture using Redis and implementing cache invalidation strategies.",
-          "complexity": "Complex"
-        },
-        {
-          "id": "CCO007",
-          "prompt": "Write a SQL query to find top customers by revenue.",
-          "complexity": "Simple"
-        },
-        {
-          "id": "CCO008",
-          "prompt": "Build a GraphQL API with user and post types.",
-          "complexity": "Moderate"
-        },
-        {
-          "id": "CCO009",
-          "prompt": "Write a data migration script that safely transfers 100M records from legacy database to new system.",
-          "complexity": "Complex"
-        },
-        {
-          "id": "CCO010",
-          "prompt": "Create a utility function to format dates.",
-          "complexity": "Simple"
-        },
-        {
-          "id": "CCO011",
-          "prompt": "Build a real-time chat application with WebSockets.",
-          "complexity": "Moderate"
-        },
-        {
-          "id": "CCO012",
-          "prompt": "Implement a distributed consensus algorithm (Raft) with failure recovery and log replication.",
-          "complexity": "Complex"
-        },
-        {
-          "id": "CCO013",
-          "prompt": "Write a Python script to read CSV and filter data.",
-          "complexity": "Simple"
-        },
-        {
-          "id": "CCO014",
-          "prompt": "Build an e-commerce checkout flow with payment integration.",
-          "complexity": "Moderate"
-        },
-        {
-          "id": "CCO015",
-          "prompt": "Create a high-performance search engine with sharding, indexing, and relevance ranking algorithms.",
-          "complexity": "Complex"
-        },
-        {
-          "id": "CCO016",
-          "prompt": "Write a helper function for array manipulation.",
-          "complexity": "Simple"
-        },
-        {
-          "id": "CCO017",
-          "prompt": "Build a notification system with multiple channels (email, SMS, push).",
-          "complexity": "Moderate"
-        },
-        {
-          "id": "CCO018",
-          "prompt": "Implement a machine learning model serving platform with A/B testing and canary deployments.",
-          "complexity": "Complex"
-        },
-        {
-          "id": "CCO019",
-          "prompt": "Write a regex pattern for email validation.",
-          "complexity": "Simple"
-        },
-        {
-          "id": "CCO020",
-          "prompt": "Build a file upload handler with progress tracking and virus scanning.",
-          "complexity": "Moderate"
-        },
-        {
-          "id": "CCO021",
-          "prompt": "Create a database sharding strategy for horizontally scaling a database across multiple servers.",
-          "complexity": "Complex"
-        },
-        {
-          "id": "CCO022",
-          "prompt": "Write a CLI tool for basic text processing.",
-          "complexity": "Simple"
-        },
-        {
-          "id": "CCO023",
-          "prompt": "Build a recommendation engine using collaborative filtering.",
-          "complexity": "Moderate"
-        },
-        {
-          "id": "CCO024",
-          "prompt": "Implement an observability platform with metrics, logs, traces collection and correlation.",
-          "complexity": "Complex"
-        },
-        {
-          "id": "CCO025",
-          "prompt": "Write a function to calculate compound interest.",
-          "complexity": "Simple"
-        },
-        {
-          "id": "CCO026",
-          "prompt": "Build a rate limiting middleware for API requests.",
-          "complexity": "Moderate"
-        },
-        {
-          "id": "CCO027",
-          "prompt": "Create a complex data transformation pipeline with streaming, windowing, and state management.",
-          "complexity": "Complex"
-        },
-        {
-          "id": "CCO028",
-          "prompt": "Write a simple todo list app.",
-          "complexity": "Simple"
-        },
-        {
-          "id": "CCO029",
-          "prompt": "Build an admin dashboard with data visualization and filtering.",
-          "complexity": "Moderate"
-        },
-        {
-          "id": "CCO030",
-          "prompt": "Implement a distributed tracing system for microservices with context propagation.",
           "complexity": "Complex"
         }
       ]
@@ -790,7 +634,7 @@
       ]
     },
     {
-      "name": "Ideate",
+      "name": "Ideate / Brainstorm",
       "description": "Brainstorming ideas, generating concepts, creative ideation, innovation sessions",
       "examples": [
         {
@@ -946,7 +790,7 @@
       ]
     },
     {
-      "name": "Summarize",
+      "name": "Summarize / Review",
       "description": "Summarizing text, creating abstracts, condensing information, executive summaries",
       "examples": [
         {
@@ -1102,7 +946,7 @@
       ]
     },
     {
-      "name": "Explain",
+      "name": "Explain / Teach",
       "description": "Explaining concepts, teaching, clarifying topics, providing education",
       "examples": [
         {
@@ -1258,7 +1102,7 @@
       ]
     },
     {
-      "name": "Optimize",
+      "name": "Optimize / Improve",
       "description": "Optimizing code, processes, systems, performance, efficiency improvements",
       "examples": [
         {

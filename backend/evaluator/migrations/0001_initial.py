@@ -80,7 +80,7 @@ class Migration(migrations.Migration):
             name='Classification',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('task_type', models.CharField(choices=[('create_content', 'Create Content'), ('create_code', 'Create Code'), ('research', 'Research'), ('deep_research', 'Deep Research / Analysis'), ('plan_organize', 'Plan and Organize'), ('ideate', 'Ideate'), ('summarize', 'Summarize'), ('explain', 'Explain'), ('optimize', 'Optimize')], max_length=50)),
+                ('task_type', models.CharField(choices=[('create_content', 'Create Content'), ('research', 'Research'), ('deep_research', 'Deep Research / Analysis'), ('plan_organize', 'Plan and Organize'), ('ideate_brainstorm', 'Ideate / Brainstorm'), ('summarize_review', 'Summarize / Review'), ('explain_teach', 'Explain / Teach'), ('optimize_improve', 'Optimize / Improve')], max_length=50)),
                 ('complexity', models.CharField(choices=[('simple', 'Simple'), ('moderate', 'Moderate'), ('complex', 'Complex')], max_length=20)),
                 ('confidence', models.FloatField(help_text='Confidence score 0.0-1.0')),
                 ('reasoning', models.TextField()),
