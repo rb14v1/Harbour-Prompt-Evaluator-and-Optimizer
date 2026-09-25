@@ -636,14 +636,24 @@ class PromptEvaluationViewSet(viewsets.ModelViewSet):
             ws[f'A{row}'].fill = section_fill
             ws.merge_cells(f'A{row}:D{row}')
             row += 1
- 
+
             classification = report.get('classification', {})
             analysis = report.get('analysis', {})
- 
-            ws[f'A{row}'] = "Task Type"
-            ws[f'B{row}'] = classification.get('task_type', 'N/A')
-            ws[f'C{row}'] = "Complexity"
-            ws[f'D{row}'] = classification.get('complexity', 'N/A')
+
+            # Add metadata information
+            ws[f'A{row}'] = "Department / Role"
+            user_role = result.user_role
+            if user_role:
+                display_role = user_role.replace('_', ' ').title()
+            else:
+                display_role = 'N/A'
+            ws[f'B{row}'] = display_role
+            ws[f'C{row}'] = "Task Type"
+            ws[f'D{row}'] = classification.get('task_type', 'N/A')
+            row += 1
+
+            ws[f'A{row}'] = "Complexity"
+            ws[f'B{row}'] = classification.get('complexity', 'N/A')
             row += 1
  
             ws[f'A{row}'] = "Intent"

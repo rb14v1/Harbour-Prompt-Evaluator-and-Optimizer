@@ -111,6 +111,31 @@ export default function SimpleResults({ result }) {
         )}
       </div>
 
+      {/* Metadata Section */}
+      {(result.user_role || result.task_type) && (
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Evaluation Metadata</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {result.user_role && (
+              <div className="bg-primary-50 dark:bg-primary-900/20 rounded-lg p-4 border border-primary-200 dark:border-primary-700">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Department / Role</p>
+                <p className="text-lg font-semibold text-primary-700 dark:text-primary-300">
+                  {result.user_role.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                </p>
+              </div>
+            )}
+            {result.task_type && (
+              <div className="bg-success-50 dark:bg-success-900/20 rounded-lg p-4 border border-success-200 dark:border-success-700">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Task Type</p>
+                <p className="text-lg font-semibold text-success-700 dark:text-success-300">
+                  {result.task_type.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Prompts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
