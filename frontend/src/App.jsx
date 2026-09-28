@@ -7,6 +7,7 @@ import Home from './pages/Home'
 import Results from './pages/Results'
 import History from './pages/History'
 import About from './pages/About'
+import ComparePrompts from './pages/ComparePrompts'
 import './App.css'
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
             <Route path="/results/:promptId" element={<Results />} />
             <Route path="/history" element={<History />} />
             <Route path="/about" element={<About />} />
+            <Route path="/compare" element={<ComparePrompts />} />
           </Routes>
         </main>
 

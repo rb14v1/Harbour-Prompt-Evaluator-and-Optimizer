@@ -221,3 +221,28 @@ class AgentOutput(models.Model):
 
     def __str__(self):
         return f"{self.agent_name} - Iteration {self.iteration_number}"
+
+
+class ComparisonResult(models.Model):
+    """Store Claude vs Project prompt comparison results"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='comparisons', null=True, blank=True)
+    original_prompt = models.TextField()
+    claude_improved = models.TextField()
+    project_improved = models.TextField()
+    claude_scores = models.JSONField(default=dict)
+    project_scores = models.JSONField(default=dict)
+    claude_overall_score = models.FloatField()
+    project_overall_score = models.FloatField()
+    winner = models.CharField(max_length=20, default='project', choices=[('claude', 'Claude'), ('project', 'Project')])
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f"Comparison {self.id}: {self.winner.upper()} wins"
