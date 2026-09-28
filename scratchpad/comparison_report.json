@@ -1,0 +1,56 @@
+{
+  "analysis_date": "2026-09-28",
+  "total_samples": 50,
+  "summary": {
+    "avg_dimensions_in_deficient": 0.1,
+    "avg_dimensions_in_improved": 3.22,
+    "avg_coverage_improvement": 0.39,
+    "avg_length_increase": 15.124955023644597
+  },
+  "dimension_improvements": {
+    "clarity": {
+      "added_in_samples": 2,
+      "percentage": 4.0
+    },
+    "specificity": {
+      "added_in_samples": 14,
+      "percentage": 28.000000000000004
+    },
+    "context": {
+      "added_in_samples": 18,
+      "percentage": 36.0
+    },
+    "completeness": {
+      "added_in_samples": 13,
+      "percentage": 26.0
+    },
+    "requirements": {
+      "added_in_samples": 33,
+      "percentage": 66.0
+    },
+    "constraints": {
+      "added_in_samples": 14,
+      "percentage": 28.000000000000004
+    },
+    "expected_output": {
+      "added_in_samples": 43,
+      "percentage": 86.0
+    },
+    "actionability": {
+      "added_in_samples": 20,
+      "percentage": 40.0
+    }
+  },
+  "metrics_distribution": {
+    "coverage_improvement_stats": {
+      "min": 0.125,
+      "max": 0.875,
+      "avg": 0.39
+    },
+    "length_increase_stats": {
+      "min": 7.564102564102564,
+      "max": 24.46153846153846,
+      "avg": 15.124955023644597
+    }
+  }
+}
