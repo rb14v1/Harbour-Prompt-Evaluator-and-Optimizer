@@ -1,93 +1,365 @@
 # Prompt Evaluator and Optimizer
 
+Automated system for evaluating and iteratively improving AI prompts. This tool analyzes prompts across 8 quality dimensions, assigns a score, and automatically suggests improvements until your prompt meets the quality threshold.
 
+## Features
 
-## Getting started
+- **Multi-Dimension Evaluation** – Assesses prompts across 8 key dimensions: clarity, specificity, context, completeness, requirements, constraints, expected output, and actionability
+- **Automated Classification** – Categorizes prompts into 9 task types (Create Content, Create Code, Research, Deep Research, Plan & Organize, Ideate, Summarize, Explain, Optimize)
+- **Complexity Assessment** – Determines task complexity (Simple, Moderate, Complex) and confidence score
+- **Iterative Optimization** – Automatically rewrites weak prompts, up to 3 iterations, to reach a quality threshold of 7.0
+- **Detailed Reporting** – Provides comprehensive evaluation reports with scores, issues identified, and improvement history
+- **Intent Preservation** – Ensures prompt improvements maintain the original intent and meaning
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Quick Start
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### Installation
 
-## Add your files
+```bash
+# Clone the repository
+git clone <repository-url>
+cd prompt-evaluator-and-optimizer
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+# Install dependencies
+npm install
+# or
+pip install -r requirements.txt
+```
+
+### Basic Usage
+
+```bash
+# Evaluate a prompt
+node evaluate.js "Your prompt here"
+
+# Or use the interactive mode
+node evaluate.js --interactive
+```
+
+### Example
+
+**Input Prompt:**
+```
+Create a function that sorts an array
+```
+
+**Output:**
+```json
+{
+  "original_prompt": "Create a function that sorts an array",
+  "classification": {
+    "task_type": "Create Code",
+    "complexity": "Simple",
+    "confidence": 0.92
+  },
+  "initial_evaluation": {
+    "dimension_scores": {
+      "clarity": 7.5,
+      "specificity": 2.5,
+      "context": 2.5,
+      "completeness": 2.5,
+      "requirements": 2.5,
+      "constraints": 2.5,
+      "expected_output": 5.0,
+      "actionability": 5.0
+    },
+    "overall_score": 4.06,
+    "status": "Needs Improvement"
+  },
+  "improvement_history": [
+    {
+      "iteration": 1,
+      "improved_prompt": "Create a Python function named 'sort_array' that takes a list of integers as input and returns them sorted in ascending order. Use a comparison-based sorting algorithm. Include docstring with parameters and return type.",
+      "changes_made": [
+        "Specified language (Python)",
+        "Named the function",
+        "Defined input type and format",
+        "Specified output order (ascending)",
+        "Requested algorithm approach",
+        "Requested documentation"
+      ],
+      "evaluation": {
+        "overall_score": 7.8,
+        "status": "Ready"
+      }
+    }
+  ],
+  "final_score": 7.8,
+  "summary": "Prompt was significantly improved. Added language specification, function naming, type information, and documentation requirements. Original intent preserved.",
+  "status": "Ready"
+}
+```
+
+## How It Works
+
+### Processing Pipeline
+
+1. **Preprocessor** – Normalizes input, preserves original prompt, structures metadata
+2. **Classifier** – Categorizes task type and assesses complexity
+3. **Analyzer** – Decomposes prompt into components (intent, requirements, constraints, context)
+4. **Validator** – Evaluates across 8 dimensions, identifies issues and improvement targets
+5. **Scoring Engine** – Converts qualitative ratings to numerical scores, compares against threshold
+6. **Decision Point** – Score ≥ 7.0? Report final results : Improve prompt
+7. **Improver** (if needed) – Rewrites prompt addressing weak dimensions, preserving intent
+8. **Report** – Aggregates all results and returns comprehensive evaluation
+
+See [CLAUDE.md](CLAUDE.md) for detailed technical architecture.
+
+## Evaluation Dimensions
+
+Each prompt is scored on these 8 dimensions (scale: 2.5 to 10.0):
+
+| Dimension | Description |
+|-----------|-------------|
+| **Clarity** | Is the request unambiguous and easy to understand? |
+| **Specificity** | Is enough detail provided to guide accurate execution? |
+| **Context** | Is relevant background information included? |
+| **Completeness** | Are all necessary information components present? |
+| **Requirements** | Are success criteria and expectations explicit? |
+| **Constraints** | Are limitations or boundaries defined? |
+| **Expected Output** | Is the desired output format/structure clear? |
+| **Actionability** | Can the prompt be executed immediately as written? |
+
+### Quality Levels
+
+- **2.5 (Poor)** – Major gaps; needs substantial revision
+- **5.0 (Moderate)** – Some issues; would benefit from improvement
+- **7.5 (Good)** – Solid; minor refinements possible
+- **10.0 (Excellent)** – Exemplary; ready to use
+
+**Threshold:** 7.0 (average across all dimensions)
+
+## Task Categories
+
+The system classifies prompts into these 9 categories:
+
+1. Create Content
+2. Create Code
+3. Research
+4. Deep Research / Analysis
+5. Plan and Organize
+6. Ideate
+7. Summarize
+8. Explain
+9. Optimize
+
+## Datasets
+
+The system uses 4 datasets for training and evaluation:
+
+1. **Classification Dataset** (100–300 examples) – Train Classifier accuracy
+2. **Validation Reference Dataset** (160 examples) – Support Validator with quality examples
+3. **Benchmark Dataset** (100–200 examples) – Evaluate end-to-end system performance
+4. **Improvement Dataset** (50–100 pairs) – Measure improvement effectiveness
+
+See data/ directory for dataset files.
+
+## Project Structure
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.version1.com/shared/idc-innovation-labs/interns-projects/prompt-evaluator-and-optimizer.git
-git branch -M main
-git push -uf origin main
+prompt-evaluator-and-optimizer/
+├── README.md                          # This file
+├── CLAUDE.md                          # Technical architecture & implementation guide
+├── src/
+│   ├── agents/
+│   │   ├── preprocessor.js           # Normalize and structure prompts
+│   │   ├── classifier.js             # Categorize and assess complexity
+│   │   ├── analyzer.js               # Decompose prompt components
+│   │   ├── validator.js              # Evaluate across 8 dimensions
+│   │   ├── scoring-engine.js         # Calculate numerical scores
+│   │   ├── improver.js               # Rewrite weak prompts
+│   │   └── report.js                 # Generate final reports
+│   ├── orchestrator.js               # Main pipeline controller
+│   └── utils/
+│       ├── config.js                 # Configuration & constants
+│       └── logger.js                 # Logging utilities
+├── data/
+│   ├── classification-dataset.json    # Task categories & examples
+│   ├── validation-reference.json      # Quality dimension examples
+│   ├── benchmark-dataset.json         # Unseen test prompts
+│   └── improvement-dataset.json       # Before/after improvement pairs
+├── tests/
+│   ├── agents/                        # Unit tests for each agent
+│   ├── integration/                   # End-to-end pipeline tests
+│   └── fixtures/                      # Test data and expected outputs
+├── scripts/
+│   ├── evaluate.js                    # CLI entry point
+│   ├── batch-evaluate.js              # Process multiple prompts
+│   └── benchmark.js                   # Run system benchmarks
+└── package.json
 ```
 
-## Integrate with your tools
+## Command Reference
 
-* [Set up project integrations](https://gitlab.version1.com/shared/idc-innovation-labs/interns-projects/prompt-evaluator-and-optimizer/-/settings/integrations)
+### Evaluate Single Prompt
 
-## Collaborate with your team
+```bash
+node scripts/evaluate.js "Your prompt here"
+```
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+**Options:**
+- `--interactive` – Start interactive prompt input mode
+- `--output json` – Output as JSON (default)
+- `--output pretty` – Human-readable format
+- `--save <path>` – Save results to file
 
-## Test and Deploy
+### Batch Evaluation
 
-Use the built-in continuous integration in GitLab.
+```bash
+node scripts/batch-evaluate.js <input-file> --output <output-file>
+```
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+Process multiple prompts from CSV/JSON file.
 
-***
+### Run Benchmarks
 
-# Editing this README
+```bash
+node scripts/benchmark.js --dataset benchmark
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Evaluate system performance on benchmark dataset. Outputs precision, recall, F1 scores.
 
-## Suggestions for a good README
+### Interactive Mode
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+```bash
+node scripts/evaluate.js --interactive
+```
 
-## Name
-Choose a self-explaining name for your project.
+- Enter prompts interactively
+- See real-time evaluation results
+- Compare multiple prompts
+- Export results
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## Configuration
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Edit `src/utils/config.js` to customize:
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+- **THRESHOLD** – Score required to pass (default: 7.0)
+- **MAX_ITERATIONS** – Maximum improvement attempts (default: 3)
+- **DATASET_PATHS** – Location of data files
+- **QUALITY_LEVELS** – Score mappings (Poor/Moderate/Good/Excellent)
+- **TASK_CATEGORIES** – Allowed prompt categories
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## API Usage
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### Python
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+```python
+from prompt_optimizer import PromptEvaluator
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+evaluator = PromptEvaluator()
+result = evaluator.evaluate("Your prompt here")
+
+print(f"Score: {result['final_score']}")
+print(f"Status: {result['status']}")
+print(f"Improved Prompt: {result['final_prompt']}")
+```
+
+### JavaScript
+
+```javascript
+const { PromptEvaluator } = require('./src/orchestrator');
+
+const evaluator = new PromptEvaluator();
+const result = await evaluator.evaluate("Your prompt here");
+
+console.log(`Score: ${result.final_score}`);
+console.log(`Status: ${result.status}`);
+console.log(`Improved Prompt: ${result.final_prompt}`);
+```
+
+## Performance
+
+- **Single Prompt Evaluation:** ~2–5 seconds (depending on LLM latency)
+- **Batch Processing:** ~100 prompts per minute
+- **Improvement Cycle:** ~5–10 seconds per iteration
+- **System Accuracy:** Varies by category (see benchmark results)
+
+## Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run specific test suite
+npm test -- agents/classifier
+npm test -- integration/pipeline
+
+# Run with coverage
+npm test -- --coverage
+
+# Run benchmarks
+npm run benchmark
+```
 
 ## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+1. Create a feature branch from `main`
+2. Implement changes following project structure
+3. Add tests for new agents or dimensions
+4. Update CLAUDE.md if adding categories/dimensions
+5. Run full test suite and benchmarks
+6. Submit pull request with description of changes
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### Adding New Task Categories
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+See "Adding New Task Categories" in [CLAUDE.md](CLAUDE.md#adding-new-task-categories).
+
+### Adding New Validation Dimensions
+
+See "Adding New Validation Dimensions" in [CLAUDE.md](CLAUDE.md#adding-new-validation-dimensions).
+
+## Troubleshooting
+
+### Low Scores on All Prompts
+- Verify Validator agent is loading validation reference dataset
+- Check that dimension weights are reasonable
+- Run benchmark to see if issue is systematic
+
+### Improver Not Making Progress
+- Ensure intent_preserved flag is being validated
+- Check that low-scoring dimensions are being targeted
+- Review improvement history for patterns in failed iterations
+
+### Classification Confidence Low
+- Verify classification dataset is loaded
+- Add more examples for that task category
+- Check if prompt is ambiguous between categories
+
+### Out of Memory on Large Batches
+- Process in smaller batches
+- Clear intermediate results after each prompt
+- Use streaming output instead of in-memory aggregation
+
+## Related Documentation
+
+- **[CLAUDE.md](CLAUDE.md)** – Complete technical architecture, agents, datasets, and implementation guide
+- **[data/README.md](data/README.md)** – Dataset format specifications and loading instructions
+- **[tests/README.md](tests/README.md)** – Testing framework and guidelines
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+[Add your license here]
+
+## Support
+
+For issues, questions, or suggestions:
+- Create an issue on GitHub
+- Review [CLAUDE.md](CLAUDE.md) for technical details
+- Check test files for usage examples
+
+## Roadmap
+
+- [ ] Multi-language prompt evaluation
+- [ ] Weighted dimension scoring by category
+- [ ] User-driven dimension priorities
+- [ ] A/B testing framework for improvements
+- [ ] Web UI for interactive evaluation
+- [ ] Integration with prompt management platforms
+- [ ] Advanced intent preservation validation
+- [ ] Custom dimension templates
+
+---
+
+**Last Updated:** 2026-09-09  
+**Version:** 1.0.0

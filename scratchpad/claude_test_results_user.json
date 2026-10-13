@@ -1,0 +1,8 @@
+[
+  {
+    "sample_id": "USER_1",
+    "deficient_prompt": "Create a technical overview explaining how a REST API works in a modern web application.",
+    "claude_improved": "ERROR: \"Could not resolve authentication method. Expected one of api_key, auth_token, or credentials to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\"",
+    "timestamp": "2026-09-28T11:35:46.961545"
+  }
+]

@@ -1,0 +1,4045 @@
+{
+  "metadata": {
+    "name": "Prompt Evaluator Benchmark Dataset",
+    "version": "2.0-enhanced",
+    "created": "2026-09-09",
+    "processed_date": "2026-09-09T16:47:51.145274",
+    "processing_type": "enhanced_enrichment",
+    "original_count": 61,
+    "processed_count": 61
+  },
+  "examples": [
+    {
+      "id": "BCE001",
+      "prompt": "Create a blog post about AI.",
+      "task_type": "Create Content",
+      "complexity": "Simple",
+      "expected_quality": "Poor",
+      "expected_score": 3.5,
+      "issues": [
+        "Lacks specificity on topic depth",
+        "No target audience defined",
+        "Missing tone/style guidance",
+        "No word count or format specified"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Completeness",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 6,
+          "sentence_count": 1,
+          "char_count": 28,
+          "avg_word_length": 3.8333333333333335,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "ai"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": true,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [
+            "Lacks specificity on topic depth",
+            "Missing tone/style guidance"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Add concrete details, examples, and specific requirements",
+        "Define target audience and expertise level",
+        "Address: Missing tone/style guidance"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.138574",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCE002",
+      "prompt": "Write a detailed technical blog post about machine learning algorithms for software engineers. Include explanations of supervised vs unsupervised learning, provide code examples in Python, and aim for 2000-2500 words. Target audience: mid-level engineers. Use a professional but conversational tone.",
+      "task_type": "Create Content",
+      "complexity": "Moderate",
+      "expected_quality": "Excellent",
+      "expected_score": 9.2,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 40,
+          "sentence_count": 4,
+          "char_count": 299,
+          "avg_word_length": 6.5,
+          "has_code": true,
+          "has_examples": true,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "machine learning",
+          "python"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": true,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 5.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.138886",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCE003",
+      "prompt": "Create a social media post.",
+      "task_type": "Create Content",
+      "complexity": "Simple",
+      "expected_quality": "Poor",
+      "expected_score": 2.5,
+      "issues": [
+        "No platform specified (Twitter, LinkedIn, Instagram?)",
+        "No topic or message defined",
+        "Missing tone or style guidance",
+        "No hashtag strategy mentioned"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Actionability"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 5,
+          "sentence_count": 1,
+          "char_count": 27,
+          "avg_word_length": 4.6,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": true,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [
+            "Missing tone or style guidance"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: No platform specified (Twitter, LinkedIn, Instagram?)",
+        "Address: No topic or message defined",
+        "Address: Missing tone or style guidance"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.139069",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCE004",
+      "prompt": "Write a LinkedIn post announcing our company's new machine learning product. Keep it under 300 characters, include a call-to-action for webinar signup, use professional but enthusiastic tone, and add 3-5 relevant hashtags. Target audience: CTOs and technical leaders.",
+      "task_type": "Create Content",
+      "complexity": "Moderate",
+      "expected_quality": "Good",
+      "expected_score": 7.8,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Requirements",
+        "Constraints",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 38,
+          "sentence_count": 3,
+          "char_count": 267,
+          "avg_word_length": 6.052631578947368,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "machine learning"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.5,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.139318",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCE005",
+      "prompt": "Create newsletter content.",
+      "task_type": "Create Content",
+      "complexity": "Moderate",
+      "expected_quality": "Poor",
+      "expected_score": 3.0,
+      "issues": [
+        "Industry/niche not specified",
+        "Target subscriber profile missing",
+        "No frequency or length specified",
+        "No topics or themes defined"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 3,
+          "sentence_count": 1,
+          "char_count": 26,
+          "avg_word_length": 8.0,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": true,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [
+            "Target subscriber profile missing"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Industry/niche not specified",
+        "Address: Target subscriber profile missing",
+        "Address: No frequency or length specified"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.139390",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCE006",
+      "prompt": "Compose a weekly tech newsletter for data scientists. Include 4 sections: (1) industry news, (2) tool/library spotlight, (3) research paper summary, (4) community event highlight. Keep each section 100-150 words. Use a conversational, accessible tone. Assume subscribers have 3-5 years data science experience.",
+      "task_type": "Create Content",
+      "complexity": "Moderate",
+      "expected_quality": "Excellent",
+      "expected_score": 8.8,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Context",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 43,
+          "sentence_count": 5,
+          "char_count": 310,
+          "avg_word_length": 6.232558139534884,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.139531",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCC001",
+      "prompt": "Write code.",
+      "task_type": "Create Code",
+      "complexity": "Simple",
+      "expected_quality": "Poor",
+      "expected_score": 1.5,
+      "issues": [
+        "No programming language specified",
+        "No problem or use case defined",
+        "No requirements or constraints",
+        "No expected functionality described"
+      ],
+      "low_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 2,
+          "sentence_count": 1,
+          "char_count": 11,
+          "avg_word_length": 5.0,
+          "has_code": true,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: No programming language specified",
+        "Address: No problem or use case defined",
+        "Address: No requirements or constraints"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.139573",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCC002",
+      "prompt": "Create a Python function that validates email addresses.",
+      "task_type": "Create Code",
+      "complexity": "Simple",
+      "expected_quality": "Moderate",
+      "expected_score": 5.2,
+      "issues": [
+        "No regex pattern specification",
+        "Return type not specified",
+        "Error handling approach undefined",
+        "No test cases mentioned"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 8,
+          "sentence_count": 1,
+          "char_count": 56,
+          "avg_word_length": 6.125,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "python"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": true,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [
+            "No regex pattern specification",
+            "Error handling approach undefined"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: No regex pattern specification",
+        "Address: Return type not specified",
+        "Address: Error handling approach undefined"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.139622",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCC003",
+      "prompt": "Write a Python function named 'validate_email' that accepts an email string and returns True if valid, False otherwise. Use RFC 5322 standard for validation. Include error handling for None/empty inputs. Add docstring with examples. Handle edge cases: multiple @, spaces, non-ASCII chars. Return tuple (is_valid: bool, message: str) for detailed feedback.",
+      "task_type": "Create Code",
+      "complexity": "Moderate",
+      "expected_quality": "Good",
+      "expected_score": 7.6,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Requirements",
+        "Constraints",
+        "Expected Output",
+        "Actionability"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 51,
+          "sentence_count": 6,
+          "char_count": 355,
+          "avg_word_length": 5.980392156862745,
+          "has_code": false,
+          "has_examples": true,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "python"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": true,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.5,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.139761",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCC004",
+      "prompt": "Build a REST API endpoint for user authentication using FastAPI. Support login with email/password and JWT token generation. Include password hashing (bcrypt), token expiration (15 min access, 7 day refresh), CORS configuration for frontend at localhost:3000, rate limiting (5 attempts/minute), and comprehensive error responses (401, 403, 429 status codes). Return token in response with user metadata.",
+      "task_type": "Create Code",
+      "complexity": "Complex",
+      "expected_quality": "Excellent",
+      "expected_score": 9.0,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Requirements",
+        "Constraints",
+        "Expected Output",
+        "Actionability"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 56,
+          "sentence_count": 4,
+          "char_count": 403,
+          "avg_word_length": 6.214285714285714,
+          "has_code": true,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "frontend",
+          "authentication",
+          "api",
+          "rest",
+          "jwt"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": true,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 6.5,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.139926",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "RES001",
+      "prompt": "Research AI.",
+      "task_type": "Research",
+      "complexity": "Simple",
+      "expected_quality": "Poor",
+      "expected_score": 2.0,
+      "issues": [
+        "Topic too broad",
+        "No specific research questions",
+        "No scope or time boundaries",
+        "No required sources or depth level"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Completeness",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 2,
+          "sentence_count": 1,
+          "char_count": 12,
+          "avg_word_length": 5.5,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "ai"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [
+            "No specific research questions"
+          ],
+          "context": [
+            "No scope or time boundaries"
+          ],
+          "completeness": [
+            "No required sources or depth level"
+          ],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Topic too broad",
+        "Address: No specific research questions",
+        "Address: No scope or time boundaries"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.139967",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "RES002",
+      "prompt": "Research recent advances in natural language processing from 2024-2025. Find 5-7 key breakthroughs, summarize each in 200-300 words, include publication links. Focus on transformer models, multimodal learning, and efficient LLMs. Target: technical overview for ML engineers.",
+      "task_type": "Research",
+      "complexity": "Moderate",
+      "expected_quality": "Good",
+      "expected_score": 7.4,
+      "issues": [],
+      "strong_dimensions": [
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 36,
+          "sentence_count": 4,
+          "char_count": 274,
+          "avg_word_length": 6.638888888888889,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.140107",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "RES003",
+      "prompt": "Find information about quantum computing.",
+      "task_type": "Research",
+      "complexity": "Moderate",
+      "expected_quality": "Poor",
+      "expected_score": 3.2,
+      "issues": [
+        "Scope too vague",
+        "No specific angle (applications, companies, theory?)",
+        "No depth level specified",
+        "No format for results defined"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Requirements"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 5,
+          "sentence_count": 1,
+          "char_count": 41,
+          "avg_word_length": 7.4,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": true,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [
+            "Scope too vague"
+          ],
+          "specificity": [
+            "No specific angle (applications, companies, theory?)"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Scope too vague",
+        "Address: No specific angle (applications, companies, theory?)",
+        "Address: No depth level specified"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.140182",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "DRA001",
+      "prompt": "Analyze blockchain.",
+      "task_type": "Deep Research / Analysis",
+      "complexity": "Complex",
+      "expected_quality": "Poor",
+      "expected_score": 2.8,
+      "issues": [
+        "No specific aspect to analyze",
+        "No comparison parameters",
+        "No stakeholder perspective defined",
+        "No analysis framework or format"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Context",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 2,
+          "sentence_count": 1,
+          "char_count": 19,
+          "avg_word_length": 9.0,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [
+            "No specific aspect to analyze"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: No specific aspect to analyze",
+        "Address: No comparison parameters",
+        "Address: No stakeholder perspective defined"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.140248",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "DRA002",
+      "prompt": "Conduct a comprehensive analysis of the impact of AI regulation on tech startups in EU, US, and Asia (2024-2026). Compare regulatory frameworks across regions, identify key compliance costs, analyze market consolidation trends, and project 5-year implications for innovation. Provide 4 detailed case studies (industry-specific: fintech, healthcare, autonomous vehicles, retail). Include risk-benefit analysis and strategic recommendations for startups.",
+      "task_type": "Deep Research / Analysis",
+      "complexity": "Complex",
+      "expected_quality": "Excellent",
+      "expected_score": 8.9,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Constraints",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 57,
+          "sentence_count": 4,
+          "char_count": 452,
+          "avg_word_length": 6.947368421052632,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "ai"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.5,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.140453",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "PLA001",
+      "prompt": "Plan a project.",
+      "task_type": "Plan and Organize",
+      "complexity": "Simple",
+      "expected_quality": "Poor",
+      "expected_score": 3.0,
+      "issues": [
+        "Project type undefined",
+        "Timeline not specified",
+        "Team composition unknown",
+        "Success metrics missing"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Completeness",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 3,
+          "sentence_count": 1,
+          "char_count": 15,
+          "avg_word_length": 4.333333333333333,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [
+            "Project type undefined",
+            "Success metrics missing"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Project type undefined",
+        "Address: Timeline not specified",
+        "Address: Team composition unknown"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.140527",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "PLA002",
+      "prompt": "Create a 12-week project plan for building a Python data pipeline. Team: 2 engineers, 1 data scientist. Goals: process 1TB daily data, 99.9% uptime. Include: phases (design week 1, development weeks 2-8, testing weeks 9-10, deployment weeks 11-12), dependencies, milestones, risk mitigation. Deliverables per phase. Resource allocation per role.",
+      "task_type": "Plan and Organize",
+      "complexity": "Moderate",
+      "expected_quality": "Good",
+      "expected_score": 7.9,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Completeness",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 49,
+          "sentence_count": 7,
+          "char_count": 345,
+          "avg_word_length": 6.061224489795919,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "python",
+          "deployment"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": true,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 5.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.140679",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "IDE001",
+      "prompt": "Brainstorm ideas.",
+      "task_type": "Ideate",
+      "complexity": "Simple",
+      "expected_quality": "Poor",
+      "expected_score": 2.5,
+      "issues": [
+        "Problem space not defined",
+        "No target market or user",
+        "No constraints or budget",
+        "Ideation scope unclear"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Requirements"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 2,
+          "sentence_count": 1,
+          "char_count": 17,
+          "avg_word_length": 8.0,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [
+            "Ideation scope unclear"
+          ],
+          "specificity": [
+            "Problem space not defined"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Problem space not defined",
+        "Address: No target market or user",
+        "Address: No constraints or budget"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.140721",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "IDE002",
+      "prompt": "Ideate 10-15 innovative SaaS product ideas targeting SMB manufacturing businesses (50-500 employees) in the US. Focus on pain points: supply chain visibility, inventory management, worker safety. Budget per idea: $50K-$200K MVP. Include market size estimate, competitive differentiation, and revenue model for each. Target: technical feasibility for small team (3-4 people).",
+      "task_type": "Ideate",
+      "complexity": "Moderate",
+      "expected_quality": "Excellent",
+      "expected_score": 8.7,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 50,
+          "sentence_count": 5,
+          "char_count": 374,
+          "avg_word_length": 6.5,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.140870",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "SUM001",
+      "prompt": "Summarize this text.",
+      "task_type": "Summarize",
+      "complexity": "Simple",
+      "expected_quality": "Poor",
+      "expected_score": 2.2,
+      "issues": [
+        "No text provided",
+        "Summary length not specified",
+        "No format or structure defined",
+        "Target audience unknown"
+      ],
+      "low_dimensions": [
+        "Clarity",
+        "Completeness",
+        "Expected Output",
+        "Actionability"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 3,
+          "sentence_count": 1,
+          "char_count": 20,
+          "avg_word_length": 6.0,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: No text provided",
+        "Address: Summary length not specified",
+        "Specify desired output format (JSON, markdown, code, etc.)"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.140920",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "SUM002",
+      "prompt": "Summarize the following research paper in 300-400 words. Include: main hypothesis, methodology, key findings, limitations, and practical implications. Use bullet points for findings. Target: technical but accessible to non-experts. Paper: [INSERT PAPER].",
+      "task_type": "Summarize",
+      "complexity": "Moderate",
+      "expected_quality": "Good",
+      "expected_score": 7.5,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Completeness",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 32,
+          "sentence_count": 5,
+          "char_count": 254,
+          "avg_word_length": 6.96875,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": true,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.141031",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "EXP001",
+      "prompt": "Explain machine learning.",
+      "task_type": "Explain",
+      "complexity": "Simple",
+      "expected_quality": "Poor",
+      "expected_score": 3.0,
+      "issues": [
+        "Audience level undefined",
+        "No specific aspect to focus on",
+        "No context for explanation",
+        "Depth level not specified"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 3,
+          "sentence_count": 1,
+          "char_count": 25,
+          "avg_word_length": 7.666666666666667,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "machine learning"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [
+            "Audience level undefined",
+            "No specific aspect to focus on"
+          ],
+          "context": [
+            "No context for explanation"
+          ],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Define target audience and expertise level",
+        "Address: No specific aspect to focus on",
+        "Include business context, domain info, and problem background"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.141074",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "EXP002",
+      "prompt": "Explain how transformer neural networks work to a software engineer unfamiliar with ML. Use clear analogies related to software architecture. Cover: attention mechanism, self-attention, multi-head attention, transformer block, encoder-decoder structure. Include 2-3 code pseudocode examples showing tensor operations. Assume familiarity with Python but not math. Keep explanation under 2000 words.",
+      "task_type": "Explain",
+      "complexity": "Moderate",
+      "expected_quality": "Excellent",
+      "expected_score": 8.8,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 50,
+          "sentence_count": 6,
+          "char_count": 397,
+          "avg_word_length": 6.96,
+          "has_code": true,
+          "has_examples": true,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "python",
+          "neural"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": true,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 5.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.141206",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "OPT001",
+      "prompt": "Optimize code.",
+      "task_type": "Optimize",
+      "complexity": "Simple",
+      "expected_quality": "Poor",
+      "expected_score": 2.0,
+      "issues": [
+        "No code provided",
+        "Performance metrics undefined",
+        "Constraints not specified",
+        "No baseline or target performance"
+      ],
+      "low_dimensions": [
+        "Clarity",
+        "Completeness",
+        "Constraints",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 2,
+          "sentence_count": 1,
+          "char_count": 14,
+          "avg_word_length": 6.5,
+          "has_code": true,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [
+            "Performance metrics undefined"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: No code provided",
+        "Address: Performance metrics undefined",
+        "Address: Constraints not specified"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.141247",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "OPT002",
+      "prompt": "Optimize this Python database query function. Current: processes 1M records in 45 seconds. Target: <15 seconds. Constraints: read-only database access, max memory 2GB. Provide: optimized code, explanation of improvements, benchmark comparison (before/after), estimated throughput gain. Database: PostgreSQL with 10 million records.",
+      "task_type": "Optimize",
+      "complexity": "Moderate",
+      "expected_quality": "Good",
+      "expected_score": 7.7,
+      "issues": [],
+      "strong_dimensions": [
+        "Specificity",
+        "Constraints",
+        "Expected Output",
+        "Actionability"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 41,
+          "sentence_count": 6,
+          "char_count": 331,
+          "avg_word_length": 7.097560975609756,
+          "has_code": true,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "postgresql",
+          "python",
+          "database"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": true,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 5.5,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.141377",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCE007",
+      "prompt": "Write a product description for an online course platform.",
+      "task_type": "Create Content",
+      "complexity": "Moderate",
+      "expected_quality": "Moderate",
+      "expected_score": 5.0,
+      "issues": [
+        "No specific course or subject",
+        "Target learner profile vague",
+        "Length and format undefined",
+        "Key differentiators not specified"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Context",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 9,
+          "sentence_count": 1,
+          "char_count": 58,
+          "avg_word_length": 5.555555555555555,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [
+            "Target learner profile vague"
+          ],
+          "specificity": [
+            "No specific course or subject",
+            "Length and format undefined"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: No specific course or subject",
+        "Address: Target learner profile vague",
+        "Specify desired output format (JSON, markdown, code, etc.)"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.141429",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCE008",
+      "prompt": "Write a 150-200 word product description for 'Advanced React Patterns' course. Target: intermediate React developers (1-2 years experience) seeking architecture skills. Highlight: real-world patterns, performance optimization, state management strategies. Include benefits: 30% faster development, better code reuse, interview prep. Use engaging but professional tone. Add 1-2 social proof elements (student success rates, testimonials).",
+      "task_type": "Create Content",
+      "complexity": "Moderate",
+      "expected_quality": "Good",
+      "expected_score": 8.1,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Context",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 53,
+          "sentence_count": 6,
+          "char_count": 437,
+          "avg_word_length": 7.264150943396227,
+          "has_code": true,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "react"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.5,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.141571",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCC005",
+      "prompt": "Create a function for data filtering.",
+      "task_type": "Create Code",
+      "complexity": "Simple",
+      "expected_quality": "Moderate",
+      "expected_score": 4.8,
+      "issues": [
+        "Filter criteria undefined",
+        "Data structure not specified",
+        "Performance requirements missing",
+        "Return format unclear"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 6,
+          "sentence_count": 1,
+          "char_count": 37,
+          "avg_word_length": 5.333333333333333,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": true,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [
+            "Return format unclear"
+          ],
+          "specificity": [
+            "Filter criteria undefined",
+            "Performance requirements missing"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Filter criteria undefined",
+        "Address: Data structure not specified",
+        "Address: Performance requirements missing"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.141612",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCC006",
+      "prompt": "Write TypeScript React component for multi-select dropdown with async data loading. Features: (1) search/filter 1000+ items by label, (2) load items on demand via API call, (3) debounce search (300ms), (4) show loading indicator, (5) handle API errors gracefully, (6) keyboard navigation (arrow keys, enter, escape), (7) accessibility (ARIA labels), (8) virtual scrolling for performance. Return selected array of {id, label} objects. Include PropTypes/TypeScript interfaces.",
+      "task_type": "Create Code",
+      "complexity": "Complex",
+      "expected_quality": "Good",
+      "expected_score": 7.8,
+      "issues": [],
+      "strong_dimensions": [
+        "Specificity",
+        "Requirements",
+        "Constraints",
+        "Expected Output",
+        "Actionability"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 65,
+          "sentence_count": 4,
+          "char_count": 475,
+          "avg_word_length": 6.323076923076923,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "react",
+          "api",
+          "typescript"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 5.5,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.141778",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "RES004",
+      "prompt": "Look up market trends in cloud computing.",
+      "task_type": "Research",
+      "complexity": "Moderate",
+      "expected_quality": "Moderate",
+      "expected_score": 5.5,
+      "issues": [
+        "Time period not specified",
+        "Geographic scope unclear",
+        "No specific segments defined (serverless, containers, etc.)",
+        "No expected output format"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Constraints",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 7,
+          "sentence_count": 1,
+          "char_count": 41,
+          "avg_word_length": 5.0,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [
+            "Geographic scope unclear"
+          ],
+          "specificity": [
+            "No specific segments defined (serverless, containers, etc.)"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Time period not specified",
+        "Address: Geographic scope unclear",
+        "Address: No specific segments defined (serverless, containers, etc.)"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.141826",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "RES005",
+      "prompt": "Research cloud computing market trends 2023-2026 across 3 regions: North America, Europe, Asia-Pacific. Cover: market size growth %, key players, technology adoption rates (Kubernetes, serverless, multi-cloud), pricing trends. Provide data from Gartner, IDC, or analyst reports. Format: 3-4 page report with charts, 10-15 key insights, 3 strategic implications for enterprise buyers.",
+      "task_type": "Research",
+      "complexity": "Moderate",
+      "expected_quality": "Excellent",
+      "expected_score": 8.5,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Completeness",
+        "Constraints",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 51,
+          "sentence_count": 4,
+          "char_count": 383,
+          "avg_word_length": 6.529411764705882,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "kubernetes"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": true,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.5,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.142060",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "DRA003",
+      "prompt": "Analyze competitor landscape.",
+      "task_type": "Deep Research / Analysis",
+      "complexity": "Moderate",
+      "expected_quality": "Moderate",
+      "expected_score": 5.2,
+      "issues": [
+        "Industry/product not specified",
+        "Geographic market undefined",
+        "No company list or parameters",
+        "Analysis dimensions not specified"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Context",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 3,
+          "sentence_count": 1,
+          "char_count": 29,
+          "avg_word_length": 9.0,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [
+            "Geographic market undefined"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Industry/product not specified",
+        "Address: Geographic market undefined",
+        "Address: No company list or parameters"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.142104",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "DRA004",
+      "prompt": "Competitive analysis: B2B project management SaaS tools (US market, 2024). Compare: Asana, Monday.com, Jira, ClickUp, Notion. Dimensions: pricing models, feature comparison matrix, target market segment, customer reviews (G2 scores), technology stack, integrations, strengths/weaknesses. Output: 20-page report with charts, ranking matrix (features vs. price vs. usability), recommendation framework for different buyer personas.",
+      "task_type": "Deep Research / Analysis",
+      "complexity": "Complex",
+      "expected_quality": "Good",
+      "expected_score": 7.9,
+      "issues": [],
+      "strong_dimensions": [
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 51,
+          "sentence_count": 7,
+          "char_count": 429,
+          "avg_word_length": 7.431372549019608,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.142241",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "PLA003",
+      "prompt": "Organize a hackathon.",
+      "task_type": "Plan and Organize",
+      "complexity": "Moderate",
+      "expected_quality": "Moderate",
+      "expected_score": 4.9,
+      "issues": [
+        "Event scale/duration not specified",
+        "Budget undefined",
+        "Target participants unclear",
+        "Venue/format (in-person/virtual) not set"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Constraints",
+        "Completeness",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 3,
+          "sentence_count": 1,
+          "char_count": 21,
+          "avg_word_length": 6.333333333333333,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [
+            "Target participants unclear"
+          ],
+          "specificity": [
+            "Budget undefined"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Event scale/duration not specified",
+        "Address: Budget undefined",
+        "Address: Target participants unclear"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.142277",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "PLA004",
+      "prompt": "Plan a 48-hour virtual hackathon for 500 participants. Goal: build prototypes for supply chain optimization. Timeline: 8-9 Oct 2025 (Fri 6pm - Sun 6pm EST). Budget: $25K. Include: sponsorships recruitment, prize pool ($8K), platform setup (GitHub, Discord, Dev.to), participant tiers (beginner/intermediate/advanced), judging criteria (innovation 40%, implementation 30%, pitch 20%, impact 10%), post-event activities. Deliverables: registration page, rules, team formation process, technical setup guide.",
+      "task_type": "Plan and Organize",
+      "complexity": "Complex",
+      "expected_quality": "Excellent",
+      "expected_score": 8.8,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Completeness",
+        "Constraints",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 63,
+          "sentence_count": 7,
+          "char_count": 505,
+          "avg_word_length": 7.031746031746032,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": true,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": true,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.142458",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "IDE003",
+      "prompt": "Generate business ideas for a sustainable tech startup.",
+      "task_type": "Ideate",
+      "complexity": "Moderate",
+      "expected_quality": "Moderate",
+      "expected_score": 5.8,
+      "issues": [
+        "Geographic market not specified",
+        "Target customer segment vague",
+        "Budget constraints undefined",
+        "Number of ideas not clear"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Constraints",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 8,
+          "sentence_count": 1,
+          "char_count": 55,
+          "avg_word_length": 6.0,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [
+            "Target customer segment vague"
+          ],
+          "specificity": [
+            "Budget constraints undefined"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Geographic market not specified",
+        "Address: Target customer segment vague",
+        "Address: Budget constraints undefined"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.142508",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "IDE004",
+      "prompt": "Generate 8-10 B2B SaaS ideas for sustainable energy sector targeting utilities (200+ MWh/year). Focus: renewable energy management, grid optimization, carbon tracking. Budget per MVP: $100K-$300K. Team size: 4-6 technical people. For each idea include: problem statement, target buyer persona, value prop, revenue model (monthly/per-unit), 5-year market size, competitive landscape (2-3 existing players), go-to-market approach. Prioritize high-margin ideas with <12-month payback.",
+      "task_type": "Ideate",
+      "complexity": "Complex",
+      "expected_quality": "Excellent",
+      "expected_score": 8.6,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 60,
+          "sentence_count": 6,
+          "char_count": 481,
+          "avg_word_length": 7.033333333333333,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "go"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.5,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.142861",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "SUM003",
+      "prompt": "Create an executive summary.",
+      "task_type": "Summarize",
+      "complexity": "Moderate",
+      "expected_quality": "Moderate",
+      "expected_score": 5.3,
+      "issues": [
+        "Source document not provided",
+        "Executive audience not defined",
+        "Length constraints missing",
+        "Key decisions/actions unclear"
+      ],
+      "low_dimensions": [
+        "Completeness",
+        "Context",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 4,
+          "sentence_count": 1,
+          "char_count": 28,
+          "avg_word_length": 6.25,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": true,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [
+            "Key decisions/actions unclear"
+          ],
+          "specificity": [
+            "Executive audience not defined",
+            "Length constraints missing"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Source document not provided",
+        "Define target audience and expertise level",
+        "Address: Length constraints missing"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.142901",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "SUM004",
+      "prompt": "Write a 1-page executive summary of a Q3 2025 product launch report. Audience: C-suite (CEO, CFO, VP Product). Include: launch impact (revenue, user acquisition), market response (NPS, reviews), technical performance (uptime, latency), competitive wins/losses, top 3 customer feedback points, budget variance, top 3 action items for Q4. Use clear metrics, avoid jargon. Format: sections with bolded headers, bullet points for metrics.",
+      "task_type": "Summarize",
+      "complexity": "Moderate",
+      "expected_quality": "Good",
+      "expected_score": 7.6,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 61,
+          "sentence_count": 5,
+          "char_count": 434,
+          "avg_word_length": 6.131147540983607,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": true,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.143057",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "EXP003",
+      "prompt": "Explain cryptocurrency.",
+      "task_type": "Explain",
+      "complexity": "Moderate",
+      "expected_quality": "Moderate",
+      "expected_score": 5.0,
+      "issues": [
+        "Audience tech level unclear",
+        "Scope too broad (blockchain, mining, DeFi, NFTs?)",
+        "No specific use case context",
+        "Target length/depth not specified"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Context",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 2,
+          "sentence_count": 1,
+          "char_count": 23,
+          "avg_word_length": 11.0,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [
+            "Audience tech level unclear"
+          ],
+          "specificity": [
+            "No specific use case context"
+          ],
+          "context": [
+            "Scope too broad (blockchain, mining, DeFi, NFTs?)"
+          ],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Define target audience and expertise level",
+        "Address: Scope too broad (blockchain, mining, DeFi, NFTs?)",
+        "Include business context, domain info, and problem background"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.143096",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "EXP004",
+      "prompt": "Explain blockchain technology to a non-technical business executive (CFO). Focus on: (1) how transactions are verified and secured, (2) difference between blockchain and traditional databases, (3) real business use cases (supply chain, payments, identity), (4) security/scalability tradeoffs, (5) regulatory concerns. Use business analogies (ledger, notary, record keeping). Length: 1500-2000 words. Include 3 real-world examples.",
+      "task_type": "Explain",
+      "complexity": "Moderate",
+      "expected_quality": "Excellent",
+      "expected_score": 8.4,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 54,
+          "sentence_count": 5,
+          "char_count": 430,
+          "avg_word_length": 6.981481481481482,
+          "has_code": false,
+          "has_examples": true,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "security"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": true,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.5,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.143242",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "OPT003",
+      "prompt": "Make this system faster.",
+      "task_type": "Optimize",
+      "complexity": "Moderate",
+      "expected_quality": "Poor",
+      "expected_score": 2.5,
+      "issues": [
+        "No system architecture provided",
+        "Current performance baseline unknown",
+        "Optimization constraints undefined",
+        "Success criteria not specified"
+      ],
+      "low_dimensions": [
+        "Clarity",
+        "Completeness",
+        "Constraints",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 4,
+          "sentence_count": 1,
+          "char_count": 24,
+          "avg_word_length": 5.25,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [
+            "Optimization constraints undefined"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: No system architecture provided",
+        "Address: Current performance baseline unknown",
+        "Address: Optimization constraints undefined"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.143282",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "OPT004",
+      "prompt": "Optimize a Node.js microservice handling 10K requests/sec. Current: p95 latency 500ms, CPU 80%, memory 4GB. Target: p95 <100ms, CPU <50%, max memory 2GB. Constraints: no code rewrites, use caching/load-balancing, keep Redis <100ms latency. Provide: architectural changes (load balancing strategy, caching layers, database indexing), configuration tuning (node cluster, connection pools), monitoring strategy, rollout plan. Benchmark: before/after metrics.",
+      "task_type": "Optimize",
+      "complexity": "Complex",
+      "expected_quality": "Good",
+      "expected_score": 7.7,
+      "issues": [],
+      "strong_dimensions": [
+        "Specificity",
+        "Constraints",
+        "Requirements",
+        "Expected Output",
+        "Actionability"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 56,
+          "sentence_count": 7,
+          "char_count": 455,
+          "avg_word_length": 7.142857142857143,
+          "has_code": true,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "redis",
+          "microservice",
+          "database"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": true,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 5.5,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.143427",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCE009",
+      "prompt": "Write a press release about a company milestone.",
+      "task_type": "Create Content",
+      "complexity": "Simple",
+      "expected_quality": "Moderate",
+      "expected_score": 5.2,
+      "issues": [
+        "Company and milestone not specified",
+        "Stakeholder audience unclear",
+        "Quotes/spokesperson identity missing",
+        "Media contact info not included"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 8,
+          "sentence_count": 1,
+          "char_count": 48,
+          "avg_word_length": 5.125,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [
+            "Stakeholder audience unclear"
+          ],
+          "specificity": [
+            "Quotes/spokesperson identity missing"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Company and milestone not specified",
+        "Define target audience and expertise level",
+        "Address: Quotes/spokesperson identity missing"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.143473",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCE010",
+      "prompt": "Write a 300-word press release announcing TechCorp's Series B funding ($50M). Include: mission statement, funding purpose (expansion, R&D, hiring), investor quotes (2), founder quote (1), product/market traction metrics. Format: headline, subheading, 3 body paragraphs, About section, media contact. Tone: professional, industry-focused, suitable for TechCrunch/VentureBeat. Include: funding lead (Sequoia Capital), investor backgrounds, company growth stats (YoY).",
+      "task_type": "Create Content",
+      "complexity": "Moderate",
+      "expected_quality": "Good",
+      "expected_score": 7.5,
+      "issues": [],
+      "strong_dimensions": [
+        "Specificity",
+        "Completeness",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 55,
+          "sentence_count": 5,
+          "char_count": 465,
+          "avg_word_length": 7.472727272727273,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": true,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.143622",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCC007",
+      "prompt": "Build an API.",
+      "task_type": "Create Code",
+      "complexity": "Moderate",
+      "expected_quality": "Poor",
+      "expected_score": 2.3,
+      "issues": [
+        "API purpose not defined",
+        "Endpoints/data models not specified",
+        "Authentication/authorization not mentioned",
+        "Error handling strategy undefined"
+      ],
+      "low_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 3,
+          "sentence_count": 1,
+          "char_count": 13,
+          "avg_word_length": 3.6666666666666665,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "api"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [
+            "API purpose not defined",
+            "Error handling strategy undefined"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: API purpose not defined",
+        "Address: Endpoints/data models not specified",
+        "Address: Authentication/authorization not mentioned"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.143658",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "BCC008",
+      "prompt": "Build a GraphQL API for a photo-sharing app using Apollo Server. Schema: User (id, username, email, followers), Photo (id, imageUrl, caption, likes, createdAt, author: User), Comment (id, text, author: User, photo: Photo). Queries: getUser(id), searchPhotos(query), getPhototoFeed(limit, offset). Mutations: createPhoto, likePhoto, addComment, deleteComment. Subscriptions: onPhotoLiked. Auth: JWT bearer token in header. Pagination: cursor-based. Error handling: custom error codes. Rate limiting: 100 req/min per user. Deploy: Docker on AWS.",
+      "task_type": "Create Code",
+      "complexity": "Complex",
+      "expected_quality": "Excellent",
+      "expected_score": 8.9,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Requirements",
+        "Constraints",
+        "Expected Output",
+        "Actionability"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 67,
+          "sentence_count": 10,
+          "char_count": 543,
+          "avg_word_length": 7.119402985074627,
+          "has_code": true,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "jwt",
+          "graphql",
+          "api",
+          "docker"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": true,
+          "has_constraints": true,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 6.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.143844",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "RES006",
+      "prompt": "Find info on AI job market.",
+      "task_type": "Research",
+      "complexity": "Simple",
+      "expected_quality": "Moderate",
+      "expected_score": 5.0,
+      "issues": [
+        "Geographic scope undefined",
+        "Job categories unclear (ML engineer, data scientist, researcher?)",
+        "Time period not specified",
+        "Data sources not specified"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Constraints",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 6,
+          "sentence_count": 1,
+          "char_count": 27,
+          "avg_word_length": 3.6666666666666665,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "ai"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [
+            "Job categories unclear (ML engineer, data scientist, researcher?)"
+          ],
+          "specificity": [
+            "Geographic scope undefined"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Geographic scope undefined",
+        "Address: Job categories unclear (ML engineer, data scientist, researcher?)",
+        "Address: Time period not specified"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.143887",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "RES007",
+      "prompt": "Research AI job market trends US/EU/Asia (2024-2026). Find: salary ranges by role (ML engineer, data scientist, prompt engineer, AI product manager), experience level, geographic variations. Include: top hiring companies (50+), skill demand ranking, education background analysis, remote work percentage, career progression paths, certifications value. Data sources: LinkedIn, Glassdoor, Indeed, PayScale. Output: 10-page report with charts, heatmaps, 15 key insights, talent acquisition recommendations.",
+      "task_type": "Research",
+      "complexity": "Complex",
+      "expected_quality": "Excellent",
+      "expected_score": 8.7,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Completeness",
+        "Constraints",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 62,
+          "sentence_count": 5,
+          "char_count": 504,
+          "avg_word_length": 7.145161290322581,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "ai"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.5,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.144042",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "DRA005",
+      "prompt": "Analyze trends.",
+      "task_type": "Deep Research / Analysis",
+      "complexity": "Moderate",
+      "expected_quality": "Poor",
+      "expected_score": 2.0,
+      "issues": [
+        "Industry/domain not specified",
+        "Time period undefined",
+        "Geographic scope unclear",
+        "Analysis dimensions not set"
+      ],
+      "low_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Completeness",
+        "Requirements"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 2,
+          "sentence_count": 1,
+          "char_count": 15,
+          "avg_word_length": 7.0,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [
+            "Geographic scope unclear"
+          ],
+          "specificity": [
+            "Time period undefined"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Industry/domain not specified",
+        "Address: Time period undefined",
+        "Address: Geographic scope unclear"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.144078",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "DRA006",
+      "prompt": "Analyze fintech adoption trends in emerging markets (India, Brazil, Nigeria, Philippines) 2022-2026. Cover: payment apps growth, digital wallet penetration, peer-to-peer lending, cryptocurrency adoption, regulatory environment per country, competitive players per market. Data sources: industry reports, government filings, company disclosures. Output: 30-page strategic report, market sizing per country, growth projections 2026-2030, risk analysis (regulatory, security), strategic recommendations for market entry, M&A targets, partnerships.",
+      "task_type": "Deep Research / Analysis",
+      "complexity": "Complex",
+      "expected_quality": "Excellent",
+      "expected_score": 8.8,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Constraints",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 62,
+          "sentence_count": 4,
+          "char_count": 544,
+          "avg_word_length": 7.790322580645161,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "security"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.5,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.144237",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "PLA005",
+      "prompt": "Create a roadmap.",
+      "task_type": "Plan and Organize",
+      "complexity": "Simple",
+      "expected_quality": "Moderate",
+      "expected_score": 4.5,
+      "issues": [
+        "Product/initiative type not specified",
+        "Time horizon unclear",
+        "Stakeholder audience not defined",
+        "Format/detail level undefined"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 3,
+          "sentence_count": 1,
+          "char_count": 17,
+          "avg_word_length": 5.0,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": true,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [
+            "Time horizon unclear"
+          ],
+          "specificity": [
+            "Stakeholder audience not defined",
+            "Format/detail level undefined"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Product/initiative type not specified",
+        "Address: Time horizon unclear",
+        "Define target audience and expertise level"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.144271",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "PLA006",
+      "prompt": "Create a 24-month product roadmap for an AI-powered customer service platform. Phases: Phase 1 (mo 1-6, MVP): basic chatbot, ticket routing. Phase 2 (mo 7-12, Traction): sentiment analysis, agent collaboration, integrations (Zendesk, Slack). Phase 3 (mo 13-18, Scale): predictive routing, knowledge base automation, multilingual support. Phase 4 (mo 19-24, Expansion): custom model fine-tuning, white-label offering. Each phase: features, success metrics, resource needs, dependencies, risks, go-to-market activities. Include quarterly milestones.",
+      "task_type": "Plan and Organize",
+      "complexity": "Complex",
+      "expected_quality": "Excellent",
+      "expected_score": 8.9,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Completeness",
+        "Requirements",
+        "Constraints",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 69,
+          "sentence_count": 7,
+          "char_count": 547,
+          "avg_word_length": 6.942028985507246,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "go",
+          "ai"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": true,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": true
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 5.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.144449",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "IDE005",
+      "prompt": "Come up with startup ideas.",
+      "task_type": "Ideate",
+      "complexity": "Simple",
+      "expected_quality": "Moderate",
+      "expected_score": 5.5,
+      "issues": [
+        "Industry/domain not specified",
+        "Target customer not defined",
+        "Budget/team size constraints missing",
+        "Evaluation criteria unclear"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Context",
+        "Constraints",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 5,
+          "sentence_count": 1,
+          "char_count": 27,
+          "avg_word_length": 4.6,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [
+            "Evaluation criteria unclear"
+          ],
+          "specificity": [
+            "Target customer not defined",
+            "Budget/team size constraints missing"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Industry/domain not specified",
+        "Address: Target customer not defined",
+        "Address: Budget/team size constraints missing"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.144483",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "IDE006",
+      "prompt": "Generate 12-15 AI/ML startup ideas for enterprise data privacy. Target: compliance officers at Fortune 1000 companies managing GDPR/CCPA. Pain points: data governance, PII discovery, compliance auditing, incident response. Budget: $150K-$500K MVP. Team: 3-5 technical co-founders, optional business co-founder. For each idea: problem statement, market size, revenue model, competitive positioning, technical moat, go-to-market strategy (sales/channels), 3-year financial projections, risk assessment. Rank top 3 by market opportunity + technical feasibility.",
+      "task_type": "Ideate",
+      "complexity": "Complex",
+      "expected_quality": "Excellent",
+      "expected_score": 8.5,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Requirements",
+        "Constraints",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 68,
+          "sentence_count": 7,
+          "char_count": 558,
+          "avg_word_length": 7.220588235294118,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "go",
+          "ai"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 5.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.144653",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "SUM005",
+      "prompt": "Summarize a meeting.",
+      "task_type": "Summarize",
+      "complexity": "Simple",
+      "expected_quality": "Moderate",
+      "expected_score": 4.8,
+      "issues": [
+        "Meeting transcript/notes not provided",
+        "Key stakeholders not listed",
+        "Action item format undefined",
+        "Distribution/audience unclear"
+      ],
+      "low_dimensions": [
+        "Completeness",
+        "Expected Output",
+        "Actionability"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 3,
+          "sentence_count": 1,
+          "char_count": 20,
+          "avg_word_length": 6.0,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [
+            "Distribution/audience unclear"
+          ],
+          "specificity": [
+            "Action item format undefined"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: Meeting transcript/notes not provided",
+        "Address: Key stakeholders not listed",
+        "Specify desired output format (JSON, markdown, code, etc.)"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.144687",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "SUM006",
+      "prompt": "Summarize a 90-minute product strategy meeting attended by: CEO, VP Product, Head of Engineering, 2 leads. Inputs: meeting transcript, 15 slides. Output: 2-page summary including: decisions made (3-4 with reasoning), action items (with owner, deadline), blockers identified, resource needs, follow-up meetings scheduled. Format: sections with headers (Decisions, Action Items, Blockers, Next Steps), bullet points, distribute to 25 stakeholders via email.",
+      "task_type": "Summarize",
+      "complexity": "Moderate",
+      "expected_quality": "Good",
+      "expected_score": 7.7,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Completeness",
+        "Expected Output",
+        "Actionability"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 60,
+          "sentence_count": 4,
+          "char_count": 455,
+          "avg_word_length": 6.6,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": true,
+          "has_examples": false,
+          "has_format_spec": true,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 4.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.144828",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "EXP005",
+      "prompt": "Explain DevOps.",
+      "task_type": "Explain",
+      "complexity": "Moderate",
+      "expected_quality": "Moderate",
+      "expected_score": 5.5,
+      "issues": [
+        "Audience level not specified",
+        "Scope (CI/CD, infrastructure, culture?)",
+        "No specific context for explanation",
+        "Target depth/length undefined"
+      ],
+      "low_dimensions": [
+        "Specificity",
+        "Context",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 2,
+          "sentence_count": 1,
+          "char_count": 15,
+          "avg_word_length": 7.0,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "devops"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [
+            "No specific context for explanation",
+            "Target depth/length undefined"
+          ],
+          "context": [
+            "Scope (CI/CD, infrastructure, culture?)"
+          ],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Define target audience and expertise level",
+        "Address: Scope (CI/CD, infrastructure, culture?)",
+        "Include business context, domain info, and problem background"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.144860",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "EXP006",
+      "prompt": "Explain DevOps practices to a team of backend developers transitioning from waterfall to agile. Audience: 2-5 yrs experience, familiar with Git/Linux, new to CI/CD. Cover: CI/CD pipeline concepts, infrastructure-as-code (Terraform), containerization (Docker), orchestration (Kubernetes basics), monitoring/observability, deployment strategies (blue-green, canary), tools landscape (Jenkins, GitLab CI, GitHub Actions). Length: 3000 words. Include 5 practical code examples (YAML configs, Dockerfile snippets). Real-world benefits: faster releases, reduced errors, better collaboration.",
+      "task_type": "Explain",
+      "complexity": "Complex",
+      "expected_quality": "Excellent",
+      "expected_score": 8.7,
+      "issues": [],
+      "strong_dimensions": [
+        "Clarity",
+        "Specificity",
+        "Context",
+        "Completeness",
+        "Requirements",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 67,
+          "sentence_count": 6,
+          "char_count": 585,
+          "avg_word_length": 7.746268656716418,
+          "has_code": true,
+          "has_examples": true,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "backend",
+          "ci/cd",
+          "deployment",
+          "devops",
+          "docker",
+          "kubernetes"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": true,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 7.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.145057",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": false,
+        "quality_is_good": true
+      }
+    },
+    {
+      "id": "OPT005",
+      "prompt": "Reduce latency.",
+      "task_type": "Optimize",
+      "complexity": "Simple",
+      "expected_quality": "Poor",
+      "expected_score": 2.0,
+      "issues": [
+        "System architecture not provided",
+        "Latency baseline unknown",
+        "Target latency not specified",
+        "Constraints/tradeoffs undefined"
+      ],
+      "low_dimensions": [
+        "Clarity",
+        "Completeness",
+        "Constraints",
+        "Expected Output"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 2,
+          "sentence_count": 1,
+          "char_count": 15,
+          "avg_word_length": 7.0,
+          "has_code": false,
+          "has_examples": false,
+          "has_numbers": false,
+          "has_special_chars": true
+        },
+        "keywords": [],
+        "prompt_quality_indicators": {
+          "has_clear_intent": false,
+          "has_specific_requirements": false,
+          "has_constraints": false,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 4,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [
+            "Constraints/tradeoffs undefined"
+          ],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "specificity",
+        "issue_density": 0.8
+      },
+      "calculated_complexity_score": 0.0,
+      "improvement_suggestions": [
+        "Address: System architecture not provided",
+        "Address: Latency baseline unknown",
+        "Address: Target latency not specified"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.145099",
+        "needs_significant_improvement": true,
+        "needs_minor_improvement": false,
+        "quality_is_good": false
+      }
+    },
+    {
+      "id": "OPT006",
+      "prompt": "Optimize frontend React app. Current: First Contentful Paint (FCP) 3.2s, Largest Contentful Paint (LCP) 5.1s, Cumulative Layout Shift (CLS) 0.15, Time to Interactive (TTI) 6.2s on 4G slow mobile (Lighthouse score: 42). Target: Lighthouse 75+, LCP <2.5s, FCP <1.5s, CLS <0.1. Constraints: no major feature changes, support IE11. Approach: code splitting, lazy loading, image optimization (WebP, responsive), bundle size reduction, caching strategy, CDN setup. Deliverables: optimized code, Lighthouse before/after, performance report.",
+      "task_type": "Optimize",
+      "complexity": "Complex",
+      "expected_quality": "Good",
+      "expected_score": 7.8,
+      "issues": [],
+      "strong_dimensions": [
+        "Specificity",
+        "Constraints",
+        "Requirements",
+        "Expected Output",
+        "Actionability"
+      ],
+      "enrichment": {
+        "text_stats": {
+          "word_count": 71,
+          "sentence_count": 13,
+          "char_count": 533,
+          "avg_word_length": 6.52112676056338,
+          "has_code": true,
+          "has_examples": false,
+          "has_numbers": true,
+          "has_special_chars": true
+        },
+        "keywords": [
+          "react",
+          "frontend"
+        ],
+        "prompt_quality_indicators": {
+          "has_clear_intent": true,
+          "has_specific_requirements": false,
+          "has_constraints": true,
+          "has_examples": false,
+          "has_format_spec": false,
+          "is_actionable": false
+        }
+      },
+      "issue_analysis": {
+        "issue_count": 0,
+        "categorized_issues": {
+          "clarity": [],
+          "specificity": [],
+          "context": [],
+          "completeness": [],
+          "actionability": []
+        },
+        "primary_issue_type": "clarity",
+        "issue_density": 0.0
+      },
+      "calculated_complexity_score": 5.0,
+      "improvement_suggestions": [
+        "No improvements needed - prompt is well-formulated"
+      ],
+      "metadata": {
+        "processed": true,
+        "processing_date": "2026-09-09T16:47:51.145268",
+        "needs_significant_improvement": false,
+        "needs_minor_improvement": true,
+        "quality_is_good": false
+      }
+    }
+  ]
+}
