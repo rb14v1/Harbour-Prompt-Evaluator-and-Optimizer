@@ -1,86 +1,70 @@
-import { Link } from 'react-router-dom'
-import { Moon, Sun, Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import React from 'react';
+import { Sparkles, FileSpreadsheet, Sun, Moon, History } from 'lucide-react';
 
-export default function Header({ darkMode, toggleDarkMode }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
+export default function Header({ onExportExcel, hasResult, isExporting, theme, onToggleTheme, onOpenHistory }) {
   return (
-    <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex justify-between items-center">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">P</span>
-            </div>
-            <div className="hidden md:block">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                Prompt Evaluator
-              </h1>
-              <p className="text-xs text-gray-600 dark:text-gray-400">
-                Optimize your prompts
-              </p>
-            </div>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex gap-6 items-center">
-            <Link
-              to="/"
-              className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-            >
-              Home
-            </Link>
-            <Link
-              to="/about"
-              className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-            >
-              About
-            </Link>
-          </nav>
-
-          {/* Dark Mode Toggle & Mobile Menu */}
-          <div className="flex items-center gap-4">
-            <button
-              onClick={toggleDarkMode}
-              className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-yellow-400 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-          </div>
+    <header className="navbar">
+      <div className="nav-brand">
+        <div className="nav-logo-icon">
+          <Sparkles size={24} color="#ffffff" />
         </div>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <h1 className="nav-title">Prompt Engine AI</h1>
+            <span className="nav-badge-status">
+              <span className="status-dot"></span>
+              Backend is active
+            </span>
+          </div>
+          <p className="nav-subtitle">
+            Enterprise Prompt Evaluation • Synthetic Dataset Generation • Automated Optimization
+          </p>
+        </div>
+      </div>
 
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <nav className="md:hidden mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col gap-3">
-            <Link
-              to="/"
-              className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              to="/about"
-              className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              About
-            </Link>
-          </nav>
+      <div className="nav-actions">
+        {/* Day / Dark Mode Toggle */}
+        <button
+          type="button"
+          className="theme-toggle-btn"
+          onClick={onToggleTheme}
+          title={`Switch to ${theme === 'dark' ? 'Day (Light)' : 'Dark'} Mode`}
+        >
+          {theme === 'dark' ? (
+            <>
+              <Sun size={15} color="#fbbf24" />
+              <span>Day Mode</span>
+            </>
+          ) : (
+            <>
+              <Moon size={15} color="#818cf8" />
+              <span>Dark Mode</span>
+            </>
+          )}
+        </button>
+
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={onOpenHistory}
+          title="View evaluation history"
+        >
+          <History size={16} />
+          <span>Evaluation History</span>
+        </button>
+
+        {hasResult && (
+          <button
+            className="btn btn-success"
+            onClick={onExportExcel}
+            disabled={isExporting}
+            title="Download full Excel Workbook with all sheets"
+          >
+            <FileSpreadsheet size={16} />
+            <span>{isExporting ? 'Generating Report...' : 'Download Excel Report'}</span>
+          </button>
         )}
       </div>
     </header>
-  )
+  );
 }
