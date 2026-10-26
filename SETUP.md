@@ -1,10 +1,10 @@
-# Project Setup Guide
+# Prompt Evaluation & Optimization System - Complete Setup Guide
 
 ## Prerequisites
 
 - Python 3.9+
-- PostgreSQL 12+
-- pip / virtualenv
+- Node.js 18+
+- pip and npm
 
 ## Backend Setup
 
@@ -12,10 +12,15 @@
 
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# On Windows:
+venv\Scripts\activate
+
+# On macOS/Linux:
+source venv/bin/activate
 ```
 
-### 2. Install Dependencies
+### 2. Install Python Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -23,307 +28,254 @@ pip install -r requirements.txt
 
 ### 3. Configure Environment Variables
 
+Copy the example environment file and update with your credentials:
+
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` and fill in:
-- `DJANGO_SECRET_KEY` – Generate with: `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`
-- `AZURE_OPENAI_API_KEY` – Your Azure OpenAI API key
-- `AZURE_OPENAI_ENDPOINT` – Your Azure OpenAI endpoint
-- Database credentials (PostgreSQL)
-- Azure Storage connection string (optional)
+Edit `.env` with your configuration:
 
-### 4. Create PostgreSQL Database
+```env
+# Django
+DJANGO_SECRET_KEY=your-secure-secret-key-change-in-production
+DJANGO_DEBUG=False  # Set to False in production
+
+# Azure OpenAI (Recommended)
+AZURE_OPENAI_ENDPOINT=https://your-resource-name.openai.azure.com/
+AZURE_OPENAI_API_KEY=your-azure-api-key-here
+AZURE_OPENAI_DEPLOYMENT=gpt-4o
+AZURE_OPENAI_API_VERSION=2024-02-15-preview
+
+# OR OpenAI
+# OPENAI_API_KEY=sk-your-api-key
+# OPENAI_MODEL=gpt-4o
+```
+
+**Note**: If no API key is provided, the system automatically runs in fallback mode with intelligent deterministic generation.
+
+### 4. Run Database Migrations
 
 ```bash
-# Using psql
-psql -U postgres
-CREATE DATABASE prompt_evaluator;
-```
-
-Or configure connection in `.env`:
-```
-DB_NAME=prompt_evaluator
-DB_USER=postgres
-DB_PASSWORD=your_password
-DB_HOST=localhost
-DB_PORT=5432
-```
-
-### 5. Run Migrations
-
-```bash
-cd backend
 python manage.py migrate
 ```
 
-### 6. Create Superuser (Admin)
+### 5. Create Superuser (Optional)
 
 ```bash
-cd backend
 python manage.py createsuperuser
 ```
 
-### 7. Start Development Server
+### 6. Start Django Development Server
 
 ```bash
-cd backend
-python manage.py runserver
+python manage.py runserver 8000
 ```
 
-Server runs at: `http://localhost:8000`
-Admin panel: `http://localhost:8000/admin`
+Backend will be available at: `http://127.0.0.1:8000/`
 
-## API Endpoints
+## Frontend Setup
 
-### Evaluate Single Prompt
-
-**POST** `/api/evaluations/evaluate/`
-
-Request:
-```json
-{
-  "prompt": "Your prompt text here"
-}
-```
-
-Response:
-```json
-{
-  "prompt_id": "uuid",
-  "original_prompt": "...",
-  "classification": {...},
-  "analysis": {...},
-  "initial_evaluation": {...},
-  "improvement_history": [...],
-  "final_evaluation": {...},
-  "final_prompt": "...",
-  "summary": "...",
-  "status": "Ready",
-  "improvements_made": 1,
-  "iterations_required": 1,
-  "timestamp": "2026-09-09T..."
-}
-```
-
-### Batch Evaluate
-
-**POST** `/api/evaluations/batch_evaluate/`
-
-Request:
-```json
-{
-  "prompts": [
-    "prompt 1",
-    "prompt 2",
-    "prompt 3"
-  ]
-}
-```
-
-### View History
-
-**GET** `/api/history/`
-
-Returns list of all prompts evaluated by current user.
-
-### View Statistics
-
-**GET** `/api/history/stats/`
-
-Returns:
-```json
-{
-  "total_prompts": 10,
-  "total_evaluations": 10,
-  "average_score": 7.5,
-  "prompts_ready": 8,
-  "prompts_needing_review": 2
-}
-```
-
-## Frontend Setup (React + Vite)
-
-### 1. Create React App
+### 1. Navigate to Frontend Directory
 
 ```bash
-npm create vite@latest frontend -- --template react
 cd frontend
-npm install
 ```
 
 ### 2. Install Dependencies
 
 ```bash
-npm install axios react-router-dom zustand
+npm install
 ```
 
-### 3. Configure API URL
+### 3. Configure Environment (Optional)
 
-Create `.env`:
-```
-VITE_API_URL=http://localhost:8000/api
+Create `frontend/.env.local` if you need a custom API endpoint:
+
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-### 4. Start Dev Server
+### 4. Start Development Server
 
 ```bash
 npm run dev
 ```
 
-Frontend runs at: `http://localhost:5173`
+Frontend will be available at: `http://localhost:5173/`
+
+## Running the Application
+
+### In Development Mode
+
+**Terminal 1 - Backend:**
+```bash
+cd C:\Users\admin\Prompt
+python manage.py runserver 8000
+```
+
+**Terminal 2 - Frontend:**
+```bash
+cd frontend
+npm run dev
+```
+
+Then open `http://localhost:5173/` in your browser.
+
+### In Production Mode
+
+**Backend:**
+```bash
+# With gunicorn (install: pip install gunicorn)
+gunicorn -w 4 -b 0.0.0.0:8000 backend.wsgi:application
+
+# Or with waitress (install: pip install waitress)
+waitress-serve --port=8000 backend.wsgi:application
+```
+
+**Frontend:**
+```bash
+npm run build
+# Serve the dist/ folder with a static file server
+npx http-server dist/ -p 3000
+```
 
 ## Testing
 
-### Run Tests
+### Run Django Tests
 
 ```bash
-cd backend
-python manage.py test
+python manage.py test evaluator
 ```
 
 ### Run with Coverage
 
 ```bash
 pip install coverage
-coverage run --source='.' manage.py test
+coverage run --source='evaluator' manage.py test evaluator
 coverage report
+coverage html  # Generate HTML report
 ```
 
-## Database Management
+## API Endpoints
 
-### Create New Migration
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/evaluate/` | Evaluate prompt and generate synthetic dataset |
+| GET | `/api/evaluations/` | List evaluations (supports pagination & filtering) |
+| GET | `/api/evaluations/<id>/` | Get evaluation detail |
+| GET | `/api/evaluations/<id>/export-excel/` | Download Excel report |
+| POST | `/api/export-excel/` | Export evaluation directly to Excel |
+
+### Example API Call
 
 ```bash
-cd backend
-python manage.py makemigrations
-python manage.py migrate
+curl -X POST http://127.0.0.1:8000/api/evaluate/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "department": "software",
+    "task_type": "create documentation",
+    "prompt": "Create JWT authentication documentation for Express.js",
+    "dataset_size": 10
+  }'
 ```
 
-### Reset Database
+## Logging
 
-```bash
-cd backend
-python manage.py migrate zero evaluator
-python manage.py migrate
-```
+Logs are written to:
+- **Console**: Real-time output (INFO+ level)
+- **File**: `logs/django.log` and `logs/evaluator_*.log` (DEBUG+ level)
 
-### Export Data
+Logs include:
+- Request/response details
+- LLM API calls and retries
+- Validation errors
+- Performance metrics
 
-```bash
-cd backend
-python manage.py dumpdata > backup.json
-```
+## Performance Optimization
 
-### Import Data
+### Database
+- Uses SQLite by default (suitable for development)
+- For production, use PostgreSQL with connection pooling:
+  ```bash
+  pip install psycopg2-binary
+  ```
 
-```bash
-cd backend
-python manage.py loaddata backup.json
-```
+### Caching
+- Enabled by default (5-minute TTL)
+- Uses in-memory cache (suitable for single instance)
+- For production, use Redis:
+  ```bash
+  pip install django-redis
+  ```
 
-## Deployment
-
-### Production Checklist
-
-- [ ] Set `DEBUG=False` in `.env`
-- [ ] Generate strong `DJANGO_SECRET_KEY`
-- [ ] Configure `ALLOWED_HOSTS` for production domain
-- [ ] Set up PostgreSQL on production server
-- [ ] Configure Azure OpenAI credentials
-- [ ] Set up Azure Storage if needed
-- [ ] Run migrations on production
-- [ ] Collect static files: `python manage.py collectstatic --no-input`
-- [ ] Use production-grade WSGI server (Gunicorn)
-- [ ] Set up HTTPS/SSL certificates
-- [ ] Configure CORS for production frontend URL
-
-### Deploy with Gunicorn
-
-```bash
-gunicorn config.wsgi:application --workers 4 --bind 0.0.0.0:8000
-```
+### API Rate Limiting
+- 60 requests per minute per IP address
+- Configurable in `evaluator/middleware.py`
 
 ## Troubleshooting
 
-### Database Connection Error
+### Issue: "No module named 'evaluator'"
+**Solution**: Ensure you're in the correct directory and virtual environment is activated.
 
-```
-psycopg2.OperationalError: could not connect to server
-```
+### Issue: "LLM API call failed"
+**Solution**:
+1. Check API credentials in `.env`
+2. Verify API endpoint and key are correct
+3. System automatically falls back to deterministic generation if API fails
+4. Check logs for detailed error messages
 
-Solution:
-- Verify PostgreSQL is running
-- Check database credentials in `.env`
-- Ensure database exists: `createdb prompt_evaluator`
-
-### Azure OpenAI Error
-
-```
-AuthenticationError: Invalid credentials
-```
-
-Solution:
-- Verify `AZURE_OPENAI_API_KEY` is correct
-- Check `AZURE_OPENAI_ENDPOINT` format (should end with `/`)
-- Ensure Azure OpenAI resource is deployed
-
-### CORS Error
-
-```
-Access to XMLHttpRequest blocked by CORS policy
-```
-
-Solution:
-- Add frontend URL to `CORS_ALLOWED_ORIGINS` in `.env`
-- Restart backend server
-
-### Port Already in Use
-
-Backend:
+### Issue: Database locked
+**Solution**: Delete `db.sqlite3` and run migrations again:
 ```bash
-python manage.py runserver 8001  # Use different port
-```
-
-Frontend:
-```bash
-npm run dev -- --port 5174  # Use different port
-```
-
-## Quick Start (Development)
-
-```bash
-# Terminal 1: Backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-# Edit .env with your credentials
-cd backend
+rm db.sqlite3
 python manage.py migrate
-python manage.py runserver
-
-# Terminal 2: Frontend
-cd frontend
-npm install
-npm run dev
 ```
 
-Open `http://localhost:5173` in browser.
+### Issue: Frontend can't reach backend
+**Solution**:
+1. Verify backend is running on port 8000
+2. Check CORS settings in `backend/settings.py`
+3. Update `VITE_API_BASE_URL` in frontend if needed
 
-## Additional Resources
+## Performance Benchmarks
 
-- [Django Documentation](https://docs.djangoproject.com/)
-- [Django REST Framework](https://www.django-rest-framework.org/)
-- [React Documentation](https://react.dev/)
-- [Vite Documentation](https://vitejs.dev/)
-- [Azure OpenAI API Reference](https://learn.microsoft.com/en-us/azure/ai-services/openai/)
+Expected performance on standard hardware:
+- Single evaluation: 3-8 seconds (varies by LLM latency)
+- Synthetic dataset generation: 2-4 seconds
+- Excel export: < 1 second
+- Concurrent requests: 60+ requests/minute
+
+## Database Backups
+
+```bash
+# Export data
+python manage.py dumpdata > backup.json
+
+# Import data
+python manage.py loaddata backup.json
+```
+
+## Security Considerations
+
+1. **Change SECRET_KEY**: Update `DJANGO_SECRET_KEY` in production
+2. **Set DEBUG=False**: Prevents stack traces in error responses
+3. **Use HTTPS**: Always use HTTPS in production
+4. **API Keys**: Store API keys in environment variables, never commit to git
+5. **CORS**: Restrict `CORS_ALLOW_ALL_ORIGINS` to specific domains in production
+6. **Rate Limiting**: Already configured, adjust as needed
+7. **Input Validation**: All requests validated with Pydantic
+
+## Contributing
+
+1. Create a feature branch
+2. Make changes
+3. Run tests: `python manage.py test evaluator`
+4. Submit pull request
 
 ## Support
 
 For issues, check:
-1. [CLAUDE.md](CLAUDE.md) – Technical architecture
-2. [README.md](README.md) – Project overview
-3. Backend logs: `backend/logs/`
-4. Frontend console: Browser DevTools
+1. `logs/django.log` for detailed error messages
+2. `logs/evaluator_*.log` for service-specific logs
+3. Browser console for frontend errors
