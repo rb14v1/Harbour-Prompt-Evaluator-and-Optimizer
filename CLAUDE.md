@@ -494,8 +494,8 @@ npm run build
 # Serve dist/ with nginx or CDN
 
 # 3. Use PostgreSQL (not SQLite)
-pip install psycopg2-binary
-# Update DATABASES in settings.py
+# Set POSTGRES_HOST, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_PORT in .env
+# psycopg[binary] is in requirements.txt; settings.py switches DB when POSTGRES_HOST is set
 
 # 4. Use Redis for caching
 pip install redis django-redis
