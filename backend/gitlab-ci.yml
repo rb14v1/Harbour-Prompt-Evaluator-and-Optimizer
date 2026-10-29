@@ -1,0 +1,43 @@
+# Backend: Django app lives at repo root (manage.py), so paths below are repo-relative.
+
+.backend-changes: &backend-changes
+  changes:
+    - requirements.txt
+    - manage.py
+    - backend/**/*
+    - evaluator/**/*
+
+backend:test:
+  stage: test
+  image: python:3.13
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH
+      <<: *backend-changes
+  variables:
+    POSTGRES_HOST: ""
+    PYTHONUTF8: "1"
+  before_script:
+    - pip install -r requirements.txt
+  script:
+    - python manage.py check
+    - python manage.py test evaluator
+
+backend:deploy:
+  stage: deploy
+  image: python:3.13
+  needs: [backend:test]
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      <<: *backend-changes
+      when: manual
+  variables:
+    PYTHONUTF8: "1"
+  script:
+    - pip install azure-cli
+    - az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" --tenant "$AZURE_TENANT_ID"
+    - python -m zipfile -c app.zip manage.py requirements.txt backend evaluator
+    - az webapp deploy --resource-group "$AZURE_RESOURCE_GROUP" --name "$AZURE_BACKEND_APP" --src-path app.zip --type zip
+  artifacts:
+    paths:
+      - app.zip
+    expire_in: 1 week

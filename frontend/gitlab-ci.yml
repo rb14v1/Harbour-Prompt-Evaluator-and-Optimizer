@@ -1,0 +1,43 @@
+# Frontend: Vite app in frontend/. Build output is frontend/dist.
+
+.frontend-changes: &frontend-changes
+  changes:
+    - frontend/**/*
+
+frontend:lint:
+  stage: test
+  image: node:22
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH
+      <<: *frontend-changes
+  script:
+    - cd frontend
+    - npm ci
+    - npm run lint
+
+frontend:build:
+  stage: build
+  image: node:22
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH
+      <<: *frontend-changes
+  script:
+    - cd frontend
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/dist
+    expire_in: 1 week
+
+frontend:deploy:
+  stage: deploy
+  image: node:22
+  needs: [frontend:build]
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      <<: *frontend-changes
+      when: manual
+  script:
+    - npx @azure/static-web-apps-cli deploy frontend/dist --deployment-token "$AZURE_STATIC_WEB_APPS_API_TOKEN" --env production

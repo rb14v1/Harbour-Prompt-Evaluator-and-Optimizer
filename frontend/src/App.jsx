@@ -6,7 +6,7 @@ import DimensionsTable from './components/DimensionsTable';
 import SyntheticDatasetView from './components/SyntheticDatasetView';
 import PromptComparison from './components/PromptComparison';
 import HistoryModal from './components/HistoryModal';
-import { Database, BarChart3, Split, Cpu } from 'lucide-react';
+import { Database, BarChart3, Split, Cpu, AlertCircle, X } from 'lucide-react';
 
 const PIPELINE_STEPS = [
   { id: 'prep', label: 'Preprocessor Agent', desc: 'Cleaning & Normalizing' },
