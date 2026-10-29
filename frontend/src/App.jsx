@@ -26,7 +26,7 @@ export default function App() {
   const [department, setDepartment] = useState('');
   const [taskType, setTaskType] = useState('');
   const [prompt, setPrompt] = useState('');
-  const [datasetSize, setDatasetSize] = useState(5);
+  const [datasetSize] = useState(5);
 
   const [isLoading, setIsLoading] = useState(false);
   const [stepStatus, setStepStatus] = useState({});
@@ -70,7 +70,7 @@ export default function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-      } catch (e) {
+      } catch {
         res = null;
       }
 
@@ -85,7 +85,7 @@ export default function App() {
           if (directRes.ok) {
             res = directRes;
           }
-        } catch (directErr) {
+        } catch {
           // keep original res
         }
       }

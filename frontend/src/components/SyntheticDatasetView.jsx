@@ -1,13 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Database, Copy, Check, Filter, Layers, AlertTriangle, Download, Sparkles } from 'lucide-react';
+import { Search, Database, Copy, Check, AlertTriangle, Download } from 'lucide-react';
+
+const NO_CASES = [];
 
 export default function SyntheticDatasetView({ result }) {
-  if (!result) return null;
-
-  const datasets = result.synthetic_datasets?.length
-    ? result.synthetic_datasets
-    : [{ dataset_index: 1, ...(result.synthetic_dataset || {}), dataset_summary: result.dataset_summary || {} }];
-
   const [datasetPosition, setDatasetPosition] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('ALL');
@@ -16,8 +12,12 @@ export default function SyntheticDatasetView({ result }) {
   const [copiedId, setCopiedId] = useState(null);
   const [copiedAll, setCopiedAll] = useState(false);
 
+  const datasets = result?.synthetic_datasets?.length
+    ? result.synthetic_datasets
+    : [{ dataset_index: 1, ...(result?.synthetic_dataset || {}), dataset_summary: result?.dataset_summary || {} }];
+
   const current = datasets[datasetPosition] || datasets[0];
-  const testCases = current.test_cases || [];
+  const testCases = current.test_cases || NO_CASES;
   const summary = current.dataset_summary || {};
   const diffDist = summary.difficulty_distribution || {};
   const catDist = summary.category_distribution || {};
@@ -76,6 +76,8 @@ export default function SyntheticDatasetView({ result }) {
       return true;
     });
   }, [testCases, searchQuery, selectedDifficulty, selectedCategory, edgeOnly]);
+
+  if (!result) return null;
 
   const categories = Object.keys(catDist);
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Target, TrendingUp, Sparkles, Database, CheckCircle2, ShieldCheck, Zap } from 'lucide-react';
+import { Target, TrendingUp, Sparkles, Database } from 'lucide-react';
 
 export default function SummaryCards({ result }) {
   if (!result) return null;

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Copy, Check, Sparkles, CheckCircle2, ArrowRight, Layers, ShieldCheck } from 'lucide-react';
+import { Copy, Check, Sparkles, CheckCircle2, Layers } from 'lucide-react';
 
 export default function PromptComparison({ result }) {
+  const [copied, setCopied] = useState(false);
+
   if (!result) return null;
 
   const origPrompt = result.original_prompt || '';
@@ -10,16 +12,11 @@ export default function PromptComparison({ result }) {
   const changes = metadata.explanation_of_changes || [];
   const sections = metadata.structural_sections_added || [];
 
-  const [copied, setCopied] = useState(false);
-
   const handleCopyImproved = () => {
     navigator.clipboard.writeText(impPrompt);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
-  const origWords = origPrompt.split(/\s+/).filter(Boolean).length;
-  const impWords = impPrompt.split(/\s+/).filter(Boolean).length;
 
   return (
     <div className="section-panel">

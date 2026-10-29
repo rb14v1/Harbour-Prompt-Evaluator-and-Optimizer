@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, FileSpreadsheet, ExternalLink, Calendar, RefreshCw, Database, ArrowRight } from 'lucide-react';
+import { X, FileSpreadsheet, RefreshCw, ArrowRight } from 'lucide-react';
 
 export default function HistoryModal({ isOpen, onClose, onSelectItem }) {
   const [historyList, setHistoryList] = useState([]);
