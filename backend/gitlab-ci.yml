@@ -28,7 +28,7 @@ backend:deploy:
   image: python:3.13
   needs: [backend:test]
   rules:
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "prompt_final_clean_to_main"
       <<: *backend-changes
       when: manual
   variables:
