@@ -33,17 +33,12 @@ frontend:build:
 
 frontend:deploy:
   stage: deploy
-  image: mcr.microsoft.com/azure-cli
+  image: python:3.13
   needs: [frontend:build]
   rules:
     - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "prompt_final_clean_to_main"
       <<: *frontend-changes
       when: manual
   script:
-    - az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" --tenant "$AZURE_TENANT_ID"
-    - cd frontend/dist && python3 -c "import shutil; shutil.make_archive('../../frontend-app', 'zip', '.')" && cd ../..
-    - az webapp deploy --resource-group "$AZURE_RESOURCE_GROUP" --name "$AZURE_FRONTEND_APP" --src-path frontend-app.zip --type zip
-  artifacts:
-    paths:
-      - frontend-app.zip
-    expire_in: 1 week
+    - python -c "import shutil; shutil.make_archive('frontend-app', 'zip', root_dir='frontend/dist')"
+    - python ci/zipdeploy.py FRONTEND_PUBLISH_PROFILE frontend-app.zip

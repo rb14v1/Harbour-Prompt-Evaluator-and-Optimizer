@@ -34,10 +34,8 @@ backend:deploy:
   variables:
     PYTHONUTF8: "1"
   script:
-    - pip install azure-cli
-    - az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" --tenant "$AZURE_TENANT_ID"
     - python -m zipfile -c app.zip manage.py requirements.txt backend evaluator
-    - az webapp deploy --resource-group "$AZURE_RESOURCE_GROUP" --name "$AZURE_BACKEND_APP" --src-path app.zip --type zip
+    - python ci/zipdeploy.py BACKEND_PUBLISH_PROFILE app.zip
   artifacts:
     paths:
       - app.zip
