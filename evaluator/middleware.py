@@ -6,6 +6,15 @@ from django.http import JsonResponse
 logger = logging.getLogger(__name__)
 
 
+def client_ip(request):
+    # App Service sends X-Forwarded-For as "ip:port"; strip the port so the limiter keys on the IP
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0].strip()
+        return ip.rsplit(':', 1)[0] if ip.count(':') == 1 else ip
+    return request.META.get('REMOTE_ADDR', 'UNKNOWN')
+
+
 class RateLimitMiddleware:
     """
     Simple rate limiting middleware.
@@ -18,12 +27,7 @@ class RateLimitMiddleware:
         self.RATE_LIMIT_WINDOW = 60  # Seconds
 
     def __call__(self, request):
-        # Get client IP
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
-        else:
-            ip = request.META.get('REMOTE_ADDR')
+        ip = client_ip(request)
 
         # Check rate limit only for API endpoints
         if request.path.startswith('/api/'):
@@ -72,7 +76,4 @@ class RequestLoggingMiddleware:
         return response
 
     def _get_client_ip(self, request):
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            return x_forwarded_for.split(',')[0]
-        return request.META.get('REMOTE_ADDR', 'UNKNOWN')
+        return client_ip(request)

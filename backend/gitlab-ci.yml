@@ -15,6 +15,7 @@ backend:test:
       <<: *backend-changes
   variables:
     POSTGRES_HOST: ""
+    DJANGO_SECRET_KEY: "ci-test-only-key"
     PYTHONUTF8: "1"
   before_script:
     - pip install -r requirements.txt

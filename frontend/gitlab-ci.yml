@@ -33,11 +33,17 @@ frontend:build:
 
 frontend:deploy:
   stage: deploy
-  image: node:22
+  image: mcr.microsoft.com/azure-cli
   needs: [frontend:build]
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       <<: *frontend-changes
       when: manual
   script:
-    - npx @azure/static-web-apps-cli deploy frontend/dist --deployment-token "$AZURE_STATIC_WEB_APPS_API_TOKEN" --env production
+    - az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" --tenant "$AZURE_TENANT_ID"
+    - cd frontend/dist && python3 -c "import shutil; shutil.make_archive('../../frontend-app', 'zip', '.')" && cd ../..
+    - az webapp deploy --resource-group "$AZURE_RESOURCE_GROUP" --name "$AZURE_FRONTEND_APP" --src-path frontend-app.zip --type zip
+  artifacts:
+    paths:
+      - frontend-app.zip
+    expire_in: 1 week

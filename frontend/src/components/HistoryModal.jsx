@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { X, FileSpreadsheet, RefreshCw, ArrowRight } from 'lucide-react';
+import { API_BASE } from '../config';
 
 export default function HistoryModal({ isOpen, onClose, onSelectItem }) {
   const [historyList, setHistoryList] = useState([]);
@@ -10,10 +11,7 @@ export default function HistoryModal({ isOpen, onClose, onSelectItem }) {
     setLoading(true);
     setError(null);
     try {
-      let res = await fetch('/api/evaluations/').catch(() => null);
-      if (!res || !res.ok) {
-        res = await fetch('http://127.0.0.1:8000/api/evaluations/');
-      }
+      const res = await fetch(`${API_BASE}/api/evaluations/`);
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       const data = await res.json();
       setHistoryList(Array.isArray(data) ? data : data.results ?? []);
@@ -115,7 +113,7 @@ export default function HistoryModal({ isOpen, onClose, onSelectItem }) {
                   </div>
 
                   <a
-                    href={`http://127.0.0.1:8000/api/evaluations/${item.id}/export-excel/`}
+                    href={`${API_BASE}/api/evaluations/${item.id}/export-excel/`}
                     className="btn btn-secondary"
                     style={{ padding: '8px 12px', fontSize: '0.8rem' }}
                     onClick={(e) => e.stopPropagation()}

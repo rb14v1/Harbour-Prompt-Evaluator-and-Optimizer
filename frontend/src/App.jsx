@@ -7,6 +7,7 @@ import SyntheticDatasetView from './components/SyntheticDatasetView';
 import PromptComparison from './components/PromptComparison';
 import HistoryModal from './components/HistoryModal';
 import { Database, BarChart3, Split, Cpu, AlertCircle, X } from 'lucide-react';
+import { API_BASE } from './config';
 
 const PIPELINE_STEPS = [
   { id: 'prep', label: 'Preprocessor Agent', desc: 'Cleaning & Normalizing' },
@@ -63,36 +64,15 @@ export default function App() {
         dataset_size: datasetSize
       };
 
-      let res;
-      try {
-        res = await fetch('/api/evaluate/stream/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-      } catch {
-        res = null;
-      }
+      const res = await fetch(`${API_BASE}/api/evaluate/stream/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-      // Fallback to direct backend URL if proxy fails
-      if (!res || !res.ok) {
-        try {
-          const directRes = await fetch('http://127.0.0.1:8000/api/evaluate/stream/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          if (directRes.ok) {
-            res = directRes;
-          }
-        } catch {
-          // keep original res
-        }
-      }
-
-      if (!res || !res.ok) {
-        const errData = res ? await res.json().catch(() => ({})) : {};
-        throw new Error(errData.error || `Evaluation failed with status ${res ? res.status : 'Network Error'}`);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Evaluation failed with status ${res.status}`);
       }
 
       let finalData = null;
@@ -142,21 +122,15 @@ export default function App() {
     setIsExporting(true);
     try {
       if (result.id) {
-        window.open(`http://127.0.0.1:8000/api/evaluations/${result.id}/export-excel/`, '_blank');
+        window.open(`${API_BASE}/api/evaluations/${result.id}/export-excel/`, '_blank');
       } else {
-        let res = await fetch('/api/export-excel/', {
+        const res = await fetch(`${API_BASE}/api/export-excel/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(result)
-        }).catch(() => null);
+        });
 
-        if (!res || !res.ok) {
-          res = await fetch('http://127.0.0.1:8000/api/export-excel/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(result)
-          });
-        }
+        if (!res.ok) throw new Error(`Export failed with status ${res.status}`);
 
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
