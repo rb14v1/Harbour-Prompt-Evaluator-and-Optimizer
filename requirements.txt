@@ -20,8 +20,8 @@ python-dotenv>=1.0.0
 gunicorn>=21.2.0
 waitress>=2.1.2
 
-# Optional: Database
-# psycopg2-binary>=2.9.9  # Uncomment for PostgreSQL support
+# Database (PostgreSQL driver)
+psycopg[binary]>=3.2
 
 # Optional: Redis/Caching
 # redis>=5.0.0

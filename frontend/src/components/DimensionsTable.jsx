@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, AlertCircle, Lightbulb, CheckCircle2, SlidersHorizontal } from 'lucide-react';
+import { ChevronDown, ChevronUp, AlertCircle, Lightbulb, CheckCircle2 } from 'lucide-react';
 
 export default function DimensionsTable({ result }) {
+  const [expandedKey, setExpandedKey] = useState(null);
+  const [filterScore, setFilterScore] = useState('ALL');
+
   if (!result) return null;
 
   const origDims = result.evaluation?.dimensions || {};
   const impDims = result.re_evaluation?.dimensions || {};
   const compDims = result.comparison?.dimensions_comparison || {};
-
-  const [expandedKey, setExpandedKey] = useState(null);
-  const [filterScore, setFilterScore] = useState('ALL');
 
   const toggleExpand = (key) => {
     setExpandedKey(expandedKey === key ? null : key);

@@ -1,0 +1,46 @@
+# Frontend: Vite app in frontend/. Build output is frontend/dist.
+
+.frontend-changes: &frontend-changes
+  changes:
+    - frontend/**/*
+
+frontend:lint:
+  stage: test
+  image: node:22
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH
+      <<: *frontend-changes
+  script:
+    - cd frontend
+    - npm ci
+    - npm run lint
+
+frontend:build:
+  stage: build
+  image: node:22
+  variables:
+    VITE_API_URL: "https://dev-prompt-evaluator-backend-bybsc8h6ara4etax.northeurope-01.azurewebsites.net"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH
+      <<: *frontend-changes
+  script:
+    - cd frontend
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/dist
+    expire_in: 1 week
+
+frontend:deploy:
+  stage: deploy
+  image: python:3.13
+  needs: [frontend:build]
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "prompt_final_clean_to_main"
+      <<: *frontend-changes
+      when: manual
+  script:
+    - python -c "import shutil; shutil.make_archive('frontend-app', 'zip', root_dir='frontend/dist')"
+    - python ci/zipdeploy.py FRONTEND_PUBLISH_PROFILE frontend-app.zip

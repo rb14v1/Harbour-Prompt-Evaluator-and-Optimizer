@@ -1,5 +1,5 @@
 import React from 'react';
-import { Compass, AlertOctagon, CheckSquare, ShieldAlert, Cpu, Layers, Target, AlertTriangle } from 'lucide-react';
+import { CheckSquare, ShieldAlert, Cpu, Layers, Target, AlertTriangle } from 'lucide-react';
 
 export default function PromptAnalysisView({ result }) {
   if (!result) return null;

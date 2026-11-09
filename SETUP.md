@@ -195,11 +195,10 @@ Logs include:
 ## Performance Optimization
 
 ### Database
-- Uses SQLite by default (suitable for development)
-- For production, use PostgreSQL with connection pooling:
-  ```bash
-  pip install psycopg2-binary
-  ```
+- PostgreSQL is used when `POSTGRES_HOST` is set in `.env` (driver: `psycopg[binary]`, installed from `requirements.txt`). Connections use `sslmode=require`.
+- When `POSTGRES_HOST` is empty, the app uses local SQLite (`db.sqlite3`).
+- Required keys: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_PORT` (see `.env.example`).
+- Azure PostgreSQL blocks clients by IP. Add your client IP under the server's Networking firewall rules before running migrations.
 
 ### Caching
 - Enabled by default (5-minute TTL)
