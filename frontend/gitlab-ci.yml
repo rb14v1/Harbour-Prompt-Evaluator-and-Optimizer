@@ -19,11 +19,12 @@ frontend:lint:
 frontend:build:
   stage: build
   image: node:22
+  variables:
+    VITE_API_URL: "https://dev-prompt-evaluator-backend-bybsc8h6ara4etax.northeurope-01.azurewebsites.net"
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH
       <<: *frontend-changes
   script:
-    - export VITE_API_URL="https://dev-prompt-evaluator-backend-bybsc8h6ara4etax.northeurope-01.azurewebsites.net"
     - cd frontend
     - npm ci
     - npm run build
