@@ -233,8 +233,7 @@ if not DEBUG:
     LOGGING["handlers"].pop("file")
     for _logger in LOGGING["loggers"].values():
         _logger["handlers"] = ["console"]
-
-# Create logs directory if it doesn't exist
-import os
-logs_dir = BASE_DIR / "logs"
-os.makedirs(logs_dir, exist_ok=True)
+else:
+    # Create logs directory only when the file handler is in use (debug mode)
+    logs_dir = BASE_DIR / "logs"
+    os.makedirs(logs_dir, exist_ok=True)
