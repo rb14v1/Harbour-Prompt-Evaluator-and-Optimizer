@@ -20,6 +20,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load environment variables from .env file
 load_dotenv(BASE_DIR / ".env")
 
+# Validate required environment variables on startup (regardless of debug mode)
+from django.core.exceptions import ImproperlyConfigured
+
+_REQUIRED_ENV_VARS = ["DJANGO_SECRET_KEY", "DJANGO_ALLOWED_HOSTS"]
+if os.getenv("POSTGRES_HOST"):
+    _REQUIRED_ENV_VARS += ["POSTGRES_USER", "POSTGRES_PASSWORD"]
+_missing_env_vars = [name for name in _REQUIRED_ENV_VARS if not os.getenv(name, "").strip()]
+if _missing_env_vars:
+    raise ImproperlyConfigured(
+        "Missing required environment variables: " + ", ".join(_missing_env_vars)
+        + ". See .env.example for the full list."
+    )
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -28,14 +41,8 @@ DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("true", "1")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
-if not SECRET_KEY:
-    from django.core.exceptions import ImproperlyConfigured
 
-    if not DEBUG:
-        raise ImproperlyConfigured("DJANGO_SECRET_KEY must be set when DJANGO_DEBUG is off")
-    SECRET_KEY = "django-insecure-local-dev-only"
-
-ALLOWED_HOSTS = [h.strip() for h in os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
+ALLOWED_HOSTS = [h.strip() for h in os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",") if h.strip()]
 
 
 # Application definition
@@ -86,7 +93,7 @@ CACHES = {
             "MAX_ENTRIES": 1000
         },
         "KEY_PREFIX": "prompt_eval",
-        "TIMEOUT": 300,  # 5 minutes default
+        "TIMEOUT": int(os.getenv("CACHE_TIMEOUT") or "300"),  # seconds; 5 minutes default
     }
 }
 
